@@ -63,3 +63,6 @@ pylint-global.rc
 
 # VS Code settings (optional)
 .vscode/
+
+#chrome driver
+chromedriver/
