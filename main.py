@@ -7,7 +7,6 @@ from os import getenv
 
 def main():
         load_dotenv(dotenv_path="./venv/keys.env")
-        
         # driver = webdriver.Chrome()
         print("test3")
         i = input("input 1: ")
