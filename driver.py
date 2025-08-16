@@ -11,12 +11,14 @@ class WebDriverSession:
         def get(self, url):
                 self.driver.get(url)
         
-        def sel(self, id=None, xpath=None):
+        def find(self, id=None, xpath=None, css=None):
                 try:
                         if id is not None:
                                 element = self.driver.find_element(By.ID, id)
                         if xpath is not None:
                                 element = self.driver.find_element(By.XPATH, xpath)
+                        if css is not None:
+                                element = self.driver.find_element(By.CSS_SELECTOR, css)
                 except NoSuchElementException:
                         element = None
                 
