@@ -22,8 +22,8 @@ class WebDriverSession:
         def get(self, url):
                 self.driver.get(url)
         
-        def find(self, pathTuple, wait = 5):
-                elem_type, path = pathTuple
+        def find(self, targetTuple, wait = 5):
+                elem_type, path = targetTuple
 
                 try:
                         element = WebDriverWait(self.driver, wait).until(
@@ -36,17 +36,60 @@ class WebDriverSession:
                 
 
                 return element
+        
+        def findFromParent(self, parentTuple, targetTuple, wait = 5):
+                parent_elem_type, parent_path = parentTuple
+                target_elem_type, target_path = targetTuple
+
+                parent_element = self.find(parent_elem_type, parent_path)
+
+                assert parent_element is not None
+                try:
+                        element = parent_element.find_element(target_elem_type, target_path)
+                except NoSuchElementException:
+                        element = None
+                
+                return element
+
+        def findAll(self, targetTuple, wait = 5):
+                elem_type, path = targetTuple
+
+                try:
+                        elements = WebDriverWait(self.driver, wait).until(
+                                        EC.presence_of_all_elements_located(
+                                                        (elem_type, path)
+                                        )
+                        )
+                except NoSuchElementException:
+                        elements = None
+                
+
+                return elements
+
+        def findAllFromParent(self, parentTuple, targetTuple, wait = 5):
+                parent_elem_type, parent_path = parentTuple
+                target_elem_type, target_path = targetTuple
+
+                parent_element = self.find(parent_elem_type, parent_path)
+
+                assert parent_element is not None
+                try:
+                        elements = parent_element.find_elements(target_elem_type, target_path)
+                except NoSuchElementException:
+                        elements = None
+
+                return elements
+
+
 
         def inputText(self, pathTuple, txt):
                 element = self.find(pathTuple)
-                assert element is not None
 
+                assert element is not None
                 element.send_keys(txt)
                 
         def click(self, pathTuple):
                 element = self.find(pathTuple)
+                
                 assert element is not None
-
                 element.click()
-        
-        
