@@ -96,5 +96,7 @@ class WebDriverSession:
                 assert element is not None
                 element.click()
         
-        def waitFor(self, pathTuple):
-                self.find(pathTuple, 30)
+        def waitForPageLoad(self):
+                WebDriverWait(self.driver, 10).until(
+                        lambda d: d.execute_script("return document.readyState") == "complete"
+                )
