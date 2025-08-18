@@ -1,5 +1,8 @@
 from driver import WebDriverSession, ELEMENT_TYPES
 from os import getenv
+from log import getLogger
+
+logger = getLogger()
 
 paths = {
         "username_input": (ELEMENT_TYPES['id'], 'username'),

@@ -5,6 +5,10 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from log import getLogger
+
+logger = getLogger()
+
 ELEMENT_TYPES = {
         'id': By.ID,
         'css': By.CSS_SELECTOR,
@@ -32,8 +36,10 @@ class WebDriverSession:
                                         )
                         )
                 except NoSuchElementException:
+                        logger.error("could not find {}".format(targetTuple))
                         element = None
                 except TimeoutException:
+                        logger.error("timed out finding {}".format(targetTuple))
                         element = None
                 
 
@@ -46,8 +52,10 @@ class WebDriverSession:
                 try:
                         element = parentElement.find_element(target_elem_type, target_path)
                 except NoSuchElementException:
+                        logger.error("could not find {}".format(targetTuple))
                         element = None
                 except TimeoutException:
+                        logger.error("timed out finding {}".format(targetTuple))
                         element = None
                 
                 return element
@@ -62,9 +70,11 @@ class WebDriverSession:
                                         )
                         )
                 except NoSuchElementException:
+                        logger.error("could not find {}".format(targetTuple))
                         elements = None
                 except TimeoutException:
-                        element = None
+                        logger.error("timed out finding {}".format(targetTuple))
+                        elements = None
                 
 
                 return elements
@@ -76,9 +86,11 @@ class WebDriverSession:
                 try:
                         elements = parentElement.find_elements(target_elem_type, target_path)
                 except NoSuchElementException:
+                        logger.error("could not find {}".format(targetTuple))
                         elements = None
                 except TimeoutException:
-                        element = None
+                        logger.error("timed out finding {}".format(targetTuple))
+                        elements = None
 
                 return elements
 
