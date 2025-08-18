@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+from selenium.common.exceptions import TimeoutException
 ELEMENT_TYPES = {
         'id': By.ID,
         'css': By.CSS_SELECTOR,
@@ -33,6 +33,8 @@ class WebDriverSession:
                         )
                 except NoSuchElementException:
                         element = None
+                except TimeoutException:
+                        element = None
                 
 
                 return element
@@ -44,6 +46,8 @@ class WebDriverSession:
                 try:
                         element = parentElement.find_element(target_elem_type, target_path)
                 except NoSuchElementException:
+                        element = None
+                except TimeoutException:
                         element = None
                 
                 return element
@@ -59,6 +63,8 @@ class WebDriverSession:
                         )
                 except NoSuchElementException:
                         elements = None
+                except TimeoutException:
+                        element = None
                 
 
                 return elements
@@ -71,6 +77,8 @@ class WebDriverSession:
                         elements = parentElement.find_elements(target_elem_type, target_path)
                 except NoSuchElementException:
                         elements = None
+                except TimeoutException:
+                        element = None
 
                 return elements
 
@@ -87,3 +95,6 @@ class WebDriverSession:
 
                 assert element is not None
                 element.click()
+        
+        def waitFor(self, pathTuple):
+                self.find(pathTuple, 30)
