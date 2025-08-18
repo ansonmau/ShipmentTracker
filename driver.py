@@ -37,15 +37,12 @@ class WebDriverSession:
 
                 return element
         
-        def findFromParent(self, parentTuple, targetTuple, wait = 5):
-                parent_elem_type, parent_path = parentTuple
+        def findFromParent(self, parentElement, targetTuple, wait = 5):
                 target_elem_type, target_path = targetTuple
 
-                parent_element = self.find(parent_elem_type, parent_path)
-
-                assert parent_element is not None
+                assert parentElement is not None
                 try:
-                        element = parent_element.find_element(target_elem_type, target_path)
+                        element = parentElement.find_element(target_elem_type, target_path)
                 except NoSuchElementException:
                         element = None
                 
@@ -66,15 +63,12 @@ class WebDriverSession:
 
                 return elements
 
-        def findAllFromParent(self, parentTuple, targetTuple, wait = 5):
-                parent_elem_type, parent_path = parentTuple
+        def findAllFromParent(self, parentElement, targetTuple, wait = 5):
                 target_elem_type, target_path = targetTuple
 
-                parent_element = self.find(parent_elem_type, parent_path)
-
-                assert parent_element is not None
+                assert parentElement is not None
                 try:
-                        elements = parent_element.find_elements(target_elem_type, target_path)
+                        elements = parentElement.find_elements(target_elem_type, target_path)
                 except NoSuchElementException:
                         elements = None
 
@@ -90,6 +84,6 @@ class WebDriverSession:
                 
         def click(self, pathTuple):
                 element = self.find(pathTuple)
-                
+
                 assert element is not None
                 element.click()
