@@ -100,3 +100,6 @@ class WebDriverSession:
                 WebDriverWait(self.driver, 10).until(
                         lambda d: d.execute_script("return document.readyState") == "complete"
                 )
+        
+        def waitFor(self, pathTuple):
+                self.find(pathTuple)

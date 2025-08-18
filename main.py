@@ -9,6 +9,7 @@ def main():
 
         sesh = driver.WebDriverSession()
         eshipper.login(sesh)
+        eshipper.scrape(sesh)
 
         input()
         pass
