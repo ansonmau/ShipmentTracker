@@ -12,7 +12,8 @@ logger = getLogger()
 ELEMENT_TYPES = {
         'id': By.ID,
         'css': By.CSS_SELECTOR,
-        'xpath': By.XPATH
+        'xpath': By.XPATH,
+        'tag': By.TAG_NAME,
 }
 
 class WebDriverSession:
