@@ -2,11 +2,13 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 ELEMENT_TYPES = {
-        'id': 0,
-        'css': 1,
-        'xpath': 2
+        'id': By.ID,
+        'css': By.CSS_SELECTOR,
+        'xpath': By.XPATH
 }
 
 class WebDriverSession:
@@ -20,22 +22,31 @@ class WebDriverSession:
         def get(self, url):
                 self.driver.get(url)
         
-        def find(self, pathTuple):
+        def find(self, pathTuple, wait = 5):
                 elem_type, path = pathTuple
 
-                if elem_type == ELEMENT_TYPES['id']:
-                        searchType = By.ID
-                if elem_type == ELEMENT_TYPES['css']:
-                        searchType = By.CSS_SELECTOR
-                if elem_type == ELEMENT_TYPES['xpath']:
-                        searchType = By.XPATH
-
                 try:
-                        element = self.driver.find_element(searchType, path)
+                        element = WebDriverWait(self.driver, wait).until(
+                                        EC.presence_of_element_located(
+                                                        (elem_type, path)
+                                        )
+                        )
                 except NoSuchElementException:
                         element = None
                 
+
                 return element
 
-        def inputText(self, txt, xpath):
-                pass
+        def inputText(self, pathTuple, txt):
+                element = self.find(pathTuple)
+                assert element is not None
+
+                element.send_keys(txt)
+                
+        def click(self, pathTuple):
+                element = self.find(pathTuple)
+                assert element is not None
+
+                element.click()
+        
+        

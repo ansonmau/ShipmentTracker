@@ -8,7 +8,9 @@ def main():
         load_dotenv(dotenv_path="./venv/keys.env")
 
         sesh = driver.WebDriverSession()
-        eshipper.login(sesh) 
+        eshipper.login(sesh)
+
+        input()
         pass
         
 
