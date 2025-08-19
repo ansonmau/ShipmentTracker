@@ -71,3 +71,6 @@ chromedriver/
 test/
 test.py
 txt.txt
+
+# dls folder
+dls/
