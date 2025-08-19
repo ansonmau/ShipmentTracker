@@ -68,4 +68,6 @@ pylint-global.rc
 chromedriver/
 
 # test file
+test/
 test.py
+txt.txt
