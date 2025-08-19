@@ -8,7 +8,6 @@ logger = getLogger()
 def main():
         initialize()
         
-
         sesh = driver.WebDriverSession()
         eshipper.login(sesh)
         eshipper.scrape(sesh)
