@@ -14,11 +14,11 @@ paths = {
                 "parent": (ELEMENT_TYPES['css'], '.tracking-search'),
                 "input": (ELEMENT_TYPES['css'], '.input-style'),
         },
-        "packages_table": {
-                "table": (ELEMENT_TYPES['css'], '.cdk-drop-list'),
-                "cells": (ELEMENT_TYPES['tag'], 'tr'),
-                "deliveryNum": (ELEMENT_TYPES['css'], 'b.link-text'),
-        },
+        "options_button": (ELEMENT_TYPES['css'], '.dot-menu'),
+        "options_menu_buttons": (ELEMENT_TYPES['css'], '.men-item-btn'),
+        "export_options_container": (ELEMENT_TYPES['css'], '.file-cards'),
+        "export_options": (ELEMENT_TYPES['tag'], 'li'),
+        "export_button": (ELEMENT_TYPES['css'], '[aria-label="Export Track Button"]'),
 }
 
 
@@ -34,20 +34,22 @@ def login(sesh: WebDriverSession):
 def scrape(sesh: WebDriverSession):
         sesh.get("https://ww2.eshipper.com/customer/tracking")
 
-        searchBox_parent = sesh.find(paths['searchBox']['parent'])
-        searchBox = sesh.findFromParent(searchBox_parent, paths['searchBox']['input'])
-        sesh.element_inputText(searchBox, "in transit")
+        sesh.click(paths['options_button'])
+        
+        # can't find export button explicitly (consistently), so just going with second options menu item (1 - print, 2 - export)
+        menu_btns = sesh.findAll(paths['options_menu_buttons'])
+        _, export_btn = menu_btns
 
-        pTable = sesh.find(paths['packages_table']['table'])
-        pTable_rows = sesh.findAllFromParent(pTable, paths['packages_table']['cells'])
+        sesh.clickElement(export_btn)
 
-        # first row is the table headers, skip em
-        pTable_rows = pTable_rows[1:]
+        # can't find the csv option explicitly (consistently), so just going with first link (1 - csv, 2 - xl)
+        export_options_container = sesh.find(paths['export_options_container'])
+        export_options = sesh.findAllFromParent(export_options_container, paths['export_options'])
 
-        for currRow in pTable_rows:
-                element = sesh.findFromParent(currRow, paths['packages_table']['deliveryNum'])
-                print(element.text)
-                pass
+        export_as_csv,_ = export_options
+        sesh.clickElement(export_as_csv)
+        sesh.click(paths['export_button'])
+
         
 
 
