@@ -1,6 +1,7 @@
-from driver import WebDriverSession, ELEMENT_TYPES
+from core.driver import WebDriverSession, ELEMENT_TYPES
 from os import getenv
-from log import getLogger
+from core.log import getLogger
+
 
 logger = getLogger()
 
@@ -9,10 +10,15 @@ paths = {
         "password_input": (ELEMENT_TYPES['id'], 'password'),
         "login_button": (ELEMENT_TYPES['css'], '[aria-label="Login Button"]'),
         "usernameText": (ELEMENT_TYPES['css'], '.userNameText'),
-        "searchBox_input": (ELEMENT_TYPES['css'], '.ng-dirty'),
-        "packages_table": (ELEMENT_TYPES['css'], '.cdk-drop-list'),
-        "entries_fromPackagesTable": (ELEMENT_TYPES['tag'], 'tr'),
-        "packageNumber_fromEntry": (ELEMENT_TYPES['css'], '.link-text'),
+        "searchBox": {
+                "parent": (ELEMENT_TYPES['css'], '.tracking-search'),
+                "input": (ELEMENT_TYPES['css'], '.input-style'),
+        },
+        "packages_table": {
+                "table": (ELEMENT_TYPES['css'], '.cdk-drop-list'),
+                "cells": (ELEMENT_TYPES['tag'], 'tr'),
+                "deliveryNum": (ELEMENT_TYPES['css'], 'b.link-text'),
+        },
 }
 
 
@@ -28,13 +34,19 @@ def login(sesh: WebDriverSession):
 def scrape(sesh: WebDriverSession):
         sesh.get("https://ww2.eshipper.com/customer/tracking")
 
-        sesh.inputText(paths['searchBox_input'], "in transit")
+        searchBox_parent = sesh.find(paths['searchBox']['parent'])
+        searchBox = sesh.findFromParent(searchBox_parent, paths['searchBox']['input'])
+        sesh.element_inputText(searchBox, "in transit")
 
-        pTable = sesh.find(paths['packages_table'])
-        pTable_entries = sesh.findAllFromParent(pTable, paths['entries_fromPackagesTable'])
+        pTable = sesh.find(paths['packages_table']['table'])
+        pTable_rows = sesh.findAllFromParent(pTable, paths['packages_table']['cells'])
 
-        for entry in pTable_entries:
-                element = sesh.findFromParent(entry, paths['packageNumber_fromEntry'])
+        # first row is the table headers, skip em
+        pTable_rows = pTable_rows[1:]
+
+        for currRow in pTable_rows:
+                element = sesh.findFromParent(currRow, paths['packages_table']['deliveryNum'])
+                print(element.text)
                 pass
         
 
