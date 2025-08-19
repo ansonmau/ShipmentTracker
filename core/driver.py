@@ -20,8 +20,8 @@ ELEMENT_TYPES = {
 
 class WebDriverSession:
         def __init__(self):
-
-                self.driver = webdriver.Chrome()
+                options = self._getOptions()
+                self.driver = webdriver.Chrome(options=options)
                 self.driver.maximize_window()
         
         def __del__(self):
@@ -133,6 +133,10 @@ class WebDriverSession:
         def click(self, pathTuple):
                 element = self.find(pathTuple)
 
+                assert element is not None
+                element.click()
+        
+        def clickElement(self, element):
                 assert element is not None
                 element.click()
         
