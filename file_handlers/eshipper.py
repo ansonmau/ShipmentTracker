@@ -1,23 +1,49 @@
 import glob
 import csv
 import pathlib
+from datetime import datetime, timedelta
 
 def parse():
-        dl_files = getFiles()
-
-        assert len(dl_files) > 0
+        eshipper_files = getEshipperFiles()
+        assert len(eshipper_files) == 1
         
+        date_format = "%m/%d/%Y"
+        day_diff = 30
+        min_date = getMinDate(day_diff)
+
         # should only be one file
-        csv_file = dl_files[0]
-        
+        file_path = str(eshipper_files[0])
+        file = open(file_path, 'r')
+        file_dict = csv.DictReader(file)
 
-        pass
+        data = []
+        for entry in file_dict:
+                entry_date = datetime.strptime(entry["Ship Date"], date_format)
+                if entry_date < min_date:
+                        break
+                
+                status = entry['Status']
+                if status != "IN TRANSIT":
+                        continue
+                
+                tracking_num = entry["Tracking#"]
+                carrier = entry["Carrier"]
+                data.append((carrier, tracking_num))
+        
+        file.close()
+        return data
+
+def getMinDate(day_diff):
+        curr_date = datetime.today()
+        min_date = curr_date - timedelta(days = day_diff)
+        return min_date
+
 
 def check():
-        files = getFiles()
+        files = getEshipperFiles()
         return True if len(files)>0 else False
 
-def getFiles():
+def getEshipperFiles():
         proj_folder = pathlib.Path(__file__).resolve().parent.parent
         dl_folder = proj_folder / 'dls'
 
