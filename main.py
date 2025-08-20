@@ -1,7 +1,8 @@
 import core.driver as driver
 from dotenv import load_dotenv
 import os
-import site_handlers.management.eshipper as eshipper
+import site_handlers.management.eshipper as eshipper_sh
+import file_handlers.eshipper as eshipper_fh
 from core.log import getLogger
 logger = getLogger()
 
@@ -9,9 +10,11 @@ def main():
         initialize()
         
         sesh = driver.WebDriverSession()
-        eshipper.login(sesh)
-        eshipper.scrape(sesh)
-
+        # eshipper_sh.login(sesh)
+        # eshipper_sh.scrape(sesh)
+        print("has file: {}".format(eshipper_fh.check()))
+        eshipper_fh.parse()
+        
         input()
         pass
         
@@ -26,6 +29,12 @@ def createDownloadsFolder():
 def loadEnvFile():
         load_dotenv(dotenv_path="./venv/keys.env")
 
+def cleanup():
+        clearDLFolder()
+        pass 
+
+def clearDLFolder():
+        pass
 
 if __name__ == "__main__":
         main()
