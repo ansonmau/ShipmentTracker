@@ -40,14 +40,14 @@ def scrape(sesh: WebDriverSession):
         menu_btns = sesh.findAll(paths['options_menu_buttons'])
         _, export_btn = menu_btns
 
-        sesh.clickElement(export_btn)
+        sesh.element_click(export_btn)
 
         # can't find the csv option explicitly (consistently), so just going with first link (1 - csv, 2 - xl)
         export_options_container = sesh.find(paths['export_options_container'])
         export_options = sesh.findAllFromParent(export_options_container, paths['export_options'])
 
         export_as_csv,_ = export_options
-        sesh.clickElement(export_as_csv)
+        sesh.element_click(export_as_csv)
         sesh.click(paths['export_button'])
 
         

@@ -136,7 +136,7 @@ class WebDriverSession:
                 assert element is not None
                 element.click()
         
-        def clickElement(self, element):
+        def element_click(self, element):
                 assert element is not None
                 element.click()
         
