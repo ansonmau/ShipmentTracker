@@ -25,3 +25,10 @@ def getFiles():
         files = list(files)
 
         return files
+
+def save(data):
+        proj_folder = pathlib.Path(__file__).resolve().parent.parent
+        file_path = proj_folder / 'data' / 'delivery_data.txt'
+
+        with open(file_path, 'w') as f:
+                f.write(data)
