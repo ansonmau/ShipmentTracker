@@ -28,7 +28,7 @@ class WebDriverSession:
                 self.driver.quit()
         
         def _getOptions(self):
-                relative_path = "/dls"
+                relative_path = "./dls"
                 downloadPath = os.path.abspath(relative_path)
 
                 prefs = {
