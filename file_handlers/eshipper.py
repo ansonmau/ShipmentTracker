@@ -31,13 +31,16 @@ def parse():
                 carrier = entry["Carrier"]
                 data.append((carrier, tracking_num))
         
+        
         file.close()
+        save(data)
+
         return data
 
 def getMinDate(day_diff):
         curr_date = datetime.today()
         min_date = curr_date - timedelta(days = day_diff)
-        return min_date
+        return min_date   
 
 
 def check():
@@ -66,5 +69,5 @@ def save(data):
         proj_folder = pathlib.Path(__file__).resolve().parent.parent
         file_path = proj_folder / 'data' / 'delivery_data.txt'
 
-        with open(file_path, 'w') as f:
-                f.write(data)
+        with open(str(file_path), 'w') as f:
+                f.write(str(data))
