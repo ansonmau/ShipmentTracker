@@ -31,7 +31,6 @@ def loadEnvFile():
 
 def cleanup():
         clearDLFolder()
-        pass 
 
 def clearDLFolder():
         pass
