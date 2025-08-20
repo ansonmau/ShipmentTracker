@@ -9,7 +9,7 @@ logger = getLogger()
 def main():
         initialize()
         
-        sesh = driver.WebDriverSession()
+        # sesh = driver.WebDriverSession()
         # eshipper_sh.login(sesh)
         # eshipper_sh.scrape(sesh)
         print("has file: {}".format(eshipper_fh.check()))
