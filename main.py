@@ -12,8 +12,8 @@ def main():
         # sesh = driver.WebDriverSession()
         # eshipper_sh.login(sesh)
         # eshipper_sh.scrape(sesh)
-        print("has file: {}".format(eshipper_fh.check()))
-        eshipper_fh.parse()
+        data = eshipper_fh.parse()
+        print(data)
         
         input()
         pass
