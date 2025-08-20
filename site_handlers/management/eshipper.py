@@ -32,6 +32,8 @@ def login(sesh: WebDriverSession):
         sesh.waitFor(paths['usernameText'])
 
 def scrape(sesh: WebDriverSession):
+        login(sesh)
+        
         sesh.get("https://ww2.eshipper.com/customer/tracking")
 
         sesh.click(paths['options_button'])

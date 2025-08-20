@@ -10,7 +10,6 @@ def main():
         initialize()
         
         # sesh = driver.WebDriverSession()
-        # eshipper_sh.login(sesh)
         # eshipper_sh.scrape(sesh)
         data = eshipper_fh.parse()
         print(data)
