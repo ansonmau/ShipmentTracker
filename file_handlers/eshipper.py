@@ -2,9 +2,10 @@ import glob
 import csv
 import pathlib
 from datetime import datetime, timedelta
+import time
 
 def parse():
-        eshipper_files = getEshipperFiles()
+        eshipper_files = waitEshipperFiles(cd = 30)
         assert len(eshipper_files) == 1
         
         date_format = "%m/%d/%Y"
@@ -42,6 +43,15 @@ def getMinDate(day_diff):
 def check():
         files = getEshipperFiles()
         return True if len(files)>0 else False
+
+def waitEshipperFiles(cd = 30):
+        end_time = time.time() + cd
+
+        files = getEshipperFiles()
+        while time.time() < end_time and len(files) == 0:
+                files = getEshipperFiles()
+
+        return files
 
 def getEshipperFiles():
         proj_folder = pathlib.Path(__file__).resolve().parent.parent
