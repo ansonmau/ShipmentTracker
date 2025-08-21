@@ -3,6 +3,9 @@ import csv
 import pathlib
 from datetime import datetime, timedelta
 import time
+from core.log import getLogger
+
+log = getLogger()
 
 def parse():
         eshipper_files = waitEshipperFiles(cd = 30)
