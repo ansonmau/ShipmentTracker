@@ -6,18 +6,18 @@ import site_handlers.delivery.fedex as fedex_sh
 import file_handlers.eshipper as eshipper_fh
 from core.log import getLogger
 
+
 logger = getLogger()
 
 def main():
         initialize()
-        
-        sesh = driver.WebDriverSession()
+        #sesh = driver.WebDriverSession(undetected=True)
         # eshipper_sh.scrape(sesh)
         
         # data = eshipper_fh.parse()
         # print(data)
         
-        fedex_sh.scrape(sesh)
+        #fedex_sh.scrape(sesh)
 
         input()
         pass
