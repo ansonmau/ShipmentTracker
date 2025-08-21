@@ -2,7 +2,6 @@ from core.driver import WebDriverSession, ELEMENT_TYPES
 from os import getenv
 from core.log import getLogger
 
-
 logger = getLogger()
 
 paths = {
