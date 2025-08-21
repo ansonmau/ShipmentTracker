@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
+import undetected_chromedriver as uc
 import os
 from core.log import getLogger
 
@@ -19,10 +20,19 @@ ELEMENT_TYPES = {
 }
 
 class WebDriverSession:
-        def __init__(self):
+        def __init__(self, undetected=False):
                 options = self._getOptions()
-                self.driver = webdriver.Chrome(options=options)
+
+                if undetected:
+                        self.driver = uc.Chrome(options=options)
+                else:
+                        self.driver = webdriver.Chrome(options=options)
+
                 self.driver.maximize_window()
+        
+        def ucSesh(self):
+                self.driver = uc.Chrome()
+                
         
         def __del__(self):
                 self.driver.quit()
