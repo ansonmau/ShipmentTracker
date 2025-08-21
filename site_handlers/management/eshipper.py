@@ -27,13 +27,14 @@ def login(sesh: WebDriverSession):
 
         sesh.inputText(paths['username_input'], getenv('ESHIPPER_USER'))
         sesh.inputText(paths['password_input'], getenv('ESHIPPER_PW'))
+
         sesh.click(paths['login_button'])
 
         sesh.waitFor(paths['usernameText'])
 
 def scrape(sesh: WebDriverSession):
         login(sesh)
-        
+
         sesh.get("https://ww2.eshipper.com/customer/tracking")
 
         sesh.click(paths['options_button'])
