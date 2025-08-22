@@ -7,6 +7,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
 import undetected_chromedriver as uc
+import time
+import random
 import os
 
 from core.log import getLogger
@@ -19,6 +21,10 @@ ELEMENT_TYPES = {
         'xpath': By.XPATH,
         'tag': By.TAG_NAME,
 }
+
+def randomWait(min = 0.5, max = 1.5):
+        delay = random.uniform(min,max)
+        time.sleep(delay)
 
 class WebDriverSession:
         def __init__(self, undetected=False):
@@ -141,16 +147,19 @@ class WebDriverSession:
                 element = self.find(pathTuple)
 
                 assert element is not None
+                randomWait()
                 element.click()
         
         def clickFromParent(self, parent, pathTuple):
                 element = self.findFromParent(parent, pathTuple)
 
                 assert element is not None
+                randomWait()
                 element.click()
         
         def element_click(self, element):
                 assert element is not None
+                randomWait()
                 element.click()
         
         def waitForPageLoad(self):
@@ -158,9 +167,13 @@ class WebDriverSession:
                         lambda d: d.execute_script("return document.readyState") == "complete"
                 )
         
-        def waitFor(self, pathTuple):
-                self.find(pathTuple)
+        def waitFor(self, pathTuple, wait = 5):
+                self.find(pathTuple, wait=wait)
+        
+        def waitForFromParent(self, parent, pathTuple):
+                self.findFromParent(parent, pathTuple)
         
         def getText(self, targetTuple):
                 element = self.find(targetTuple)
                 return element.text
+
