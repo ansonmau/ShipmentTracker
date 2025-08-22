@@ -131,36 +131,34 @@ class WebDriverSession:
 
                 return elements
 
+        def element_input(self, element, txt):
+                assert element is not None
 
+                randomWait()
+                self.element_click(element)
+                element.send_keys(txt)
 
-        def inputText(self, pathTuple, txt, click=True):
+        def inputText(self, pathTuple, txt):
                 element = self.find(pathTuple)
 
-                assert element is not None
-                randomWait()
-                element.click()
-                element.send_keys(txt)
-        
-        def element_inputText(self, element, txt):
-                element.send_keys(txt)
+                self.element_input(element, txt)
 
                 
         def click(self, pathTuple):
                 element = self.find(pathTuple)
 
                 assert element is not None
-                randomWait()
-                element.click()
+                self.element_click(element)
         
         def clickFromParent(self, parent, pathTuple):
                 element = self.findFromParent(parent, pathTuple)
 
                 assert element is not None
-                randomWait()
-                element.click()
+                self.element_click(element)
         
         def element_click(self, element):
                 assert element is not None
+
                 randomWait()
                 element.click()
         
@@ -177,6 +175,10 @@ class WebDriverSession:
         
         def getText(self, targetTuple):
                 element = self.find(targetTuple)
+                return self.getElementText(element)
+        
+        def getElementText(self, element):
+                assert element is not None
                 return element.text
 
         def injectJS(self, script):
@@ -184,3 +186,4 @@ class WebDriverSession:
 
         def scrollToElement(self, element):
                 self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
+
