@@ -64,7 +64,7 @@ class WebDriverSession:
 
                 try:
                         element = WebDriverWait(self.driver, wait).until(
-                                        EC.presence_of_element_located(
+                                        EC.element_to_be_clickable(
                                                         (elem_type, path)
                                         )
                         )
@@ -141,7 +141,14 @@ class WebDriverSession:
         def inputText(self, pathTuple, txt):
                 element = self.find(pathTuple)
 
+                assert element is not None 
                 self.element_input(element, txt)
+        
+        def inputTextFromParent(self, parent, pathTuple, txt):
+                elmnt = self.findFromParent(parent, pathTuple)
+
+                assert elmnt is not None
+                self.element_input(elmnt, txt)
 
                 
         def click(self, pathTuple):
