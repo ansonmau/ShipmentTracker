@@ -178,4 +178,4 @@ class WebDriverSession:
                 return element.text
 
         def injectJS(self, script):
-                self.driver.execute(script)
+                self.driver.execute_script(script)
