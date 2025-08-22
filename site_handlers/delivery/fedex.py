@@ -38,14 +38,14 @@ def scrape(sesh: WebDriverSession):
         
         sesh.element_click(email_notif_btn)
         
-        sesh.waitFor(paths['chat'], wait = 15)
-        sesh.click(chat_paths['agree_tos'])
-        sesh.click(chat_paths['type_of_notif'])
-        sesh.click(chat_paths['notif_receiver'])
-        sesh.inputText(chat_paths['name_input'], getenv("PUROLATOR_NAME"))
-        sesh.inputText(chat_paths['email_input'], getenv("PUROLATOR_EMAIL"))
-        sesh.click(chat_paths['submit_btn'])
-        sesh.click(chat_paths['correct_btn'])
+        chat_elmnt = sesh.find(paths['chat'], wait = 15) # sometimes takes a while for it to show up
+        sesh.clickFromParent(chat_elmnt, chat_paths['agree_tos'])
+        sesh.clickFromParent(chat_elmnt, chat_paths['type_of_notif'])
+        sesh.clickFromParent(chat_elmnt, chat_paths['notif_receiver'])
+        sesh.inputTextFromParent(chat_elmnt, chat_paths['name_input'], getenv("PUROLATOR_NAME"))
+        sesh.inputTextFromParent(chat_elmnt, chat_paths['email_input'], getenv("PUROLATOR_EMAIL"))
+        sesh.clickFromParent(chat_elmnt, chat_paths['submit_btn'])
+        sesh.clickFromParent(chat_elmnt, chat_paths['correct_btn'])
 
         waitForConfirm(sesh)
 
@@ -58,7 +58,7 @@ def waitForConfirm(sesh: WebDriverSession):
 
         confirmed = False
         while not confirmed and time.time() < end_time:
-                chat_msgs = sesh.findFromParent(chat, paths['chat_messages'])
+                chat_msgs = sesh.findAllFromParent(chat, paths['chat_messages'])
                 for msg in chat_msgs:
                         if verif_text in msg.text:
                                 return True
