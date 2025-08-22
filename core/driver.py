@@ -143,6 +143,12 @@ class WebDriverSession:
                 assert element is not None
                 element.click()
         
+        def clickFromParent(self, parent, pathTuple):
+                element = self.findFromParent(parent, pathTuple)
+
+                assert element is not None
+                element.click()
+        
         def element_click(self, element):
                 assert element is not None
                 element.click()
