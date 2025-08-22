@@ -133,10 +133,12 @@ class WebDriverSession:
 
 
 
-        def inputText(self, pathTuple, txt):
+        def inputText(self, pathTuple, txt, click=True):
                 element = self.find(pathTuple)
 
                 assert element is not None
+                randomWait()
+                element.click()
                 element.send_keys(txt)
         
         def element_inputText(self, element, txt):
@@ -179,3 +181,6 @@ class WebDriverSession:
 
         def injectJS(self, script):
                 self.driver.execute_script(script)
+
+        def scrollToElement(self, element):
+                self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
