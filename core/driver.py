@@ -177,3 +177,5 @@ class WebDriverSession:
                 element = self.find(targetTuple)
                 return element.text
 
+        def injectJS(self, script):
+                self.driver.execute(script)
