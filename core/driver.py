@@ -44,6 +44,7 @@ class WebDriverSession:
                 relative_path = "./dls"
                 downloadPath = os.path.abspath(relative_path)
 
+                # set options for downloading
                 prefs = {
                         "download.default_directory": downloadPath,
                         "download.prompt_for_download": False,
@@ -64,7 +65,7 @@ class WebDriverSession:
 
                 try:
                         element = WebDriverWait(self.driver, wait).until(
-                                        EC.element_to_be_clickable(
+                                        EC.presence_of_element_located(
                                                         (elem_type, path)
                                         )
                         )
