@@ -12,12 +12,12 @@ logger = getLogger()
 def main():
         initialize()
         sesh = driver.WebDriverSession(undetected=True)
-        # eshipper_sh.scrape(sesh)
+        eshipper_sh.scrape(sesh)
         
         # data = eshipper_fh.parse()
         # print(data)
         
-        fedex_sh.scrape(sesh)
+        # fedex_sh.scrape(sesh)
 
         input()
         pass
