@@ -137,6 +137,14 @@ class WebDriverSession:
 
                 return elements
 
+        def filterElementsByText(self, element_list, txt):
+                elmnts = []
+                for elmnt in element_list:
+                        if self.getElementText(elmnt) == txt:
+                                elmnts.append(elmnt)
+                return elmnts
+                                
+
         def element_input(self, element, txt):
                 assert element is not None
 
