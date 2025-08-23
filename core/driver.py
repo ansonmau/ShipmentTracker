@@ -28,19 +28,19 @@ def randomWait(min = 0.5, max = 1.5):
 
 class WebDriverSession:
         def __init__(self, undetected=False):
-                options = self._getOptions()
+                options = self._getOptions(undetected=undetected)
                 if undetected:
                         self.driver = uc.Chrome(options=options)
                 else:
                         self.driver = webdriver.Chrome(options=options)
 
                 self.driver.maximize_window()
-                
+        
         
         def __del__(self):
                 self.driver.quit()
         
-        def _getOptions(self):
+        def _getOptions(self, undetected = False):
                 relative_path = "./dls"
                 downloadPath = os.path.abspath(relative_path)
 
@@ -52,10 +52,15 @@ class WebDriverSession:
                         "safebrowsing.enabled": True
                 }
 
-                options = Options()
+                if undetected:
+                        options = uc.ChromeOptions()
+                else:
+                        options = Options()
+
                 options.add_experimental_option("prefs", prefs)
 
                 return options
+
                 
         def get(self, url):
                 self.driver.get(url)
