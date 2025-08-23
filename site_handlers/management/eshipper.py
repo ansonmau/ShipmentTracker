@@ -24,33 +24,34 @@ paths = {
 def login(sesh: WebDriverSession):
         sesh.get("https://ww2.eshipper.com/login")
 
-        sesh.inputText(paths['username_input'], getenv('ESHIPPER_USER'))
-        sesh.inputText(paths['password_input'], getenv('ESHIPPER_PW'))
+        sesh.input.path(paths['username_input'], getenv('ESHIPPER_USER'))
+        sesh.input.path(paths['password_input'], getenv('ESHIPPER_PW'))
 
-        sesh.click(paths['login_button'])
+        sesh.click.path(paths['login_button'])
 
-        sesh.waitFor(paths['usernameText'])
+        sesh.waitFor.path(paths['usernameText'])
 
 def scrape(sesh: WebDriverSession):
         login(sesh)
 
         sesh.get("https://ww2.eshipper.com/customer/tracking")
 
-        sesh.click(paths['options_button'])
+        sesh.click.path(paths['options_button'])
         
         # can't find export button explicitly (consistently), so just going with second options menu item (1 - print, 2 - export)
-        menu_btns = sesh.findAll(paths['options_menu_buttons'])
+        menu_btns = sesh.find.all(paths['options_menu_buttons'])
         _, export_btn = menu_btns
 
-        sesh.element_click(export_btn)
+        sesh.click.element(export_btn)
 
         # can't find the csv option explicitly (consistently), so just going with first link (1 - csv, 2 - xl)
-        export_options_container = sesh.find(paths['export_options_container'])
-        export_options = sesh.findAllFromParent(export_options_container, paths['export_options'])
+        export_options_container = sesh.find.path(paths['export_options_container'])
+        export_options = sesh.find.allFromParent(export_options_container, paths['export_options'])
 
         export_as_csv,_ = export_options
-        sesh.element_click(export_as_csv)
-        sesh.click(paths['export_button'])
+        sesh.click.element(export_as_csv)
+
+        sesh.click.path(paths['export_button'])
 
         
 

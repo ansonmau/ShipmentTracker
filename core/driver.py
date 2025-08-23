@@ -33,8 +33,14 @@ class WebDriverSession:
                         self.driver = uc.Chrome(options=options)
                 else:
                         self.driver = webdriver.Chrome(options=options)
-
                 self.driver.maximize_window()
+
+                self.find = find(self)
+                self.click = click(self)
+                self.waitFor = waitFor(self)
+                self.input = input(self)
+                self.filter = filter(self)
+                self.read = read(self)
         
         
         def __del__(self):
@@ -60,16 +66,26 @@ class WebDriverSession:
                 options.add_experimental_option("prefs", prefs)
 
                 return options
-
                 
         def get(self, url):
                 self.driver.get(url)
-        
-        def find(self, targetTuple, wait = 5):
+
+        def injectJS(self, script):
+                self.driver.execute_script(script)
+
+        def scrollToElement(self, element):
+                self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
+
+
+class find:
+        def __init__(self, sesh : WebDriverSession):
+                self.sesh = sesh
+
+        def path(self, targetTuple, wait = 5):
                 elem_type, path = targetTuple
 
                 try:
-                        element = WebDriverWait(self.driver, wait).until(
+                        element = WebDriverWait(self.sesh.driver, wait).until(
                                         EC.presence_of_element_located(
                                                         (elem_type, path)
                                         )
@@ -84,12 +100,12 @@ class WebDriverSession:
 
                 return element
         
-        def findFromParent(self, parentElement, targetTuple, wait = 5):
+        def fromParent(self, parentElement, targetTuple, wait = 5):
                 target_elem_type, target_path = targetTuple
 
                 assert parentElement is not None
                 try:
-                        element = WebDriverWait(self.driver, wait).until(
+                        element = WebDriverWait(self.sesh.driver, wait).until(
                                 lambda d: parentElement.find_element(target_elem_type, target_path)
                         )
                 except NoSuchElementException:
@@ -101,11 +117,11 @@ class WebDriverSession:
                 
                 return element
 
-        def findAll(self, targetTuple, wait = 5):
+        def all(self, targetTuple, wait = 5):
                 elem_type, path = targetTuple
 
                 try:
-                        elements = WebDriverWait(self.driver, wait).until(
+                        elements = WebDriverWait(self.sesh.driver, wait).until(
                                         EC.presence_of_all_elements_located(
                                                         (elem_type, path)
                                         )
@@ -120,12 +136,12 @@ class WebDriverSession:
 
                 return elements
 
-        def findAllFromParent(self, parentElement, targetTuple, wait = 5):
+        def allFromParent(self, parentElement, targetTuple, wait = 5):
                 target_elem_type, target_path = targetTuple
 
                 assert parentElement is not None
                 try:
-                        elements = WebDriverWait(self.driver, wait).until(
+                        elements = WebDriverWait(self.sesh.driver, wait).until(
                                 lambda d: parentElement.find_elements(target_elem_type, target_path)
                         )
                 except NoSuchElementException:
@@ -137,74 +153,102 @@ class WebDriverSession:
 
                 return elements
 
-        def filterElementsByText(self, element_list, txt):
+class filter:
+        def __init__(self, sesh: WebDriverSession):
+                self.sesh = sesh
+
+        def byText(self, element_list, txt):
                 elmnts = []
                 for elmnt in element_list:
-                        if self.getElementText(elmnt) == txt:
+                        if self.sesh.read.textFromElement(elmnt) == txt:
                                 elmnts.append(elmnt)
                 return elmnts
-                                
 
-        def element_input(self, element, txt):
-                assert element is not None
 
-                randomWait()
-                self.element_click(element)
-                element.send_keys(txt)
-
-        def inputText(self, pathTuple, txt):
-                element = self.find(pathTuple)
-
-                assert element is not None 
-                self.element_input(element, txt)
-        
-        def inputTextFromParent(self, parent, pathTuple, txt):
-                elmnt = self.findFromParent(parent, pathTuple)
-
-                assert elmnt is not None
-                self.element_input(elmnt, txt)
-
+class waitFor:
+        def __init__(self, sesh: WebDriverSession):
+                self.sesh = sesh
                 
-        def click(self, pathTuple):
-                element = self.find(pathTuple)
-
-                assert element is not None
-                self.element_click(element)
-        
-        def clickFromParent(self, parent, pathTuple):
-                element = self.findFromParent(parent, pathTuple)
-
-                assert element is not None
-                self.element_click(element)
-        
-        def element_click(self, element):
-                assert element is not None
-
-                randomWait()
-                element.click()
-        
-        def waitForPageLoad(self):
-                WebDriverWait(self.driver, 10).until(
+        def pageLoad(self):
+                WebDriverWait(self.sesh.driver, 10).until(
                         lambda d: d.execute_script("return document.readyState") == "complete"
                 )
         
-        def waitFor(self, pathTuple, wait = 5):
-                self.find(pathTuple, wait=wait)
+        def path(self, pathTuple, wait = 5):
+                self.sesh.find.path(pathTuple, wait=wait)
         
-        def waitForFromParent(self, parent, pathTuple):
-                self.findFromParent(parent, pathTuple)
+        def elementInParent(self, parent, pathTuple):
+                self.sesh.find.fromParent(parent, pathTuple)
         
-        def getText(self, targetTuple):
-                element = self.find(targetTuple)
-                return self.getElementText(element)
+        def function(self, fnc):
+                try:
+                        WebDriverWait(self.sesh.driver, 10).until(fnc)
+                except TimeoutException:
+                        logger.error("waiting for function failed")
+                        return False
+                
+                return True
+
+class input:
+        def __init__(self, sesh: WebDriverSession):
+                self.sesh = sesh
         
-        def getElementText(self, element):
+        def _sendKeys(self, target_element, keys):
+                assert target_element is not None
+
+                self.sesh.click.element(target_element)
+                randomWait()
+                target_element.send_keys(keys)
+
+        def element(self, element, txt):
+                self._sendKeys(element, txt)
+
+        def path(self, pathTuple, txt):
+                element = self.sesh.find.path(pathTuple)
+
+                assert element is not None 
+                self._sendKeys(element, txt)
+        
+        def fromParent(self, parent, pathTuple, txt):
+                elmnt = self.sesh.find.fromParent(parent, pathTuple)
+                self._sendKeys(elmnt, txt)
+
+                
+class click:
+        def __init__(self, sesh: WebDriverSession):
+                self.sesh = sesh
+        
+        def _click_element(self, target_element):
+                assert target_element is not None
+
+                randomWait()
+                target_element.click()
+
+        def element(self, elmnt): 
+                self._click_element(elmnt)
+                
+        def path(self, pathTuple):
+                element = self.sesh.find.path(pathTuple)
+
+                self._click_element(element)
+        
+        def fromParent(self, parent, pathTuple):
+                element = self.sesh.find.fromParent(parent, pathTuple)
+
+                self._click_element(element)
+        
+class read:
+        def __init__(self, sesh: WebDriverSession):
+                self.sesh = sesh
+        
+        def text(self, targetTuple):
+                element = self.sesh.find.path(targetTuple)
+
+                return self._getElementText(element)
+        
+        def textFromElement(self, element):
+                return self._getElementText(element)
+
+        def _getElementText(self, element):
                 assert element is not None
                 return element.text
-
-        def injectJS(self, script):
-                self.driver.execute_script(script)
-
-        def scrollToElement(self, element):
-                self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
-

@@ -2,8 +2,8 @@ import core.driver as driver
 from dotenv import load_dotenv
 import os
 import site_handlers.management.eshipper as eshipper_sh
-import site_handlers.delivery.fedex as fedex_sh
 import file_handlers.eshipper as eshipper_fh
+import site_handlers.delivery.canadapost as canpost
 from core.log import getLogger
 
 
@@ -12,14 +12,15 @@ logger = getLogger()
 def main():
         initialize()
         sesh = driver.WebDriverSession(undetected=True)
-        eshipper_sh.scrape(sesh)
+        #eshipper_sh.scrape(sesh)
         
-        # data = eshipper_fh.parse()
-        # print(data)
+        data = eshipper_fh.parse()
+        canpost.executeScript(sesh, data)
+        print(data)
         
         # fedex_sh.scrape(sesh)
 
-        input()
+        print('done')
         pass
         
 def initialize():

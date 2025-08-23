@@ -8,6 +8,7 @@ paths = {
         "get_email_notif": (ELEMENT_TYPES['css'], '.trackEmail'),
         "buttons": (ELEMENT_TYPES['css'], '.button'),
         "email_input": (ELEMENT_TYPES['id'], 'emailAddressInput'),
+        "add_email_btn": (ELEMENT_TYPES['css'], '.add'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
         "dialog": (ELEMENT_TYPES['tag'], 'track-email-dialog'),
         "dialog_1_3": (ELEMENT_TYPES['id'], 'track-emails-dialog'),
@@ -19,40 +20,52 @@ def executeScript(sesh: WebDriverSession, tracking_nums):
                 link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(tNum)
                 sesh.get(link)
 
-                sesh.click(paths['get_email_notif'])
+                sesh.click.path(paths['get_email_notif'])
                 
-                waitForDialog(sesh)
+                waitDialogLoad(sesh)
+
                 dialog_txt = getDialogText(sesh)
-                
                 if "You can add or remove email addresses" in dialog_txt:
                         passDialog1(sesh)
                 
+                waitDialogLoad(sesh)
 
-                waitForDialog(sesh)
-                sesh.inputText(paths['email_input'], getenv("CANADAPOST_EMAIL1"))
-                sesh.click(paths['submit_btn'])
+                email_inputs = sesh.find.all(paths['email_input'])
+                if len(email_inputs) == 1:
+                        sesh.click.path(paths['add_email_btn'])
 
-                waitForDialog(sesh)
+                email_inputs = sesh.find.all(paths['email_input'])
+                assert len(email_inputs) > 2
+                sesh.input.element(email_inputs[0], getenv('CANADAPOST_EMAIL1'))
+                sesh.input.element(email_inputs[1], getenv('CANADAPOST_EMAIL2'))
+
+                sesh.click.path(paths['submit_btn'])
+
+                waitDialogLoad(sesh)
+
                 logger.info('completed sign up for order {}'.format(tNum))
-                input()
 
 
 def getDialogText(sesh: WebDriverSession):
         txt = ''
         while not txt:
-                txt = sesh.getText(paths['dialog'])
+                txt = sesh.read.text(paths['dialog'])
 
         return txt
 
-def waitForDialog(sesh: WebDriverSession):
+def waitDialogLoad(sesh: WebDriverSession):
         txt = getDialogText(sesh)
         while "Get email notifications" not in txt:
                 txt = getDialogText(sesh)
         return 
 
 def passDialog1(sesh: WebDriverSession):
-        waitForDialog(sesh)
-        btns = sesh.filterElementsByText(sesh.findAll(paths['buttons']), 'Add')
+        waitDialogLoad(sesh)
+        btns = sesh.filter.byText(sesh.find.all(paths['buttons']), 'Add')
 
         assert len(btns) == 1
-        sesh.element_click(btns[0])
+        sesh.click.element(btns[0])
+
+def emailInputCountCheck(sesh: WebDriverSession):
+        input_elmnts = sesh.find.all(paths['email_input'])
+        return len(input_elmnts) > 2
