@@ -14,38 +14,50 @@ paths = {
         "dialog_1_3": (ELEMENT_TYPES['id'], 'track-emails-dialog'),
         "dialog_2": (ELEMENT_TYPES['id'], 'add-emails-dialog'),
 }
-
 def executeScript(sesh: WebDriverSession, tracking_nums):
-        for tNum in tracking_nums:
-                link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(tNum)
-                sesh.get(link)
+        report = {
+                "success": [],
+                "fail": []
+        }
 
-                if not canGetNotifications(sesh):
-                        continue
+        for tracking_num in tracking_nums:
+                if registerEmails(sesh, tracking_num):
+                        report['success'].append(tracking_num)
+                else:
+                        report['fail'].append(tracking_num)
 
-                sesh.click.path(paths['get_email_notif'])
-                
-                waitDialogLoad(sesh)
-                dialog_txt = getDialogText(sesh)
-                if "You can add or remove email addresses" in dialog_txt:
-                        passDialog1(sesh)
-                
-                waitDialogLoad(sesh)
-                email_inputs = sesh.find.all(paths['email_input'])
-                if len(email_inputs) == 1:
-                        sesh.click.path(paths['add_email_btn'])
+        return report
+        
+def registerEmails(sesh: WebDriverSession, tracking_num):
+        link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(tracking_num)
+        sesh.get(link)
 
-                email_inputs = sesh.find.all(paths['email_input'])
-                assert len(email_inputs) >= 2
-                sesh.input.element(email_inputs[0], getenv('CANADAPOST_EMAIL1'))
-                sesh.input.element(email_inputs[1], getenv('CANADAPOST_EMAIL2'))
+        if not canGetNotifications(sesh):
+                return False
 
-                sesh.click.path(paths['submit_btn'])
+        sesh.click.path(paths['get_email_notif'])
+        
+        waitDialogLoad(sesh)
+        dialog_txt = getDialogText(sesh)
+        if "You can add or remove email addresses" in dialog_txt:
+                passDialog1(sesh)
+        
+        waitDialogLoad(sesh)
+        email_inputs = sesh.find.all(paths['email_input'])
+        if len(email_inputs) == 1:
+                sesh.click.path(paths['add_email_btn'])
 
-                waitDialogLoad(sesh)
+        email_inputs = sesh.find.all(paths['email_input'])
+        assert len(email_inputs) >= 2
+        sesh.input.element(email_inputs[0], getenv('CANADAPOST_EMAIL1'))
+        sesh.input.element(email_inputs[1], getenv('CANADAPOST_EMAIL2'))
 
-                logger.info('completed sign up for order {}'.format(tNum))
+        sesh.click.path(paths['submit_btn'])
 
+        waitDialogLoad(sesh)
+
+        logger.info('completed sign up for order {}'.format(tracking_num))
+        return True
 
 def getDialogText(sesh: WebDriverSession):
         dialog_element = sesh.find.path(paths['dialog_1_3'], wait=1)
@@ -57,9 +69,9 @@ def getDialogText(sesh: WebDriverSession):
         try:
                 txt = sesh.read.textFromElement(dialog_element)
         except StaleElementReferenceException:
+                # for cases where the dialog element changes between me finding and reading it.
                 txt = getDialogText(sesh)
 
-        print("dialog: {}".format(txt))
         return txt
 
 def waitDialogLoad(sesh: WebDriverSession):
