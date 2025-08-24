@@ -16,9 +16,12 @@ paths = {
 }
 
 def executeScript(sesh: WebDriverSession, tracking_nums):
-        for carrier, tNum in tracking_nums:
+        for tNum in tracking_nums:
                 link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(tNum)
                 sesh.get(link)
+
+                if not canGetNotifications(sesh):
+                        continue
 
                 sesh.click.path(paths['get_email_notif'])
                 
@@ -50,7 +53,7 @@ def getDialogText(sesh: WebDriverSession):
                 dialog_element = sesh.find.path(paths['dialog_2'])
 
         assert dialog_element is not None
-        
+
         try:
                 txt = sesh.read.textFromElement(dialog_element)
         except StaleElementReferenceException:
@@ -75,3 +78,9 @@ def passDialog1(sesh: WebDriverSession):
 def emailInputCountCheck(sesh: WebDriverSession):
         input_elmnts = sesh.find.all(paths['email_input'])
         return len(input_elmnts) > 2
+
+def canGetNotifications(sesh: WebDriverSession):
+        get_notif_btn = sesh.find.path(paths['get_email_notif'])
+        if get_notif_btn is None:
+                return False
+        return True
