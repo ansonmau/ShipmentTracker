@@ -10,10 +10,12 @@ paths = {
         "buttons": (ELEMENT_TYPES['css'], '.button'),
         "email_input": (ELEMENT_TYPES['id'], 'emailAddressInput'),
         "add_email_btn": (ELEMENT_TYPES['css'], '.add'),
+        "add_email_blocked": (ELEMENT_TYPES['css'], '.disabled'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
         "dialog_1_3": (ELEMENT_TYPES['id'], 'track-emails-dialog'),
         "dialog_2": (ELEMENT_TYPES['id'], 'add-emails-dialog'),
 }
+
 def executeScript(sesh: WebDriverSession, tracking_nums):
         report = {
                 "success": [],
@@ -36,15 +38,17 @@ def registerEmails(sesh: WebDriverSession, tracking_num):
                 return False
 
         sesh.click.path(paths['get_email_notif'])
-        
+
         waitDialogLoad(sesh)
         dialog_txt = getDialogText(sesh)
         if "You can add or remove email addresses" in dialog_txt:
                 passDialog1(sesh)
-        
+
         waitDialogLoad(sesh)
         email_inputs = sesh.find.all(paths['email_input'])
         if len(email_inputs) == 1:
+                if not canAddEmails(sesh):
+                        return False
                 sesh.click.path(paths['add_email_btn'])
 
         email_inputs = sesh.find.all(paths['email_input'])
@@ -96,3 +100,10 @@ def canGetNotifications(sesh: WebDriverSession):
         if get_notif_btn is None:
                 return False
         return True
+
+def canAddEmails(sesh: WebDriverSession):
+        dialog = sesh.find.path(paths['dialog_2']) # will only check this in dialog 2
+        add_blocked = sesh.find.fromParent(dialog, paths['add_email_blocked'],wait=1)
+
+        # element exists = cannot add new emails
+        return False if add_blocked else True
