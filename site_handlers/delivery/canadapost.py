@@ -1,4 +1,5 @@
 from core.driver import WebDriverSession, ELEMENT_TYPES
+from selenium.common.exceptions import StaleElementReferenceException
 from os import getenv
 from core.log import getLogger
 
@@ -10,7 +11,6 @@ paths = {
         "email_input": (ELEMENT_TYPES['id'], 'emailAddressInput'),
         "add_email_btn": (ELEMENT_TYPES['css'], '.add'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
-        "dialog": (ELEMENT_TYPES['tag'], 'track-email-dialog'),
         "dialog_1_3": (ELEMENT_TYPES['id'], 'track-emails-dialog'),
         "dialog_2": (ELEMENT_TYPES['id'], 'add-emails-dialog'),
 }
@@ -23,19 +23,17 @@ def executeScript(sesh: WebDriverSession, tracking_nums):
                 sesh.click.path(paths['get_email_notif'])
                 
                 waitDialogLoad(sesh)
-
                 dialog_txt = getDialogText(sesh)
                 if "You can add or remove email addresses" in dialog_txt:
                         passDialog1(sesh)
                 
                 waitDialogLoad(sesh)
-
                 email_inputs = sesh.find.all(paths['email_input'])
                 if len(email_inputs) == 1:
                         sesh.click.path(paths['add_email_btn'])
 
                 email_inputs = sesh.find.all(paths['email_input'])
-                assert len(email_inputs) > 2
+                assert len(email_inputs) >= 2
                 sesh.input.element(email_inputs[0], getenv('CANADAPOST_EMAIL1'))
                 sesh.input.element(email_inputs[1], getenv('CANADAPOST_EMAIL2'))
 
@@ -47,10 +45,18 @@ def executeScript(sesh: WebDriverSession, tracking_nums):
 
 
 def getDialogText(sesh: WebDriverSession):
-        txt = ''
-        while not txt:
-                txt = sesh.read.text(paths['dialog'])
+        dialog_element = sesh.find.path(paths['dialog_1_3'], wait=1)
+        if dialog_element is None:
+                dialog_element = sesh.find.path(paths['dialog_2'])
 
+        assert dialog_element is not None
+        
+        try:
+                txt = sesh.read.textFromElement(dialog_element)
+        except StaleElementReferenceException:
+                txt = getDialogText(sesh)
+
+        print("dialog: {}".format(txt))
         return txt
 
 def waitDialogLoad(sesh: WebDriverSession):
