@@ -20,7 +20,7 @@ def parse():
         file = open(file_path, 'r')
         file_dict = csv.DictReader(file)
 
-        data = []
+        data = {}
         for entry in file_dict:
                 entry_date = datetime.strptime(entry["Ship Date"], date_format)
                 if entry_date < min_date:
@@ -32,7 +32,11 @@ def parse():
                 
                 tracking_num = entry["Tracking#"]
                 carrier = entry["Carrier"]
-                data.append((carrier, tracking_num))
+
+                if carrier in data:
+                        data[carrier].append(tracking_num)
+                else:
+                        data[carrier] = [tracking_num]
         
         
         file.close()
