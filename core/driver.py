@@ -189,6 +189,9 @@ class waitFor:
                 
                 return True
 
+        def hardWait(self, wait_time):
+                time.sleep(wait_time)
+
 class input:
         def __init__(self, sesh: WebDriverSession):
                 self.sesh = sesh
