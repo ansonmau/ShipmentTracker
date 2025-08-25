@@ -42,8 +42,10 @@ def scrape(sesh: WebDriverSession):
         sesh.click.fromParent(chat_elmnt, chat_paths['agree_tos']) # *accept / do not accept
         sesh.click.fromParent(chat_elmnt, chat_paths['type_of_notif']) # delivery / exceptions / *both
         sesh.click.fromParent(chat_elmnt, chat_paths['notif_receiver']) # *for myself / for others
+
         sesh.input.fromParent(chat_elmnt, chat_paths['name_input'], getenv("PUROLATOR_NAME"))
         sesh.input.fromParent(chat_elmnt, chat_paths['email_input'], getenv("PUROLATOR_EMAIL"))
+        
         sesh.click.fromParent(chat_elmnt, chat_paths['submit_btn'])
         sesh.click.fromParent(chat_elmnt, chat_paths['correct_btn'])
 
