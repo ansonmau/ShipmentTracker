@@ -15,8 +15,7 @@ def main():
         #eshipper_sh.scrape(sesh)
         
         data = eshipper_fh.parse()
-        canpost.executeScript(sesh, data)
-        print(data)
+        print(canpost.track(sesh, data['Canada Post'][10:12]))
         
         # fedex_sh.scrape(sesh)
 

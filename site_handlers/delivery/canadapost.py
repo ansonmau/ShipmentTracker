@@ -16,21 +16,21 @@ paths = {
         "dialog_2": (ELEMENT_TYPES['id'], 'add-emails-dialog'),
 }
 
-def executeScript(sesh: WebDriverSession, tracking_nums):
+def track(sesh: WebDriverSession, tracking_nums):
         report = {
                 "success": [],
                 "fail": []
         }
 
         for tracking_num in tracking_nums:
-                if registerEmails(sesh, tracking_num):
+                if executeScript(sesh, tracking_num):
                         report['success'].append(tracking_num)
                 else:
                         report['fail'].append(tracking_num)
 
         return report
         
-def registerEmails(sesh: WebDriverSession, tracking_num):
+def executeScript(sesh: WebDriverSession, tracking_num):
         link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(tracking_num)
         sesh.get(link)
 
