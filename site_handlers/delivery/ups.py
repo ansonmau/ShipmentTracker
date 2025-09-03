@@ -33,15 +33,17 @@ def track(sesh: WebDriverSession, tracking_nums):
 
 def executeScript(sesh: WebDriverSession, tracking_num):
         sesh.get('https://www.ups.com/WebTracking?trackingNumber={}'.format(tracking_num))
-
-        sesh.click.path(paths['notify_me_btn'])
+        
+        notify_btn = sesh.find.path(paths['notify_me_btn'])
+        sesh.scrollToElement(notify_btn)
+        sesh.click.element(notify_btn)
         sesh.click.path(paths['continue_btn'])
         sesh.click.path(paths['update_option_1'])
         sesh.click.path(paths['update_option_2'])
         sesh.click.path(paths['update_option_3'])
         sesh.click.path(paths['update_option_4'])
-        sesh.input.path(paths['email_input_1'], getenv('UPS_EMAIL_1'))
-        sesh.input.path(paths['email_input_2'], getenv('UPS_EMAIL_2'))
+        sesh.input.path(paths['email_input_1'], getenv('UPS_EMAIL1'))
+        sesh.input.path(paths['email_input_2'], getenv('UPS_EMAIL2'))
         sesh.click.path(paths['done_btn'])
         sesh.waitFor.path(paths['close_btn'])
 
