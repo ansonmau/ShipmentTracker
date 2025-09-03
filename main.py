@@ -12,7 +12,7 @@ logger = getLogger()
 def main():
         initialize()
         sesh = driver.WebDriverSession(undetected=True)
-        #eshipper_sh.scrape(sesh)
+        # eshipper_sh.scrape(sesh)
         
         data = eshipper_fh.parse()
         print(canpost.track(sesh, data['Canada Post'][10:12]))
