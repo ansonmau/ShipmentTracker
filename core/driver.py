@@ -74,7 +74,7 @@ class WebDriverSession:
                 self.driver.execute_script(script)
 
         def scrollToElement(self, element):
-                self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
+                self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
 
 
 class find:
