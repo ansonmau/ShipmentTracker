@@ -22,8 +22,24 @@ chat_paths = {
         "correct_btn": (ELEMENT_TYPES['css'], '[aria-label="Correct"]')
 }
 
-def scrape(sesh: WebDriverSession):
-        sesh.get("https://www.purolator.com/en/shipping/tracker?pin=EWX000089623")
+def track(sesh: WebDriverSession, tracking_nums):
+        report = {
+                "success": [],
+                "fail": []
+        }
+
+        for tracking_num in tracking_nums:
+                if executeScript(sesh, tracking_num):
+                        report['success'].append(tracking_num)
+                else:
+                        report['fail'].append(tracking_num)
+
+        return report
+                
+
+
+def executeScript(sesh: WebDriverSession, tracking_num):
+        sesh.get("https://www.purolator.com/en/shipping/tracker?pin={}".format(tracking_num))
         
         sesh.waitFor.path(paths['tracking_details'])
 
@@ -45,7 +61,7 @@ def scrape(sesh: WebDriverSession):
 
         sesh.input.fromParent(chat_elmnt, chat_paths['name_input'], getenv("PUROLATOR_NAME"))
         sesh.input.fromParent(chat_elmnt, chat_paths['email_input'], getenv("PUROLATOR_EMAIL"))
-        
+
         sesh.click.fromParent(chat_elmnt, chat_paths['submit_btn'])
         sesh.click.fromParent(chat_elmnt, chat_paths['correct_btn'])
 
