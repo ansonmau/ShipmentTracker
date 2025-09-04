@@ -47,3 +47,5 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         sesh.click.path(paths['done_btn'])
         sesh.waitFor.path(paths['close_btn'])
 
+        return True
+

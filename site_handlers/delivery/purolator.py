@@ -67,6 +67,8 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
         waitForConfirm(sesh)
 
+        return True
+
 def waitForConfirm(sesh: WebDriverSession):
         timeout = 10
         end_time = time.time() + timeout
