@@ -73,8 +73,7 @@ def waitForConfirm(sesh: WebDriverSession):
 
         chat = sesh.find.path(paths['chat'])
         verif_text = "I have completed your registration for Email Notifications"
-        confirmed = False
-        while not confirmed and time.time() < end_time:
+        while time.time() < end_time:
                 chat_msgs = sesh.find.allFromParent(chat, paths['chat_messages'])
                 for msg in chat_msgs:
                         if verif_text in sesh.read.textFromElement(msg):
