@@ -27,18 +27,23 @@ def main():
         new_data = eshipper_fh.parse()
         logger.debug("parsed data: {}".format(new_data))
         
+        logger.debug("updating data dict with new data: {}".format(new_data))
         data.update(new_data)
 
         logger.info("starting tracking for canada post shipments")
+        logger.debug("Canada Post orders: {}".format(data['Canada Post']))
         canpost.track(sesh, data['Canada Post'][5:])
 
         logger.info("starting tracking for UPS shipments")
+        logger.debug("UPS orders: {}".format(data['UPS']))
         ups.track(sesh, data['UPS'])
 
         logger.info("starting tracking for Canpar shipments")
+        logger.debug("Canpar orders: {}".format(data['Canpar']))
         canpar.track(sesh, data["Canpar"])
 
         logger.info("starting tracking for Purolator shipments")
+        logger.debug("Purolator orders: {}".format(data['Purolator']))
         puro.track(sesh, data["Purolator"])
 
         logger.info("tracking complete. starting clean up.")
