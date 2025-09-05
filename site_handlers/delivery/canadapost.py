@@ -3,7 +3,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from os import getenv
 from core.log import getLogger
 
-logger = getLogger()
+logger = getLogger(__name__)
 
 paths = {
         "get_email_notif": (ELEMENT_TYPES['css'], '.trackEmail'),
@@ -12,7 +12,7 @@ paths = {
         "add_email_btn": (ELEMENT_TYPES['css'], '.add'),
         "add_email_blocked": (ELEMENT_TYPES['css'], '.disabled'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
-        "dialog_1_3": (ELEMENT_TYPES['id'], 'track-emails-dialog'),
+        "dialog_1": (ELEMENT_TYPES['id'], 'track-emails-dialog'),
         "dialog_2": (ELEMENT_TYPES['id'], 'add-emails-dialog'),
 }
 
@@ -31,6 +31,7 @@ def track(sesh: WebDriverSession, tracking_nums):
         return report
         
 def executeScript(sesh: WebDriverSession, tracking_num):
+        logger.info("Starting tracking for {}".format(tracking_num))
         link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(tracking_num)
         sesh.get(link)
 
@@ -64,7 +65,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         return True
 
 def getDialogText(sesh: WebDriverSession):
-        dialog_element = sesh.find.path(paths['dialog_1_3'], wait=1)
+        dialog_element = sesh.find.path(paths['dialog_1'], wait=1)
         if dialog_element is None:
                 dialog_element = sesh.find.path(paths['dialog_2'])
 

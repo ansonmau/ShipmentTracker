@@ -9,5 +9,5 @@ logging.basicConfig(
     ]
 )
 
-def getLogger():
-        return logging.getLogger(__name__)
+def getLogger(name):
+        return logging.getLogger(name)

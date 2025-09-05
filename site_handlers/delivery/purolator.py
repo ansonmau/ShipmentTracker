@@ -3,7 +3,7 @@ from os import getenv
 from core.log import getLogger
 import time
 
-logger = getLogger()
+logger = getLogger(__name__)
 
 paths = {
         "tracking_details": (ELEMENT_TYPES['id'], 'tracking-details'),
@@ -22,8 +22,24 @@ chat_paths = {
         "correct_btn": (ELEMENT_TYPES['css'], '[aria-label="Correct"]')
 }
 
-def scrape(sesh: WebDriverSession):
-        sesh.get("https://www.purolator.com/en/shipping/tracker?pin=EWX000089623")
+def track(sesh: WebDriverSession, tracking_nums):
+        report = {
+                "success": [],
+                "fail": []
+        }
+
+        for tracking_num in tracking_nums:
+                if executeScript(sesh, tracking_num):
+                        report['success'].append(tracking_num)
+                else:
+                        report['fail'].append(tracking_num)
+
+        return report
+                
+
+
+def executeScript(sesh: WebDriverSession, tracking_num):
+        sesh.get("https://www.purolator.com/en/shipping/tracker?pin={}".format(tracking_num))
         
         sesh.waitFor.path(paths['tracking_details'])
 
@@ -45,11 +61,12 @@ def scrape(sesh: WebDriverSession):
 
         sesh.input.fromParent(chat_elmnt, chat_paths['name_input'], getenv("PUROLATOR_NAME"))
         sesh.input.fromParent(chat_elmnt, chat_paths['email_input'], getenv("PUROLATOR_EMAIL"))
-        
         sesh.click.fromParent(chat_elmnt, chat_paths['submit_btn'])
         sesh.click.fromParent(chat_elmnt, chat_paths['correct_btn'])
 
         waitForConfirm(sesh)
+
+        return True
 
 def waitForConfirm(sesh: WebDriverSession):
         timeout = 10
@@ -57,8 +74,7 @@ def waitForConfirm(sesh: WebDriverSession):
 
         chat = sesh.find.path(paths['chat'])
         verif_text = "I have completed your registration for Email Notifications"
-        confirmed = False
-        while not confirmed and time.time() < end_time:
+        while time.time() < end_time:
                 chat_msgs = sesh.find.allFromParent(chat, paths['chat_messages'])
                 for msg in chat_msgs:
                         if verif_text in sesh.read.textFromElement(msg):

@@ -60,6 +60,7 @@ pylint-global.rc
 # dotenv
 .env
 .env.*
+*.env
 
 # VS Code settings (optional)
 .vscode/
@@ -74,3 +75,6 @@ txt.txt
 
 # dls folder
 dls/
+
+# misc
+delivery_data.txt

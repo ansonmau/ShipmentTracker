@@ -4,40 +4,83 @@ import os
 import site_handlers.management.eshipper as eshipper_sh
 import file_handlers.eshipper as eshipper_fh
 import site_handlers.delivery.canadapost as canpost
+import site_handlers.delivery.ups as ups
+import site_handlers.delivery.canpar as canpar
+import site_handlers.delivery.purolator as puro
 from core.log import getLogger
 
 
-logger = getLogger()
+logger = getLogger(__name__)
 
 def main():
-        initialize()
+        logger.info("initializing...")
+        initialize.run()
+        data = {}
+
+        logger.info("starting web driver...")
         sesh = driver.WebDriverSession(undetected=True)
-        #eshipper_sh.scrape(sesh)
-        
-        data = eshipper_fh.parse()
-        print(canpost.track(sesh, data['Canada Post'][10:12]))
-        
-        # fedex_sh.scrape(sesh)
 
-        print('done')
+        logger.info("scraping eshipper for orders")
+        eshipper_sh.scrape(sesh)
+        
+        logger.info("reading eshipper file")
+        new_data = eshipper_fh.parse()
+        logger.debug("parsed data: {}".format(new_data))
+        
+        data.update(new_data)
+
+        logger.info("starting tracking for canada post shipments")
+        canpost.track(sesh, data['Canada Post'][5:])
+
+        logger.info("starting tracking for UPS shipments")
+        ups.track(sesh, data['UPS'])
+
+        logger.info("starting tracking for Canpar shipments")
+        canpar.track(sesh, data["Canpar"])
+
+        logger.info("starting tracking for Purolator shipments")
+        puro.track(sesh, data["Purolator"])
+
+        logger.info("tracking complete. starting clean up.")
+        cleanup.run()
+        logger.info("executed successfully.")
         pass
+
+class initialize:
+        @staticmethod
+        def run():
+                logger.info("loading environment variables")
+                initialize.loadEnvFile()
+
+                logger.info("creating downloads folder if it does not exist")
+                initialize.createDownloadsFolder()
+
+                logger.info("creating data folder if it does not exist")
+                initialize.createDataFolder()
+
+        @staticmethod
+        def createDownloadsFolder():
+                dl_dir = os.path.abspath("./dls")
+                os.makedirs(dl_dir, exist_ok=True)
         
-def initialize():
-        loadEnvFile()
-        createDownloadsFolder()
+        @staticmethod
+        def createDataFolder():
+                data_dir = os.path.abspath("./data")
+                os.makedirs(data_dir, exist_ok=True)
 
-def createDownloadsFolder():
-        dl_dir = os.path.abspath("./dls")
-        os.makedirs(dl_dir, exist_ok=True)
+        @staticmethod
+        def loadEnvFile():
+                load_dotenv(dotenv_path="./data/keys.env")
 
-def loadEnvFile():
-        load_dotenv(dotenv_path="./venv/keys.env")
+class cleanup():
+        @staticmethod
+        def run():
+                logger.info("clearing downloads folder")
+                cleanup.clearDLFolder()
 
-def cleanup():
-        clearDLFolder()
-
-def clearDLFolder():
-        pass
+        @staticmethod
+        def clearDLFolder():
+                pass
 
 if __name__ == "__main__":
         main()

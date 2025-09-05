@@ -5,10 +5,10 @@ from datetime import datetime, timedelta
 import time
 from core.log import getLogger
 
-log = getLogger()
+log = getLogger(__name__)
 
 def parse():
-        eshipper_files = waitEshipperFiles(cd = 30)
+        eshipper_files = waitForFile(cd = 30)
         assert len(eshipper_files) == 1
         
         date_format = "%m/%d/%Y"
@@ -54,7 +54,7 @@ def check():
         files = getEshipperFiles()
         return True if len(files)>0 else False
 
-def waitEshipperFiles(cd = 30):
+def waitForFile(cd = 30):
         end_time = time.time() + cd
 
         files = getEshipperFiles()
