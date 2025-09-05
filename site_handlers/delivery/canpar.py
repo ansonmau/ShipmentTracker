@@ -3,7 +3,7 @@ from os import getenv
 from core.log import getLogger
 from time import time as current_time
 
-logger = getLogger()
+logger = getLogger(__name__)
 
 paths = {
         "notify_me_btn": (ELEMENT_TYPES['id'], 'options-block_5f6a6725bde09-accordion-4-heading'),
@@ -30,7 +30,9 @@ def track(sesh: WebDriverSession, tracking_nums):
 def executeScript(sesh: WebDriverSession, tracking_num):
         sesh.get('https://www.canpar.com/en/tracking/delivery_options.htm?barcode={}'.format(tracking_num))
 
-        sesh.click.path(paths['notify_me_btn'])
+        notify_me = sesh.find.path(paths['notify_me_btn'])
+        sesh.scrollToElement(notify_me)
+        sesh.click.element(notify_me)
         sesh.click.path(paths['notify_exception_toggle'])
         sesh.input.path(paths['email_input'], getenv('CANPAR_EMAIL'))
         sesh.click.path(paths['add_notification_btn'])
