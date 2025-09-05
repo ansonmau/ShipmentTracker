@@ -32,7 +32,7 @@ def main():
 
         logger.info("starting tracking for canada post shipments")
         logger.debug("Canada Post orders: {}".format(data['Canada Post']))
-        canpost.track(sesh, data['Canada Post'][5:])
+        canpost.track(sesh, data['Canada Post'])
 
         logger.info("starting tracking for UPS shipments")
         logger.debug("UPS orders: {}".format(data['UPS']))
