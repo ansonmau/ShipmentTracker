@@ -2,7 +2,7 @@ from core.driver import WebDriverSession, ELEMENT_TYPES
 from os import getenv
 from core.log import getLogger
 
-logger = getLogger()
+logger = getLogger(__name__)
 
 paths = {
         "username_input": (ELEMENT_TYPES['id'], 'username'),
@@ -22,7 +22,7 @@ paths = {
 
 
 def login(sesh: WebDriverSession):
-        sesh.get("https://ww2.eshipper.com/login")
+        sesh.get("https://ww2.eshipper.com/customer/tracking")
 
         sesh.input.path(paths['username_input'], getenv('ESHIPPER_USER'))
         sesh.input.path(paths['password_input'], getenv('ESHIPPER_PW'))
