@@ -13,7 +13,7 @@ import os
 
 from core.log import getLogger
 
-logger = getLogger()
+logger = getLogger(__name__)
 
 ELEMENT_TYPES = {
         'id': By.ID,

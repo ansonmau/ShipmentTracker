@@ -3,7 +3,7 @@ from os import getenv
 from core.log import getLogger
 import time
 
-logger = getLogger()
+logger = getLogger(__name__)
 
 paths = {
         "tracking_details": (ELEMENT_TYPES['id'], 'tracking-details'),

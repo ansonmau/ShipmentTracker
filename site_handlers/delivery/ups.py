@@ -2,7 +2,7 @@ from core.driver import WebDriverSession, ELEMENT_TYPES
 from os import getenv
 from core.log import getLogger
 
-logger = getLogger()
+logger = getLogger(__name__)
 
 paths = {
         "notify_me_btn": (ELEMENT_TYPES['id'], 'stApp_btnSendMeUpdate'),

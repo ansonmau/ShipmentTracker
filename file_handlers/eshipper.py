@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import time
 from core.log import getLogger
 
-log = getLogger()
+log = getLogger(__name__)
 
 def parse():
         eshipper_files = waitForFile(cd = 30)
