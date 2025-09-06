@@ -13,7 +13,7 @@ paths = {
         "add_email_blocked": (ELEMENT_TYPES['css'], '.disabled'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
         "dialog_1": (ELEMENT_TYPES['id'], 'track-emails-dialog'),
-        "dialog_2": (ELEMENT_TYPES['id'], 'add-emails-dialog'),
+        "dialog_2": (ELEMENT_TYPES['id'], 'add-emails-dialog'),  
 }
 
 def track(sesh: WebDriverSession, tracking_nums):
