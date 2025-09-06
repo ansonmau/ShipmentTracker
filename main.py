@@ -15,7 +15,12 @@ logger = getLogger(__name__)
 def main():
         logger.info("initializing...")
         initialize.run()
-        data = {}
+        data = {
+                "Canada Post": [],
+                "UPS": [],
+                "Canpar": [],
+                "Purolator": [],
+        }
 
         logger.info("starting web driver...")
         sesh = driver.WebDriverSession(undetected=True)
@@ -30,7 +35,7 @@ def main():
         data.update(new_data)
 
         logger.info("starting tracking for canada post shipments")
-        canpost.track(sesh, data['Canada Post'][5:])
+        canpost.track(sesh, data['Canada Post'])
 
         logger.info("starting tracking for UPS shipments")
         ups.track(sesh, data['UPS'])
