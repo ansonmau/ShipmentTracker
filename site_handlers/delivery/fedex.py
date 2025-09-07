@@ -32,12 +32,11 @@ def track(sesh: WebDriverSession, tracking_nums):
         return report
 
 def executeScript(sesh: WebDriverSession, tracking_num):
+
         link = "https://www.fedex.com/fedextrack/?trknbr={}".format(tracking_num)
         sesh.get(link)
 
-        if not denied_cookies:
-                sesh.click.path(paths['deny_cookies_btn'])
-                denied_cookies = True
+        removeCookiesBanner(sesh)
 
         sesh.input.path(paths['email_input'], getenv("FEDEX_EMAIL"))
         sesh.click.path(paths['submit_btn'])
@@ -56,3 +55,9 @@ def waitForConfirm(sesh: WebDriverSession, cd = 3):
         
         return False
         
+def removeCookiesBanner(sesh: WebDriverSession):
+        global denied_cookies
+
+        if not denied_cookies:
+                sesh.click.path(paths['deny_cookies_btn'])
+                denied_cookies = True
