@@ -1,14 +1,18 @@
 import core.driver as driver
+from core.log import getLogger
+
 from dotenv import load_dotenv
 import os
-import site_handlers.management.eshipper as eshipper_sh
+
 import file_handlers.eshipper as eshipper_fh
+
+import site_handlers.management.eshipper as eshipper_sh
 import site_handlers.delivery.canadapost as canpost
 import site_handlers.delivery.ups as ups
 import site_handlers.delivery.canpar as canpar
 import site_handlers.delivery.purolator as puro
-from core.log import getLogger
 
+import testing.fedex_testing as fedex_test
 
 logger = getLogger(__name__)
 
@@ -83,4 +87,5 @@ class cleanup():
                 pass
 
 if __name__ == "__main__":
-        main()
+        fedex_test.main()
+        #main()
