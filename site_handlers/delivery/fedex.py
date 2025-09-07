@@ -2,13 +2,19 @@ from core.driver import WebDriverSession, ELEMENT_TYPES
 from selenium.common.exceptions import StaleElementReferenceException
 from os import getenv
 from core.log import getLogger
+from time import time
 
 logger = getLogger(__name__)
+
+denied_cookies = False
+
 
 paths = {
         "cookies_banner": (ELEMENT_TYPES['id'], 'uc-main-dialog'),
         "deny_cookies_btn": (ELEMENT_TYPES['id'], 'deny'),
-
+        "email_input": (ELEMENT_TYPES['id'], 'sender_email'),
+        "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
+        "confirmation_dialog": (ELEMENT_TYPES['tag'], 'trk-shared-get-status-updates-inline')
 }
 
 def track(sesh: WebDriverSession, tracking_nums):
@@ -26,10 +32,27 @@ def track(sesh: WebDriverSession, tracking_nums):
         return report
 
 def executeScript(sesh: WebDriverSession, tracking_num):
-        link = ""
+        link = "https://www.fedex.com/fedextrack/?trknbr={}".format(tracking_num)
         sesh.get(link)
 
-        if sesh.find.path(paths['cookies_banner'], wait = 2):
+        if not denied_cookies:
                 sesh.click.path(paths['deny_cookies_btn'])
+                denied_cookies = True
 
+        sesh.input.path(paths['email_input'], getenv("FEDEX_EMAIL"))
+        sesh.click.path(paths['submit_btn'])
+
+        return waitForConfirm(sesh)
+
+def waitForConfirm(sesh: WebDriverSession, cd = 3):
+        end_time = time() + cd
+        confirm_text = "Notification sent!"
+
+        while time() < end_time:
+                dialog = sesh.read.text(paths['confirmation_dialog'])
+                logger.info("dialog text: {}".format())
+                if dialog == confirm_text:
+                        return True
+        
+        return False
         
