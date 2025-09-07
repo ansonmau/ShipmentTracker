@@ -10,8 +10,7 @@ denied_cookies = False
 
 
 paths = {
-        "cookies_banner": (ELEMENT_TYPES['id'], 'uc-main-dialog'),
-        "deny_cookies_btn": (ELEMENT_TYPES['id'], 'deny'),
+        "deny_cookies_btn": (ELEMENT_TYPES['css'], '.uc-deny-button'),
         "email_input": (ELEMENT_TYPES['id'], 'sender_email'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
         "confirmation_dialog": (ELEMENT_TYPES['tag'], 'trk-shared-get-status-updates-inline')
@@ -32,7 +31,6 @@ def track(sesh: WebDriverSession, tracking_nums):
         return report
 
 def executeScript(sesh: WebDriverSession, tracking_num):
-
         link = "https://www.fedex.com/fedextrack/?trknbr={}".format(tracking_num)
         sesh.get(link)
 
@@ -49,7 +47,7 @@ def waitForConfirm(sesh: WebDriverSession, cd = 3):
 
         while time() < end_time:
                 dialog = sesh.read.text(paths['confirmation_dialog'])
-                logger.info("dialog text: {}".format())
+                logger.debug("dialog text: {}".format())
                 if dialog == confirm_text:
                         return True
         
