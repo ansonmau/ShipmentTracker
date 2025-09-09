@@ -89,6 +89,11 @@ class initialize:
         @staticmethod
         def loadEnvFile():
                 load_dotenv(dotenv_path="./data/keys.env")
+        
+        @staticmethod
+        def createLogFolder():
+                log_dir = os.path.abspath("./logs")
+                os.makedirs(log_dir, exist_ok=True)
 
 class cleanup():
         @staticmethod
