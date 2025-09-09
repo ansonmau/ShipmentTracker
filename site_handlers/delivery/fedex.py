@@ -57,5 +57,5 @@ def removeCookiesBanner(sesh: WebDriverSession):
         global denied_cookies
 
         if not denied_cookies:
-                sesh.click.path(paths['deny_cookies_btn'])
+                sesh.click.element_by_js(paths['deny_cookies_btn'])
                 denied_cookies = True
