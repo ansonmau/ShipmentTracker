@@ -297,8 +297,10 @@ class tabControl:
 
         def getCurrentTab(self):
                 return self.sesh.driver.current_window_handle
+        
+        def focusTab(self, tab):
+                self.sesh.driver.switch_to.window(tab)
 
         def focusNewestTab(self):
-                self._waitForNewTab()
-                tabs = self.getTabs()
-                self.sesh.driver.switch_to.window(tabs[-1])
+                newest_tab = self.getTabs()[-1]
+                self.switchToTab(newest_tab)
