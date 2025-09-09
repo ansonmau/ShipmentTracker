@@ -52,7 +52,7 @@ def waitForConfirm(sesh: WebDriverSession, cd = 3):
         while time() < end_time:
                 dialog = sesh.read.text(paths['confirmation_dialog'])
                 logger.debug("dialog text: {}".format(dialog))
-                if dialog == confirm_text:
+                if confirm_text in dialog:
                         return True
         
         return False
