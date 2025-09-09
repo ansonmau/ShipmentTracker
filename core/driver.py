@@ -259,3 +259,13 @@ class read:
         def _getElementText(self, element):
                 assert element is not None
                 return element.text
+
+class iframe:
+        def __init__(self, sesh: WebDriverSession):
+                self.sesh = sesh
+        
+        def reset(self):
+                self.sesh.driver.switch_to.default_content()
+        
+        def selectFrame(self, iframe_element):
+                self.sesh.driver.switch_to.frame(iframe_element)
