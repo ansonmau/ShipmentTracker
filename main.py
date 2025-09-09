@@ -12,14 +12,19 @@ import site_handlers.delivery.ups as ups
 import site_handlers.delivery.canpar as canpar
 import site_handlers.delivery.purolator as puro
 
-import testing.fedex_testing as fedex_test
-
 logger = getLogger(__name__)
 
 def main():
         logger.info("initializing...")
         initialize.run()
-        data = {}
+
+        data = {
+                "Canada Post": [],
+                "Canpar": [],
+                "Fedex": [],
+                "Purolator": [],
+                "UPS": [],
+        }
 
         logger.info("starting web driver...")
         sesh = driver.WebDriverSession(undetected=True)
