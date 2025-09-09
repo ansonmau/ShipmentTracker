@@ -55,6 +55,10 @@ def main():
         logger.debug("Purolator orders: {}".format(data['Purolator']))
         puro.track(sesh, data["Purolator"])
 
+        logger.info("starting tracking for Fedex shipments")
+        logger.debug("Fedex orders: {}".format(data['Fedex']))
+        puro.track(sesh, data["Fedex"])
+
         logger.info("tracking complete. starting clean up.")
         cleanup.run()
         logger.info("executed successfully.")
