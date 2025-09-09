@@ -23,6 +23,7 @@ def login(sesh: WebDriverSession):
 
         sesh.click.path(paths['go_login_page_btn'])
         
+        sesh.tabControl.focusNewestTab()
 
         sesh.input.path(paths['username_input'], getenv('ESHIPPER_USER'))
         sesh.input.path(paths['password_input'], getenv('ESHIPPER_PW'))
