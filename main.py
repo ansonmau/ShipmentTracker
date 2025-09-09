@@ -39,7 +39,7 @@ def main():
         logger.debug("updating data dict with new data: {}".format(new_data))
         data.update(new_data)
 
-        logger.info("starting tracking for canada post shipments")
+        logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data['Canada Post']))
         canpost.track(sesh, data['Canada Post'])
 
