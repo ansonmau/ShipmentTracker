@@ -78,7 +78,7 @@ class WebDriverSession:
                 self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
         
         def getShadowRoot(self, shadow_root_parent):
-                return self.injectJS("return arguments[0].shadowRoot", shadow_root_parent)
+                return self.driver.execute_script("return arguments[0].shadowRoot", shadow_root_parent)
 
 
 class find:
