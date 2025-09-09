@@ -61,7 +61,6 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
         sesh.input.fromParent(chat_elmnt, chat_paths['name_input'], getenv("PUROLATOR_NAME"))
         sesh.input.fromParent(chat_elmnt, chat_paths['email_input'], getenv("PUROLATOR_EMAIL"))
-
         sesh.click.fromParent(chat_elmnt, chat_paths['submit_btn'])
         sesh.click.fromParent(chat_elmnt, chat_paths['correct_btn'])
 

@@ -9,10 +9,6 @@ paths = {
         "password_input": (ELEMENT_TYPES['id'], 'password'),
         "login_button": (ELEMENT_TYPES['css'], '[aria-label="Login Button"]'),
         "usernameText": (ELEMENT_TYPES['css'], '.userNameText'),
-        "searchBox": {
-                "parent": (ELEMENT_TYPES['css'], '.tracking-search'),
-                "input": (ELEMENT_TYPES['css'], '.input-style'),
-        },
         "options_button": (ELEMENT_TYPES['css'], '.dot-menu'),
         "options_menu_buttons": (ELEMENT_TYPES['css'], '.men-item-btn'),
         "export_options_container": (ELEMENT_TYPES['css'], '.file-cards'),
