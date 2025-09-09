@@ -41,6 +41,7 @@ class WebDriverSession:
                 self.input = input(self)
                 self.filter = filter(self)
                 self.read = read(self)
+                self.iframe = iframe(self)
         
         
         def __del__(self):
@@ -267,5 +268,5 @@ class iframe:
         def reset(self):
                 self.sesh.driver.switch_to.default_content()
         
-        def selectFrame(self, iframe_element):
+        def select(self, iframe_element):
                 self.sesh.driver.switch_to.frame(iframe_element)
