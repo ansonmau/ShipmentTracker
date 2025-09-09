@@ -13,7 +13,8 @@ paths = {
         "deny_cookies_btn": (ELEMENT_TYPES['css'], '.uc-deny-button'),
         "email_input": (ELEMENT_TYPES['id'], 'sender_email'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
-        "confirmation_dialog": (ELEMENT_TYPES['tag'], 'trk-shared-get-status-updates-inline')
+        "confirmation_dialog": (ELEMENT_TYPES['tag'], 'trk-shared-get-status-updates-inline'),
+        "cookies_iframe": (ELEMENT_TYPES['tag'], 'iframe')
 }
 
 def track(sesh: WebDriverSession, tracking_nums):
@@ -57,5 +58,8 @@ def removeCookiesBanner(sesh: WebDriverSession):
         global denied_cookies
 
         if not denied_cookies:
+                sesh.iframe.select()
                 sesh.click.element_by_js(paths['deny_cookies_btn'])
                 denied_cookies = True
+        
+        sesh.iframe.reset()
