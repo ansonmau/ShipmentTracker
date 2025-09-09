@@ -23,20 +23,25 @@ def track(sesh: WebDriverSession, tracking_nums):
                 "crash": []
         }
 
+        total_tracking_nums = len(tracking_nums)
+        counter = 1
+
         for tracking_num in tracking_nums:
+                logger.info("{}/{} (#{}) Attempting tracking".format(counter, total_tracking_nums, tracking_num))
                 try:
                         if executeScript(sesh, tracking_num):
                                 report['success'].append(tracking_num)
+                                logger.info("(#{}) success")
                         else:
                                 report['fail'].append(tracking_num)
+                                logger.info("(#{}) fail")
                 except Exception as e:
-                        logger.warning("(#{}) Unknown error: {}".format(tracking_num, e))
+                        logger.error("(#{}) Crash -> unknown error: {}".format(tracking_num, e))
                         report['crash'].append(tracking_num)
 
         return report
         
 def executeScript(sesh: WebDriverSession, tracking_num):
-        logger.info("Starting tracking for {}".format(tracking_num))
         link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(tracking_num)
         sesh.get(link)
 
