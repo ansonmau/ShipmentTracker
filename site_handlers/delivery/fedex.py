@@ -10,11 +10,14 @@ denied_cookies = False
 
 
 paths = {
-        "deny_cookies_btn": (ELEMENT_TYPES['css'], '.uc-deny-button'),
         "email_input": (ELEMENT_TYPES['id'], 'sender_email'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
         "confirmation_dialog": (ELEMENT_TYPES['tag'], 'trk-shared-get-status-updates-inline'),
-        "cookies_iframe": (ELEMENT_TYPES['tag'], 'iframe')
+}
+
+cookie_banner_paths = {
+        "shadow_parent": (ELEMENT_TYPES['id'], 'usercentrics-cmp-ui'),
+        "deny_btn": (ELEMENT_TYPES['id'], 'deny')
 }
 
 def track(sesh: WebDriverSession, tracking_nums):
@@ -48,7 +51,7 @@ def waitForConfirm(sesh: WebDriverSession, cd = 3):
 
         while time() < end_time:
                 dialog = sesh.read.text(paths['confirmation_dialog'])
-                logger.debug("dialog text: {}".format())
+                logger.debug("dialog text: {}".format(dialog))
                 if dialog == confirm_text:
                         return True
         
@@ -57,9 +60,12 @@ def waitForConfirm(sesh: WebDriverSession, cd = 3):
 def removeCookiesBanner(sesh: WebDriverSession):
         global denied_cookies
 
-        if not denied_cookies:
-                sesh.iframe.select()
-                sesh.click.element_by_js(paths['deny_cookies_btn'])
-                denied_cookies = True
-        
-        sesh.iframe.reset()
+        if denied_cookies:
+                return
+
+        shadow_parent = sesh.find.path(cookie_banner_paths['shadow_parent'])
+        shadow_root = sesh.getShadowRoot(shadow_parent)
+
+        sesh.click.fromParent(shadow_root, cookie_banner_paths['deny_btn'])
+
+        denied_cookies = True
