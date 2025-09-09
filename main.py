@@ -101,5 +101,4 @@ class cleanup():
                 pass
 
 if __name__ == "__main__":
-        fedex_test.main()
-        #main()
+        main()
