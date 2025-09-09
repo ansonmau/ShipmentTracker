@@ -48,7 +48,4 @@ def scrape(sesh: WebDriverSession):
         sesh.click.element(export_as_csv)
 
         sesh.click.path(paths['export_button'])
-
         
-
-
