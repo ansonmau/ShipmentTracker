@@ -42,6 +42,7 @@ class WebDriverSession:
                 self.filter = filter(self)
                 self.read = read(self)
                 self.iframe = iframe(self)
+                self.tabControl = tabControl(self)
         
         
         def __del__(self):

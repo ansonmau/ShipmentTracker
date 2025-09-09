@@ -22,6 +22,7 @@ def login(sesh: WebDriverSession):
         sesh.get("https://www.eshipper.com/")
 
         sesh.click.path(paths['go_login_page_btn'])
+        
 
         sesh.input.path(paths['username_input'], getenv('ESHIPPER_USER'))
         sesh.input.path(paths['password_input'], getenv('ESHIPPER_PW'))
