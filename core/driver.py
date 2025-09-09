@@ -236,8 +236,8 @@ class click:
                 self._click_element(element)
         
         def element_by_js(self, element):
-                self.sesh.execute_script("arguments[0].scrollIntoView({block:'center'});", element)
-                self.sesh.execute_script("arguments[0].click();", element)
+                self.sesh.injectJS("arguments[0].scrollIntoView({block:'center'});", element)
+                self.sesh.injectJS("arguments[0].click();", element)
 
         def fromParent(self, parent, pathTuple):
                 element = self.sesh.find.fromParent(parent, pathTuple)
