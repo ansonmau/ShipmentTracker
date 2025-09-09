@@ -31,7 +31,7 @@ def track(sesh: WebDriverSession, tracking_nums):
                         else:
                                 report['fail'].append(tracking_num)
                 except Exception as e:
-                        logger.warning("(#{})Unknown error: {}".format(tracking_num, e))
+                        logger.warning("(#{}) Unknown error: {}".format(tracking_num, e))
                         report['crash'].append(tracking_num)
 
         return report
