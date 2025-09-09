@@ -303,4 +303,4 @@ class tabControl:
 
         def focusNewestTab(self):
                 newest_tab = self.getTabs()[-1]
-                self.switchToTab(newest_tab)
+                self.focusTab(newest_tab)
