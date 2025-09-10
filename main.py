@@ -11,6 +11,7 @@ import site_handlers.management.eshipper as eshipper_sh
 import site_handlers.delivery.canadapost as canpost
 import site_handlers.delivery.ups as ups
 import site_handlers.delivery.canpar as canpar
+import site_handlers.delivery.fedex as fdx
 import site_handlers.delivery.purolator as puro
 
 logger = getLogger(__name__)
