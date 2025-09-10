@@ -1,5 +1,6 @@
 import core.driver as driver
 from core.log import getLogger
+from core.track import track
 
 from dotenv import load_dotenv
 import os
@@ -41,28 +42,29 @@ def main():
 
         logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data['Canada Post']))
-        canpost.track(sesh, data['Canada Post'])
+        track(sesh, data['Canada Post'], canpost.executeScript)
 
         logger.info("starting tracking for UPS shipments")
         logger.debug("UPS orders: {}".format(data['UPS']))
-        ups.track(sesh, data['UPS'])
+        track(sesh, data['UPS'], ups.executeScript)
 
         logger.info("starting tracking for Canpar shipments")
         logger.debug("Canpar orders: {}".format(data['Canpar']))
-        canpar.track(sesh, data["Canpar"])
+        track(sesh, data["Canpar"], canpar.executeScript)
 
         logger.info("starting tracking for Purolator shipments")
         logger.debug("Purolator orders: {}".format(data['Purolator']))
-        puro.track(sesh, data["Purolator"])
+        puro.track(sesh, data["Purolator"], puro.executeScript)
 
         logger.info("starting tracking for Fedex shipments")
         logger.debug("Fedex orders: {}".format(data['Fedex']))
-        puro.track(sesh, data["Fedex"])
+        track(sesh, data["Fedex"], fdx.executeScript)
 
         logger.info("tracking complete. starting clean up.")
         cleanup.run()
         logger.info("executed successfully.")
-        pass
+        
+        return
 
 class initialize:
         @staticmethod
