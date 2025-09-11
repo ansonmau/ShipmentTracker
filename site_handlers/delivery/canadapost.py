@@ -12,7 +12,7 @@ paths = {
         "add_email_btn": (ELEMENT_TYPES['css'], '.add'),
         "add_email_blocked": (ELEMENT_TYPES['css'], '.disabled'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
-        "dialog_1": (ELEMENT_TYPES['tag'], 'track-emails-dialog'),
+        "dialog_1": (ELEMENT_TYPES['tag'], 'track-email-dialog'),
         "dialog_2": (ELEMENT_TYPES['tag'], 'add-emails-dialog'),
 }
         
@@ -28,12 +28,14 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
         waitDialogLoad(sesh)
         dialog_txt = getDialogText(sesh)
-        if "You can add or remove email addresses" in dialog_txt:
-                if "reached maximum" in dialog_txt:
-                        return False
-                passDialog1(sesh)
 
-        waitDialogLoad(sesh)
+        if "reached the maximum" in dialog_txt:
+                return False
+        
+        if "You can add or remove email addresses" in dialog_txt:
+                passDialog1(sesh)
+                waitDialogLoad(sesh)
+                
         email_inputs = sesh.find.all(paths['email_input'])
         if len(email_inputs) == 1:
                 if not canAddEmails(sesh):
