@@ -50,8 +50,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         sesh.click.path(paths['submit_btn'])
 
         waitDialogLoad(sesh)
-
-        logger.info('completed sign up for order {}'.format(tracking_num))
+        
         return True
 
 def getDialogText(sesh: WebDriverSession):
