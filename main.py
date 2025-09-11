@@ -81,8 +81,6 @@ class initialize:
                 logger.info("creating data folder if it does not exist")
                 initialize.createDataFolder()
 
-                logger.info("creating log folder if it does not exist")
-                initialize.createLogFolder()
 
         @staticmethod
         def createDownloadsFolder():
@@ -98,10 +96,6 @@ class initialize:
         def loadEnvFile():
                 load_dotenv(dotenv_path="./data/keys.env")
         
-        @staticmethod
-        def createLogFolder():
-                log_dir = os.path.abspath("./logs")
-                os.makedirs(log_dir, exist_ok=True)
 
 class cleanup():
         @staticmethod
