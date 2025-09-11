@@ -48,6 +48,8 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         waitDialogLoad(sesh)
         dialog_txt = getDialogText(sesh)
         if "You can add or remove email addresses" in dialog_txt:
+                if "reached maximum" in dialog_txt:
+                        return False
                 passDialog1(sesh)
 
         waitDialogLoad(sesh)
