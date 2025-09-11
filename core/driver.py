@@ -42,6 +42,7 @@ class WebDriverSession:
                 self.filter = filter(self)
                 self.read = read(self)
                 self.iframe = iframe(self)
+                self.tabControl = tabControl(self)
         
         
         def __del__(self):
@@ -273,3 +274,33 @@ class iframe:
         
         def select(self, iframe_element):
                 self.sesh.driver.switch_to.frame(iframe_element)
+        
+class tabControl:
+        def __init__(self, sesh: WebDriverSession):
+                self.sesh = sesh
+        
+        def _waitForNewTab(self, wait=5):
+                curr_num_tabs = len(self.sesh.driver.window_handles)
+                try:
+                        WebDriverWait(self.sesh.driver, wait).until(lambda x: len(x.window_handles) > curr_num_tabs)
+                        return True
+                except TimeoutException:
+                        logger.debug("New tab did not appear")
+
+                return False
+        
+        def getNumTabs(self):
+                return len(self.getTabs())
+
+        def getTabs(self):
+                return self.sesh.driver.window_handles
+
+        def getCurrentTab(self):
+                return self.sesh.driver.current_window_handle
+        
+        def focusTab(self, tab):
+                self.sesh.driver.switch_to.window(tab)
+
+        def focusNewestTab(self):
+                newest_tab = self.getTabs()[-1]
+                self.focusTab(newest_tab)
