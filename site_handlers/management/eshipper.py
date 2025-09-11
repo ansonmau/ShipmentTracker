@@ -5,6 +5,7 @@ from core.log import getLogger
 logger = getLogger(__name__)
 
 paths = {
+        "go_login_page_btn": (ELEMENT_TYPES['id'], 'login'),
         "username_input": (ELEMENT_TYPES['id'], 'username'),
         "password_input": (ELEMENT_TYPES['id'], 'password'),
         "login_button": (ELEMENT_TYPES['css'], '[aria-label="Login Button"]'),
@@ -18,7 +19,11 @@ paths = {
 
 
 def login(sesh: WebDriverSession):
-        sesh.get("https://ww2.eshipper.com/customer/tracking")
+        sesh.get("https://www.eshipper.com/")
+
+        sesh.click.path(paths['go_login_page_btn'])
+        
+        sesh.tabControl.focusNewestTab()
 
         sesh.input.path(paths['username_input'], getenv('ESHIPPER_USER'))
         sesh.input.path(paths['password_input'], getenv('ESHIPPER_PW'))
@@ -48,4 +53,3 @@ def scrape(sesh: WebDriverSession):
         sesh.click.element(export_as_csv)
 
         sesh.click.path(paths['export_button'])
-        
