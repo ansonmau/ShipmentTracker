@@ -46,7 +46,12 @@ class WebDriverSession:
         
         
         def __del__(self):
-                self.driver.quit()
+                # use try/except to get rid of error msg caused by UC quitting
+                # doing this is safe because it's during shutdown
+                try:
+                        self.driver.quit()
+                except:
+                        pass
         
         def _getOptions(self, undetected = False):
                 relative_path = "./dls"
