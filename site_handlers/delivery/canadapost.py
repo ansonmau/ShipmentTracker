@@ -12,34 +12,9 @@ paths = {
         "add_email_btn": (ELEMENT_TYPES['css'], '.add'),
         "add_email_blocked": (ELEMENT_TYPES['css'], '.disabled'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
-        "dialog_1": (ELEMENT_TYPES['id'], 'track-emails-dialog'),
-        "dialog_2": (ELEMENT_TYPES['id'], 'add-emails-dialog'),
+        "dialog_1": (ELEMENT_TYPES['tag'], 'track-email-dialog'),
+        "dialog_2": (ELEMENT_TYPES['tag'], 'add-emails-dialog'),
 }
-
-def track(sesh: WebDriverSession, tracking_nums):
-        report = {
-                "success": [],
-                "fail": [],
-                "crash": []
-        }
-
-        total_tracking_nums = len(tracking_nums)
-        counter = 1
-
-        for tracking_num in tracking_nums:
-                logger.info("{}/{} (#{}) Attempting tracking".format(counter, total_tracking_nums, tracking_num))
-                try:
-                        if executeScript(sesh, tracking_num):
-                                report['success'].append(tracking_num)
-                                logger.info("(#{}) success")
-                        else:
-                                report['fail'].append(tracking_num)
-                                logger.info("(#{}) fail")
-                except Exception as e:
-                        logger.error("(#{}) Crash -> unknown error: {}".format(tracking_num, e))
-                        report['crash'].append(tracking_num)
-
-        return report
         
 def executeScript(sesh: WebDriverSession, tracking_num):
         link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(tracking_num)
@@ -52,10 +27,14 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
         waitDialogLoad(sesh)
         dialog_txt = getDialogText(sesh)
+
+        if "reached the maximum" in dialog_txt:
+                return False
+        
         if "You can add or remove email addresses" in dialog_txt:
                 passDialog1(sesh)
-
-        waitDialogLoad(sesh)
+                waitDialogLoad(sesh)
+                
         email_inputs = sesh.find.all(paths['email_input'])
         if len(email_inputs) == 1:
                 if not canAddEmails(sesh):
@@ -70,8 +49,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         sesh.click.path(paths['submit_btn'])
 
         waitDialogLoad(sesh)
-
-        logger.info('completed sign up for order {}'.format(tracking_num))
+        
         return True
 
 def getDialogText(sesh: WebDriverSession):

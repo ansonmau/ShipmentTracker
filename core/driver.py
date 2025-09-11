@@ -96,10 +96,10 @@ class find:
                                         )
                         )
                 except NoSuchElementException:
-                        logger.error("could not find {}".format(targetTuple))
+                        logger.debug("could not find {}".format(targetTuple))
                         element = None
                 except TimeoutException:
-                        logger.error("timed out finding {}".format(targetTuple))
+                        logger.debug("timed out finding {}".format(targetTuple))
                         element = None
                 
 
@@ -114,10 +114,10 @@ class find:
                                 lambda d: parentElement.find_element(target_elem_type, target_path)
                         )
                 except NoSuchElementException:
-                        logger.error("could not find {}".format(targetTuple))
+                        logger.debug("could not find {}".format(targetTuple))
                         element = None
                 except TimeoutException:
-                        logger.error("timed out finding {}".format(targetTuple))
+                        logger.debug("timed out finding {}".format(targetTuple))
                         element = None
                 
                 return element
@@ -132,10 +132,10 @@ class find:
                                         )
                         )
                 except NoSuchElementException:
-                        logger.error("could not find {}".format(targetTuple))
+                        logger.debug("could not find {}".format(targetTuple))
                         elements = None
                 except TimeoutException:
-                        logger.error("timed out finding {}".format(targetTuple))
+                        logger.debug("timed out finding {}".format(targetTuple))
                         elements = None
                 
 
@@ -150,10 +150,10 @@ class find:
                                 lambda d: parentElement.find_elements(target_elem_type, target_path)
                         )
                 except NoSuchElementException:
-                        logger.error("could not find {}".format(targetTuple))
+                        logger.debug("could not find {}".format(targetTuple))
                         elements = None
                 except TimeoutException:
-                        logger.error("timed out finding {}".format(targetTuple))
+                        logger.debug("timed out finding {}".format(targetTuple))
                         elements = None
 
                 return elements
@@ -189,7 +189,7 @@ class waitFor:
                 try:
                         WebDriverWait(self.sesh.driver, 10).until(fnc)
                 except TimeoutException:
-                        logger.error("waiting for function failed")
+                        logger.debug("waiting for function failed")
                         return False
                 
                 return True

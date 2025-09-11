@@ -1,5 +1,6 @@
 import core.driver as driver
 from core.log import getLogger
+from core.track import track
 
 from dotenv import load_dotenv
 import os
@@ -10,6 +11,7 @@ import site_handlers.management.eshipper as eshipper_sh
 import site_handlers.delivery.canadapost as canpost
 import site_handlers.delivery.ups as ups
 import site_handlers.delivery.canpar as canpar
+import site_handlers.delivery.fedex as fdx
 import site_handlers.delivery.purolator as puro
 
 logger = getLogger(__name__)
@@ -21,10 +23,12 @@ def main():
         data = {
                 "Canada Post": [],
                 "Canpar": [],
-                "Fedex": [],
+                "Federal Express": [],
                 "Purolator": [],
                 "UPS": [],
         }
+
+        reports = {}
 
         logger.info("starting web driver...")
         sesh = driver.WebDriverSession(undetected=True)
@@ -41,28 +45,29 @@ def main():
 
         logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data['Canada Post']))
-        canpost.track(sesh, data['Canada Post'])
+        reports["Canada Post"] = track(sesh, data['Canada Post'], canpost.executeScript)
 
         logger.info("starting tracking for UPS shipments")
         logger.debug("UPS orders: {}".format(data['UPS']))
-        ups.track(sesh, data['UPS'])
+        reports["UPS"] = track(sesh, data['UPS'], ups.executeScript)
 
         logger.info("starting tracking for Canpar shipments")
         logger.debug("Canpar orders: {}".format(data['Canpar']))
-        canpar.track(sesh, data["Canpar"])
+        reports["Canpar"] = track(sesh, data["Canpar"], canpar.executeScript)
 
         logger.info("starting tracking for Purolator shipments")
         logger.debug("Purolator orders: {}".format(data['Purolator']))
-        puro.track(sesh, data["Purolator"])
+        reports["Purolator"] = track(sesh, data["Purolator"], puro.executeScript)
 
         logger.info("starting tracking for Fedex shipments")
-        logger.debug("Fedex orders: {}".format(data['Fedex']))
-        puro.track(sesh, data["Fedex"])
+        logger.debug("Fedex orders: {}".format(data['Federal Express']))
+        reports["Fedex"] = track(sesh, data["Federal Express"], fdx.executeScript)
 
         logger.info("tracking complete. starting clean up.")
         cleanup.run()
-        logger.info("executed successfully.")
-        pass
+        logger.info("clean up completed")
+        
+        return
 
 class initialize:
         @staticmethod
@@ -89,6 +94,11 @@ class initialize:
         @staticmethod
         def loadEnvFile():
                 load_dotenv(dotenv_path="./data/keys.env")
+        
+        @staticmethod
+        def createLogFolder():
+                log_dir = os.path.abspath("./logs")
+                os.makedirs(log_dir, exist_ok=True)
 
 class cleanup():
         @staticmethod
