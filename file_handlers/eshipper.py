@@ -27,7 +27,7 @@ def parse():
                         break
                 
                 status = entry['Status']
-                if status != "IN TRANSIT":
+                if status not in ["IN TRANSIT", "READY FOR SHIPPING"]:
                         continue
                 
                 tracking_num = entry["Tracking#"]
