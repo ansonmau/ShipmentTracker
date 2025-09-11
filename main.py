@@ -23,7 +23,7 @@ def main():
         data = {
                 "Canada Post": [],
                 "Canpar": [],
-                "Fedex": [],
+                "Federal Express": [],
                 "Purolator": [],
                 "UPS": [],
         }
@@ -60,12 +60,12 @@ def main():
         reports["Purolator"] = track(sesh, data["Purolator"], puro.executeScript)
 
         logger.info("starting tracking for Fedex shipments")
-        logger.debug("Fedex orders: {}".format(data['Fedex']))
-        reports["Fedex"] = track(sesh, data["Fedex"], fdx.executeScript)
+        logger.debug("Fedex orders: {}".format(data['Federal Express']))
+        reports["Fedex"] = track(sesh, data["Federal Express"], fdx.executeScript)
 
         logger.info("tracking complete. starting clean up.")
         cleanup.run()
-        logger.info("executed successfully.")
+        logger.info("clean up completed")
         
         return
 
