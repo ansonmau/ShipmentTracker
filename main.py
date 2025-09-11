@@ -5,14 +5,14 @@ from core.track import track
 from dotenv import load_dotenv
 import os
 
-import file_handlers.eshipper as eshipper_fh
+import handlers.file_handlers.eshipper as eshipper_fh
 
-import site_handlers.management.eshipper as eshipper_sh
-import site_handlers.delivery.canadapost as canpost
-import site_handlers.delivery.ups as ups
-import site_handlers.delivery.canpar as canpar
-import site_handlers.delivery.fedex as fdx
-import site_handlers.delivery.purolator as puro
+import handlers.site_handlers.management.eshipper as eshipper_sh
+import handlers.site_handlers.delivery.canadapost as canpost
+import handlers.site_handlers.delivery.ups as ups
+import handlers.site_handlers.delivery.canpar as canpar
+import handlers.site_handlers.delivery.fedex as fdx
+import handlers.site_handlers.delivery.purolator as puro
 
 logger = getLogger(__name__)
 
