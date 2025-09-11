@@ -12,28 +12,9 @@ paths = {
         "add_email_btn": (ELEMENT_TYPES['css'], '.add'),
         "add_email_blocked": (ELEMENT_TYPES['css'], '.disabled'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
-        "dialog_1": (ELEMENT_TYPES['id'], 'track-emails-dialog'),
-        "dialog_2": (ELEMENT_TYPES['id'], 'add-emails-dialog'),
+        "dialog_1": (ELEMENT_TYPES['tag'], 'track-emails-dialog'),
+        "dialog_2": (ELEMENT_TYPES['tag'], 'add-emails-dialog'),
 }
-
-def track(sesh: WebDriverSession, tracking_nums):
-        report = {
-                "success": [],
-                "fail": [],
-                "crash": []
-        }
-
-        for tracking_num in tracking_nums:
-                try:
-                        if executeScript(sesh, tracking_num):
-                                report['success'].append(tracking_num)
-                        else:
-                                report['fail'].append(tracking_num)
-                except Exception as e:
-                        logger.warning("(#{}) Unknown error: {}".format(tracking_num, e))
-                        report['crash'].append(tracking_num)
-
-        return report
         
 def executeScript(sesh: WebDriverSession, tracking_num):
         logger.info("Starting tracking for {}".format(tracking_num))
