@@ -179,6 +179,22 @@ class find:
                 
                 return filtered_elements
 
+        def buttons_within(self, parent_element, filter = None, wait = 5):
+                assert parent_element is not None
+
+                btn = (ELEMENT_TYPES['tag'], 'button')
+                btn_elm_list = self.allFromParent(parent_element, btn)
+
+                if not filter:
+                        return btn_elm_list
+
+                filtered_elements = []
+                for btn in btn_elm_list:
+                        if filter in self.sesh.read.textFromElement(btn):
+                                filtered_elements.append(btn)
+                
+                return filtered_elements
+
 class filter:
         def __init__(self, sesh: WebDriverSession):
                 self.sesh = sesh
