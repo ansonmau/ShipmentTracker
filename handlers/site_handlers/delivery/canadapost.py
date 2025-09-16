@@ -12,8 +12,8 @@ paths = {
         "add_email_btn": (ELEMENT_TYPES['css'], '.add'),
         "add_email_blocked": (ELEMENT_TYPES['css'], '.disabled'),
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
-        "dialog_1": (ELEMENT_TYPES['tag'], 'track-email-dialog'),
-        "dialog_2": (ELEMENT_TYPES['tag'], 'add-emails-dialog'),
+        "dialog_type_1": (ELEMENT_TYPES['tag'], 'track-email-dialog'),
+        "dialog_type_2": (ELEMENT_TYPES['tag'], 'add-emails-dialog'),
 }
         
 def executeScript(sesh: WebDriverSession, tracking_num):
@@ -54,9 +54,9 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         return True
 
 def getDialogText(sesh: WebDriverSession):
-        dialog_element = sesh.find.path(paths['dialog_1'], wait=1)
+        dialog_element = sesh.find.path(paths['dialog_type_2'], wait=1)
         if dialog_element is None:
-                dialog_element = sesh.find.path(paths['dialog_2'])
+                dialog_element = sesh.find.path(paths['dialog_type_1'])
 
         assert dialog_element is not None
 
@@ -92,7 +92,7 @@ def canGetNotifications(sesh: WebDriverSession):
         return True
 
 def canAddEmails(sesh: WebDriverSession):
-        dialog = sesh.find.path(paths['dialog_2']) # will only check this in dialog 2
+        dialog = sesh.find.path(paths['dialog_type_2']) # will only check this in dialog 2
         add_blocked = sesh.find.fromParent(dialog, paths['add_email_blocked'],wait=1)
 
         # element exists = cannot add new emails
