@@ -46,7 +46,7 @@ class WebDriverSession:
         
         
         def __del__(self):
-                # use try/except to get rid of error msg caused by UC quitting
+                # UC quit will always cause errors even though it works
                 # doing this is safe because it's during shutdown
                 try:
                         self.driver.quit()
