@@ -14,6 +14,8 @@ import handlers.site_handlers.delivery.canpar as canpar
 import handlers.site_handlers.delivery.fedex as fdx
 import handlers.site_handlers.delivery.purolator as puro
 
+import testing.fc_testing as fc
+
 logger = getLogger(__name__)
 
 def main():
@@ -33,35 +35,7 @@ def main():
         logger.info("starting web driver...")
         sesh = driver.WebDriverSession(undetected=True)
 
-        logger.info("scraping eshipper for orders")
-        eshipper_sh.scrape(sesh)
-        
-        logger.info("reading eshipper file")
-        new_data = eshipper_fh.parse()
-        logger.debug("parsed data: {}".format(new_data))
-        
-        logger.debug("updating data dict with new data: {}".format(new_data))
-        data.update(new_data)
-
-        logger.info("starting tracking for Canada Post shipments")
-        logger.debug("Canada Post orders: {}".format(data['Canada Post']))
-        reports["Canada Post"] = track(sesh, data['Canada Post'], canpost.executeScript)
-
-        logger.info("starting tracking for UPS shipments")
-        logger.debug("UPS orders: {}".format(data['UPS']))
-        reports["UPS"] = track(sesh, data['UPS'], ups.executeScript)
-
-        logger.info("starting tracking for Canpar shipments")
-        logger.debug("Canpar orders: {}".format(data['Canpar']))
-        reports["Canpar"] = track(sesh, data["Canpar"], canpar.executeScript)
-
-        logger.info("starting tracking for Purolator shipments")
-        logger.debug("Purolator orders: {}".format(data['Purolator']))
-        reports["Purolator"] = track(sesh, data["Purolator"], puro.executeScript)
-
-        logger.info("starting tracking for Fedex shipments")
-        logger.debug("Fedex orders: {}".format(data['Federal Express']))
-        reports["Fedex"] = track(sesh, data["Federal Express"], fdx.executeScript)
+        fc.test(sesh)
 
         logger.info("tracking complete. starting clean up.")
         cleanup.run()
