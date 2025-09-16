@@ -162,6 +162,22 @@ class find:
                         elements = None
 
                 return elements
+        
+        def links_within(self, parent_element, filter = None, wait = 5):
+                assert parent_element is not None
+
+                links = (ELEMENT_TYPES['tag'], 'a')
+                link_elements = self.allFromParent(parent_element, links)
+
+                if not filter:
+                        return link_elements
+
+                filtered_elements = []
+                for elmnt in link_elements:
+                        if filter in self.sesh.read.textFromElement(elmnt):
+                                filtered_elements.append(elmnt)
+                
+                return filtered_elements
 
 class filter:
         def __init__(self, sesh: WebDriverSession):
