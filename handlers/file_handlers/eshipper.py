@@ -65,7 +65,7 @@ def waitForFile(cd = 30):
 
 def getEshipperFiles():
         proj_folder = pathlib.Path(__file__).resolve().parent.parent
-        dl_folder = proj_folder / 'dls'
+        dl_folder = proj_folder/'dls'
 
         files = dl_folder.glob("Track*.csv") # returns generator
         files = list(files)
@@ -74,7 +74,7 @@ def getEshipperFiles():
 
 def save(data):
         proj_folder = pathlib.Path(__file__).resolve().parent.parent
-        file_path = proj_folder / 'data' / 'delivery_data.txt'
+        file_path = proj_folder/'data'/'delivery_data.txt'
 
         with open(str(file_path), 'w') as f:
                 f.write(str(data))
