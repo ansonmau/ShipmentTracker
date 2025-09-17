@@ -17,7 +17,6 @@ paths = {
 }
         
 def executeScript(sesh: WebDriverSession, tracking_num):
-        logger.info("Starting tracking for {}".format(tracking_num))
         link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(tracking_num)
         sesh.get(link)
 
