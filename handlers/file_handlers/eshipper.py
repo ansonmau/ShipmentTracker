@@ -11,7 +11,7 @@ PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent.parent
 
 
 def parse():
-        file = get_downloaded_file(cd = 1)
+        file = get_downloaded_file()
         
         # should only be one file
         file_path = str(file)
