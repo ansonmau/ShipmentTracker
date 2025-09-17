@@ -8,7 +8,6 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
 import undetected_chromedriver as uc
 import time
-import random
 import os
 
 from core.log import getLogger
@@ -21,10 +20,6 @@ ELEMENT_TYPES = {
         'xpath': By.XPATH,
         'tag': By.TAG_NAME,
 }
-
-def randomWait(min = 0.5, max = 1.5):
-        delay = random.uniform(min,max)
-        time.sleep(delay)
 
 class WebDriverSession:
         def __init__(self, undetected=False):
@@ -242,7 +237,6 @@ class input:
                 assert target_element is not None
 
                 self.sesh.click.element(target_element)
-                randomWait()
                 target_element.send_keys(keys)
 
         def element(self, element, txt):
@@ -266,7 +260,6 @@ class click:
         def _click_element(self, target_element):
                 assert target_element is not None
 
-                randomWait()
                 target_element.click()
 
         def element(self, elmnt): 
