@@ -7,74 +7,71 @@ from core.log import getLogger
 
 log = getLogger(__name__)
 
+PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent.parent
+
+
 def parse():
-        eshipper_files = waitForFile(cd = 30)
-        assert len(eshipper_files) == 1
+        file = get_downloaded_file(cd = 1)
         
-        date_format = "%m/%d/%Y"
-        day_diff = 30
-        min_date = getMinDate(day_diff)
-
         # should only be one file
-        file_path = str(eshipper_files[0])
-        file = open(file_path, 'r')
-        file_dict = csv.DictReader(file)
+        file_path = str(file)
+        with open(file_path, 'r') as file:
+                file_dict = csv.DictReader(file)
 
-        data = {}
-        for entry in file_dict:
-                entry_date = datetime.strptime(entry["Ship Date"], date_format)
-                if entry_date < min_date:
-                        break
+                date_format = "%m/%d/%Y"
+                day_diff = 30
+                min_date = calc_oldest_day(day_diff)
+                data = {}
+
+                for entry in file_dict:
+                        entry_date = datetime.strptime(entry["Ship Date"], date_format)
+                        if entry_date < min_date:
+                                break
+                        
+                        status = entry['Status']
+                        if status not in ["IN TRANSIT", "READY FOR SHIPPING"]:
+                                continue
+                        
+                        tracking_num = entry["Tracking#"]
+                        carrier = entry["Carrier"]
+
+                        if carrier in data:
+                                data[carrier].append(tracking_num)
+                        else:
+                                data[carrier] = [tracking_num]
                 
-                status = entry['Status']
-                if status not in ["IN TRANSIT", "READY FOR SHIPPING"]:
-                        continue
-                
-                tracking_num = entry["Tracking#"]
-                carrier = entry["Carrier"]
-
-                if carrier in data:
-                        data[carrier].append(tracking_num)
-                else:
-                        data[carrier] = [tracking_num]
-        
-        
-        file.close()
-        save(data)
-
+        save_data(data)
         return data
 
-def getMinDate(day_diff):
+def calc_oldest_day(day_diff):
         curr_date = datetime.today()
         min_date = curr_date - timedelta(days = day_diff)
         return min_date   
 
-
-def check():
-        files = getEshipperFiles()
-        return True if len(files)>0 else False
-
-def waitForFile(cd = 30):
+def get_downloaded_file(cd = 30):
         end_time = time.time() + cd
 
-        files = getEshipperFiles()
-        while time.time() < end_time and len(files) == 0:
-                files = getEshipperFiles()
+        files = check_downloads()
+        og_file_num = len(files)
+        while len(files) <= og_file_num and time.time() < end_time:
+                files = check_downloads()
 
-        return files
+        return files[0]
 
-def getEshipperFiles():
-        proj_folder = pathlib.Path(__file__).resolve().parent.parent
-        dl_folder = proj_folder/'dls'
+def check_downloads():
+        dl_folder = PROJ_FOLDER/'dls'
 
         files = dl_folder.glob("Track*.csv") # returns generator
-        files = list(files)
 
-        return files
+        return list(files)
 
-def save(data):
-        proj_folder = pathlib.Path(__file__).resolve().parent.parent
-        file_path = proj_folder/'data'/'delivery_data.txt'
+def save_data(data):
+        file_path = PROJ_FOLDER/'data'/'delivery_data.txt'
 
         with open(str(file_path), 'w') as f:
-                f.write(str(data))
+                for key in data:
+                        f.write(key + '\n')
+                        if len(data[key]) == 0:
+                                f.write('\t' + "N/A" + '\n')
+                        for val in data[key]:
+                                f.write('\t' + val + '\n')
