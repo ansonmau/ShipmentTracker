@@ -40,7 +40,6 @@ def main():
         new_data = eshipper_fh.parse()
         logger.debug("parsed data: {}".format(new_data))
         
-        logger.debug("updating data dict with new data: {}".format(new_data))
         data.update(new_data)
 
         logger.info("starting tracking for Canada Post shipments")
