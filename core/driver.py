@@ -290,7 +290,19 @@ class read:
         
         def textFromElement(self, element):
                 return self._getElementText(element)
+        
+        def attribute(self, targetTuple, attr_name):
+                elm = self.sesh.find.path(targetTuple)
 
+                return self._getElementAttribute(elm, attr_name)
+        
+        def attributeFromElement(self, elm, attr_name):
+                return self._getElementAttribute(elm, attr_name)
+
+        def _getElementAttribute(self, element, attribute):
+                assert element is not None
+                return element.get_attribute(attribute)
+        
         def _getElementText(self, element):
                 assert element is not None
                 return element.text
