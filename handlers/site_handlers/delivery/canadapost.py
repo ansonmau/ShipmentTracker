@@ -17,7 +17,6 @@ paths = {
 }
         
 def executeScript(sesh: WebDriverSession, tracking_num):
-        logger.info("Starting tracking for {}".format(tracking_num))
         link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(tracking_num)
         sesh.get(link)
 
@@ -50,6 +49,9 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         sesh.click.path(paths['submit_btn'])
 
         waitDialogLoad(sesh)
+
+        ok_btn = get_ok_button(sesh)
+        sesh.click.element(ok_btn)
         
         return True
 
@@ -97,3 +99,11 @@ def canAddEmails(sesh: WebDriverSession):
 
         # element exists = cannot add new emails
         return False if add_blocked else True
+
+def get_ok_button(sesh: WebDriverSession):
+        dialog = sesh.find.path(paths['dialog_type_1'])
+
+        assert dialog is not None
+        ok_btn_lst = sesh.find.buttons_within(dialog, filter="OK")
+        
+        return ok_btn_lst[0]
