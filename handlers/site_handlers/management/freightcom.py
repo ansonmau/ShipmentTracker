@@ -45,7 +45,7 @@ def login(sesh: WebDriverSession):
         sesh.input.path(Paths.login['pw_input'], getenv("FREIGHTCOM_PW"))
         
         input("[INPUT REQUIRED] Complete login process then come back and press enter")
-        pass 
+
 
 def main(sesh: WebDriverSession):
         login(sesh)
