@@ -10,8 +10,8 @@ log = getLogger(__name__)
 PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent.parent
 
 
-def parse():
-        file = get_downloaded_file()
+def parse(file_search_time=30):
+        file = get_downloaded_file(file_search_time)
         
         # should only be one file
         file_path = str(file)
@@ -48,8 +48,8 @@ def calc_oldest_day(day_diff):
         min_date = curr_date - timedelta(days = day_diff)
         return min_date   
 
-def get_downloaded_file(cd = 30):
-        end_time = time.time() + cd
+def get_downloaded_file(search_time = 30):
+        end_time = time.time() + search_time
 
         files = check_downloads()
         og_file_num = len(files)
