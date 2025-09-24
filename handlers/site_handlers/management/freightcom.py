@@ -47,7 +47,7 @@ def login(sesh: WebDriverSession):
         input("[INPUT REQUIRED] Complete login process then come back and press enter")
 
 
-def main(sesh: WebDriverSession):
+def scrape(sesh: WebDriverSession):
         login(sesh)
 
         sesh.click.path(Paths.homepage['tracking_dropdown'])

@@ -13,6 +13,7 @@ import handlers.site_handlers.delivery.ups as ups
 import handlers.site_handlers.delivery.canpar as canpar
 import handlers.site_handlers.delivery.fedex as fdx
 import handlers.site_handlers.delivery.purolator as puro
+import handlers.site_handlers.management.freightcom as freightcom
 
 import testing.fc_testing as fc
 
@@ -35,15 +36,20 @@ def main():
         logger.info("starting web driver...")
         sesh = driver.WebDriverSession(undetected=True)
 
-        logger.info("scraping eshipper for orders")
+        logger.info("looking through eshipper...")
         eshipper_sh.scrape(sesh)
         
-        logger.info("reading eshipper file")
-        new_data = eshipper_fh.parse()
-        logger.debug("parsed data: {}".format(new_data))
-        
-        logger.debug("updating data dict with new data: {}".format(new_data))
-        data.update(new_data)
+        logger.debug("reading eshipper file")
+        eshipper_data = eshipper_fh.parse()
+        logger.debug("parsed data: {}".format(eshipper_data))
+
+        logger.debug("updating data dict with new data".format(eshipper_data))
+        data.update(eshipper_data)
+
+        logger.info("looking through freightcom...")
+        freightcom_data = freightcom.scrape(sesh) 
+        data.update(freightcom_data)
+        logger.debug("parsed data: {}".format(freightcom_data))
 
         logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data['Canada Post']))
