@@ -1,4 +1,4 @@
-from core.driver import WebDriverSession
+from core.driver import WebDriverSession, random_wait
 from core.log import getLogger
 
 logger = getLogger(__name__)
@@ -46,5 +46,7 @@ def track(sesh: WebDriverSession, tracking_nums, executeScript):
                         logger.warning("(#{}) Unknown error: {}".format(tracking_num, e))
                         report['crash'].append((tracking_num, curr_result))
 
+                random_wait(min=0.5, max=1.5)
+                
         return report
 

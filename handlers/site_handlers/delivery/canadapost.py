@@ -55,7 +55,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
         ok_btn = get_ok_button(sesh)
         sesh.click.element(ok_btn)
-        
+
         return result.SUCCESS
 
 def getDialogText(sesh: WebDriverSession):

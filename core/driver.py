@@ -242,6 +242,7 @@ class input:
 
                 self.sesh.click.element(target_element)
                 target_element.send_keys(keys)
+                random_wait()
 
         def element(self, element, txt):
                 self._sendKeys(element, txt)
@@ -265,6 +266,7 @@ class click:
                 assert target_element is not None
 
                 target_element.click()
+                random_wait()
 
         def element(self, elmnt): 
                 self._click_element(elmnt)
