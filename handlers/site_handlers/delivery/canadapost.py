@@ -91,10 +91,19 @@ def emailInputCountCheck(sesh: WebDriverSession):
         return len(input_elmnts) > 2
 
 def canGetNotifications(sesh: WebDriverSession):
-        get_notif_btn = sesh.find.path(paths['get_email_notif'])
+        if check_for_error_msg(sesh):
+            return False
+
+        get_notif_btn = sesh.find.path(paths['get_email_notif'], wait=3)
         if get_notif_btn is None:
                 return False
+        
         return True
+   
+def check_for_error_msg(sesh: WebDriverSession):
+        return sesh.waitFor.path(paths['error_msg'], wait=1)
+        
+        
 
 def canAddEmails(sesh: WebDriverSession):
         dialog = sesh.find.path(paths['dialog_type_2']) # will only check this in dialog 2
