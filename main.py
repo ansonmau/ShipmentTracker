@@ -40,14 +40,16 @@ def main():
         eshipper_sh.scrape(sesh)
         
         logger.debug("reading eshipper file")
-        new_data = eshipper_fh.parse()
-        logger.debug("parsed data: {}".format(new_data))
-        
-        logger.debug("updating data dict with new data".format(new_data))
-        data.update(new_data)
+        eshipper_data = eshipper_fh.parse()
+        logger.debug("parsed data: {}".format(eshipper_data))
+
+        logger.debug("updating data dict with new data".format(eshipper_data))
+        data.update(eshipper_data)
 
         logger.info("looking through freightcom...")
-        data.update(freightcom.scrape(sesh))
+        freightcom_data = freightcom.scrape(sesh) 
+        data.update(freightcom_data)
+        logger.debug("parsed data: {}".format(freightcom_data))
 
         logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data['Canada Post']))
