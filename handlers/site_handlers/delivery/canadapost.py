@@ -1,7 +1,9 @@
+from core.track import result
 from core.driver import WebDriverSession, ELEMENT_TYPES
 from selenium.common.exceptions import StaleElementReferenceException
 from os import getenv
 from core.log import getLogger
+from core.track import result
 
 logger = getLogger(__name__)
 
@@ -14,6 +16,7 @@ paths = {
         "submit_btn": (ELEMENT_TYPES['id'], 'submitButton'),
         "dialog_type_1": (ELEMENT_TYPES['tag'], 'track-email-dialog'),
         "dialog_type_2": (ELEMENT_TYPES['tag'], 'add-emails-dialog'),
+        "error_msg": (ELEMENT_TYPES['id'], 'modalError'),
 }
         
 def executeScript(sesh: WebDriverSession, tracking_num):
@@ -21,7 +24,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         sesh.get(link)
 
         if not canGetNotifications(sesh):
-                return False
+                return result.FAIL
 
         sesh.click.path(paths['get_email_notif'])
 
@@ -29,7 +32,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         dialog_txt = getDialogText(sesh)
 
         if "reached the maximum" in dialog_txt:
-                return False
+                return result.FAIL
         
         if "You can add or remove email addresses" in dialog_txt:
                 passDialog1(sesh)
@@ -38,7 +41,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         email_inputs = sesh.find.all(paths['email_input'])
         if len(email_inputs) == 1:
                 if not canAddEmails(sesh):
-                        return False
+                        return result.FAIL
                 sesh.click.path(paths['add_email_btn'])
 
         email_inputs = sesh.find.all(paths['email_input'])
@@ -53,7 +56,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         ok_btn = get_ok_button(sesh)
         sesh.click.element(ok_btn)
         
-        return True
+        return result.SUCCESS
 
 def getDialogText(sesh: WebDriverSession):
         dialog_element = sesh.find.path(paths['dialog_type_2'], wait=1)
