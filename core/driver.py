@@ -8,6 +8,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
 import undetected_chromedriver as uc
 import time
+import random
 import os
 
 from core.log import getLogger
@@ -21,6 +22,9 @@ ELEMENT_TYPES = {
         'tag': By.TAG_NAME,
 }
 
+def random_wait(min=0.25, max=0.75):
+        time.sleep(random.uniform(min,max))
+        
 class WebDriverSession:
         def __init__(self, undetected=False):
                 options = self._getOptions(undetected=undetected)
@@ -212,7 +216,7 @@ class waitFor:
                 )
         
         def path(self, pathTuple, wait = 5):
-                self.sesh.find.path(pathTuple, wait=wait)
+                return True if self.sesh.find.path(pathTuple, wait=wait) else False
         
         def elementInParent(self, parent, pathTuple):
                 self.sesh.find.fromParent(parent, pathTuple)
