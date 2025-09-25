@@ -18,101 +18,103 @@ import handlers.site_handlers.management.freightcom as freightcom
 
 logger = getLogger(__name__)
 
+
 def main():
-        logger.info("initializing...")
-        initialize.run()
+    logger.info("initializing...")
+    initialize.run()
 
-        data = {
-                "Canada Post": [],
-                "Canpar": [],
-                "Federal Express": [],
-                "Purolator": [],
-                "UPS": [],
-        }
+    data = {
+        "Canada Post": [],
+        "Canpar": [],
+        "Federal Express": [],
+        "Purolator": [],
+        "UPS": [],
+    }
 
-        reports = {}
+    reports = {}
 
-        logger.info("starting web driver...")
-        sesh = driver.WebDriverSession(undetected=True)
+    logger.info("starting web driver...")
+    sesh = driver.WebDriverSession(undetected=True)
 
-        # logger.info("looking through eshipper...")
-        # eshipper_sh.scrape(sesh)
-        
-        logger.debug("reading eshipper file")
-        eshipper_data = eshipper_fh.parse(1)
+    # logger.info("looking through eshipper...")
+    # eshipper_sh.scrape(sesh)
 
-        logger.debug("parsed data: {}".format(eshipper_data))
-        utils.update_data(data, eshipper_data)
+    logger.debug("reading eshipper file")
+    eshipper_data = eshipper_fh.parse(1)
 
-        # logger.info("looking through freightcom...")
-        # freightcom_data = freightcom.scrape(sesh) 
+    logger.debug("parsed data: {}".format(eshipper_data))
+    utils.update_data(data, eshipper_data)
 
-        # logger.debug("parsed data: {}".format(freightcom_data))
-        # utils.update_data(data, freightcom_data)
+    # logger.info("looking through freightcom...")
+    # freightcom_data = freightcom.scrape(sesh)
 
-        logger.info("starting tracking for Canada Post shipments")
-        logger.debug("Canada Post orders: {}".format(data['Canada Post']))
-        reports["Canada Post"] = track(sesh, data['Canada Post'], canpost.executeScript)
+    # logger.debug("parsed data: {}".format(freightcom_data))
+    # utils.update_data(data, freightcom_data)
 
-        logger.info("starting tracking for UPS shipments")
-        logger.debug("UPS orders: {}".format(data['UPS']))
-        reports["UPS"] = track(sesh, data['UPS'], ups.executeScript)
+    logger.info("starting tracking for Canada Post shipments")
+    logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
+    reports["Canada Post"] = track(sesh, data["Canada Post"], canpost.executeScript)
 
-        logger.info("starting tracking for Canpar shipments")
-        logger.debug("Canpar orders: {}".format(data['Canpar']))
-        reports["Canpar"] = track(sesh, data["Canpar"], canpar.executeScript)
+    logger.info("starting tracking for UPS shipments")
+    logger.debug("UPS orders: {}".format(data["UPS"]))
+    reports["UPS"] = track(sesh, data["UPS"], ups.executeScript)
 
-        logger.info("starting tracking for Purolator shipments")
-        logger.debug("Purolator orders: {}".format(data['Purolator']))
-        reports["Purolator"] = track(sesh, data["Purolator"], puro.executeScript)
+    logger.info("starting tracking for Canpar shipments")
+    logger.debug("Canpar orders: {}".format(data["Canpar"]))
+    reports["Canpar"] = track(sesh, data["Canpar"], canpar.executeScript)
 
-        logger.info("starting tracking for Fedex shipments")
-        logger.debug("Fedex orders: {}".format(data['Federal Express']))
-        reports["Fedex"] = track(sesh, data["Federal Express"], fdx.executeScript)
+    logger.info("starting tracking for Purolator shipments")
+    logger.debug("Purolator orders: {}".format(data["Purolator"]))
+    reports["Purolator"] = track(sesh, data["Purolator"], puro.executeScript)
 
-        logger.info("tracking complete. starting clean up.")
-        cleanup.run()
-        logger.info("clean up completed")
-        
-        return
+    logger.info("starting tracking for Fedex shipments")
+    logger.debug("Fedex orders: {}".format(data["Federal Express"]))
+    reports["Fedex"] = track(sesh, data["Federal Express"], fdx.executeScript)
+
+    logger.info("tracking complete. starting clean up.")
+    cleanup.run()
+    logger.info("clean up completed")
+
+    return
+
 
 class initialize:
-        @staticmethod
-        def run():
-                logger.info("loading environment variables")
-                initialize.loadEnvFile()
+    @staticmethod
+    def run():
+        logger.info("loading environment variables")
+        initialize.loadEnvFile()
 
-                logger.info("creating downloads folder if it does not exist")
-                initialize.createDownloadsFolder()
+        logger.info("creating downloads folder if it does not exist")
+        initialize.createDownloadsFolder()
 
-                logger.info("creating data folder if it does not exist")
-                initialize.createDataFolder()
+        logger.info("creating data folder if it does not exist")
+        initialize.createDataFolder()
+
+    @staticmethod
+    def createDownloadsFolder():
+        dl_dir = os.path.abspath("./dls")
+        os.makedirs(dl_dir, exist_ok=True)
+
+    @staticmethod
+    def createDataFolder():
+        data_dir = os.path.abspath("./data")
+        os.makedirs(data_dir, exist_ok=True)
+
+    @staticmethod
+    def loadEnvFile():
+        load_dotenv(dotenv_path="./data/keys.env")
 
 
-        @staticmethod
-        def createDownloadsFolder():
-                dl_dir = os.path.abspath("./dls")
-                os.makedirs(dl_dir, exist_ok=True)
-        
-        @staticmethod
-        def createDataFolder():
-                data_dir = os.path.abspath("./data")
-                os.makedirs(data_dir, exist_ok=True)
+class cleanup:
+    @staticmethod
+    def run():
+        logger.info("clearing downloads folder")
+        cleanup.clearDLFolder()
 
-        @staticmethod
-        def loadEnvFile():
-                load_dotenv(dotenv_path="./data/keys.env")
-        
+    @staticmethod
+    def clearDLFolder():
+        pass
 
-class cleanup():
-        @staticmethod
-        def run():
-                logger.info("clearing downloads folder")
-                cleanup.clearDLFolder()
-
-        @staticmethod
-        def clearDLFolder():
-                pass
 
 if __name__ == "__main__":
-        main()
+    main()
