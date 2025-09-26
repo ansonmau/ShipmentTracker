@@ -90,10 +90,12 @@ class initialize:
         logger.info("creating data folder if it does not exist")
         initialize.createDataFolder()
 
+
     @staticmethod
     def createDownloadsFolder():
-        dl_dir = os.path.abspath("./dls")
-        os.makedirs(dl_dir, exist_ok=True)
+        for dir_name in ['./dls', './dls_old']:
+            dl_dir = os.path.abspath(dir_name)
+            os.makedirs(dl_dir, exist_ok=True)
 
     @staticmethod
     def createDataFolder():
