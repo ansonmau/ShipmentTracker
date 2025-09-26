@@ -40,7 +40,7 @@ def main():
     eshipper_sh.scrape(sesh)
 
     logger.debug("reading eshipper file")
-    eshipper_data = eshipper_fh.parse(1)
+    eshipper_data = eshipper_fh.parse()
 
     logger.debug("parsed data: {}".format(eshipper_data))
     utils.update_data(data, eshipper_data)
