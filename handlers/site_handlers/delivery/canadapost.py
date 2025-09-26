@@ -31,7 +31,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
     sesh.click.path(paths["get_email_notif"])
 
-    waitDialogLoad(sesh)
+    wait_dialog_load(sesh)
     dialog_txt = getDialogText(sesh)
 
     if "reached the maximum" in dialog_txt:
@@ -39,7 +39,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
     if "You can add or remove email addresses" in dialog_txt:
         passDialog1(sesh)
-        waitDialogLoad(sesh)
+        wait_dialog_load(sesh)
 
     email_inputs = sesh.find.all(paths["email_input"])
     if len(email_inputs) == 1:
@@ -54,7 +54,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
     sesh.click.path(paths["submit_btn"])
 
-    waitDialogLoad(sesh)
+    wait_dialog_load(sesh)
 
     ok_btn = get_ok_button(sesh)
     sesh.click.element(ok_btn)
@@ -78,7 +78,7 @@ def getDialogText(sesh: WebDriverSession):
     return txt
 
 
-def waitDialogLoad(sesh: WebDriverSession):
+def wait_dialog_load(sesh: WebDriverSession):
     txt = getDialogText(sesh)
     while "Get email notifications" not in txt:
         txt = getDialogText(sesh)
@@ -86,7 +86,7 @@ def waitDialogLoad(sesh: WebDriverSession):
 
 
 def passDialog1(sesh: WebDriverSession):
-    waitDialogLoad(sesh)
+    wait_dialog_load(sesh)
     btns = sesh.filter.byText(sesh.find.all(paths["buttons"]), "Add")
 
     assert len(btns) == 1
