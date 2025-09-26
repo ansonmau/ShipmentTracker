@@ -19,7 +19,7 @@ def parse(file_search_time=30):
         file_dict = csv.DictReader(file)
 
         date_format = "%m/%d/%Y"
-        day_diff = 30
+        day_diff = 3
         min_date = calc_oldest_day(day_diff)
         data = {}
 
