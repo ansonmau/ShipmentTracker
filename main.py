@@ -115,6 +115,19 @@ class cleanup:
 
     @staticmethod
     def clearDLFolder():
+        """ 
+        desc: moves files in dl folder to old_dls.
+        purpose: makes reading the newest downloads easier
+        """
+        import shutil
+        src = os.path.abspath("./dls")
+        dst = os.path.abspath("./dls_old")
+        
+        for file in os.listdir(src):
+            og_file = os.path.join(src, file)
+            dst_file = os.path.join(dst, file)
+            if os.path.isfile(og_file):
+                shutil.move(og_file, dst_file)
         pass
 
 
