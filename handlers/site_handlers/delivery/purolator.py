@@ -8,20 +8,16 @@ logger = getLogger(__name__)
 class Paths:
 
     page = {
-        "tracking_details": (ELEMENT_TYPES["id"], "tracking-details"),
+        "tracking_info": (ELEMENT_TYPES["id"], "tracking-details"),
+        "email_update_div": (ELEMENT_TYPES["css"], ".email-updates"),
         "buttons": (ELEMENT_TYPES["css"], ".btn"),
         "chat": (ELEMENT_TYPES["id"], "chat"),
         "chat_messages": (ELEMENT_TYPES["tag"], "p"),
     }
 
     chat = {
-        "agree_tos": (ELEMENT_TYPES["css"], '[aria-label="Agree to terms"]'),
-        "type_of_notif": (ELEMENT_TYPES["css"], '[aria-label="Both"]'),
-        "notif_receiver": (ELEMENT_TYPES["css"], '[aria-label="Only for myself"]'),
-        "name_input": (ELEMENT_TYPES["css"], '[name="name"]'),
-        "email_input": (ELEMENT_TYPES["css"], '[name="email"]'),
-        "submit_btn": (ELEMENT_TYPES["css"], '[aria-label="Submit"]'),
-        "correct_btn": (ELEMENT_TYPES["css"], '[aria-label="Correct"]'),
+            "widget": (ELEMENT_TYPES["css"], "[aria-label]=\"Chat Widget\""),
+            
     }
 
 def executeScript(sesh: WebDriverSession, tracking_num):
@@ -42,18 +38,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
     sesh.click.element(email_notif_btn)
 
-    chat_elmnt = sesh.find.path(
-        Paths.page["chat"], wait=15
-    )  # sometimes takes a while for it to show up
-    sesh.click.fromParent(
-        chat_elmnt, Paths.chat["agree_tos"]
-    )  # *accept / do not accept
-    sesh.click.fromParent(
-        chat_elmnt, Paths.chat["type_of_notif"]
-    )  # delivery / exceptions / *both
-    sesh.click.fromParent(
-        chat_elmnt, Paths.chat["notif_receiver"]
-    )  # *for myself / for others
+    chat_btn_txts = ["Agree to terms", "Both", "Only for myself"]
 
     sesh.input.fromParent(
         chat_elmnt, Paths.chat["name_input"], getenv("PUROLATOR_NAME")
@@ -89,3 +74,11 @@ def removeCookiesBanner(sesh: WebDriverSession):
         "document.querySelector('[aria-label=\"Cookie Consent Banner\"]')?.remove();"
     )
     sesh.injectJS(script)
+
+def get_chat_button(sesh: WebDriverSession, btn_name):
+    chat = sesh.find.path(Paths.chat["widget"])
+
+    btn = sesh.find.buttons_within(chat, filter=btn_name)
+    assert len(btn) == 1
+    return btn[0]
+    
