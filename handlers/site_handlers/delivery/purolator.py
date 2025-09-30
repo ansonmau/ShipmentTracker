@@ -39,6 +39,10 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     sesh.click.element(email_notif_btn)
 
     chat_btn_txts = ["Agree to terms", "Both", "Only for myself"]
+    for btn_name in chat_btn_txts:
+        btn_elm = get_chat_button(sesh, btn_name)
+        sesh.click.element(btn_elm)
+        
 
     sesh.input.fromParent(
         chat_elmnt, Paths.chat["name_input"], getenv("PUROLATOR_NAME")
