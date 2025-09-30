@@ -38,8 +38,8 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
     sesh.click.element(email_notif_btn)
 
-    chat_btn_txts = ["Agree to terms", "Both", "Only for myself"]
-    for btn_name in chat_btn_txts:
+    chat_btn_names = ["Agree to terms", "Both", "Only for myself"]
+    for btn_name in chat_btn_names:
         btn_elm = get_chat_button(sesh, btn_name)
         sesh.click.element(btn_elm)
         
