@@ -8,13 +8,14 @@ import os
 
 import handlers.file_handlers.eshipper as eshipper_fh
 
-import handlers.site_handlers.management.eshipper as eshipper_sh
+import handlers.site_handlers.management.eshipper as eshipper
+import handlers.site_handlers.management.freightcom as freightcom
+
 import handlers.site_handlers.delivery.canadapost as canpost
 import handlers.site_handlers.delivery.ups as ups
 import handlers.site_handlers.delivery.canpar as canpar
 import handlers.site_handlers.delivery.fedex as fdx
 import handlers.site_handlers.delivery.purolator as puro
-import handlers.site_handlers.management.freightcom as freightcom
 
 logger = getLogger(__name__)
 
@@ -37,7 +38,7 @@ def main():
     sesh = driver.WebDriverSession(undetected=True)
 
     logger.info("looking through eshipper...")
-    eshipper_sh.scrape(sesh)
+    eshipper.scrape(sesh)
 
     logger.debug("reading eshipper file")
     eshipper_data = eshipper_fh.parse()
