@@ -220,6 +220,13 @@ class filter:
                 elmnts.append(elmnt)
         return elmnts
 
+    def byAttribute(self, elm_list, attribute, value):
+        elmnts = []
+        for elmnt in elm_list:
+            if elmnt.get_attribute(attribute) == value:
+                elmnts.append(elmnt)
+        return elmnts
+        
 
 class waitFor:
     def __init__(self, sesh: WebDriverSession):
