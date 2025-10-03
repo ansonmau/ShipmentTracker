@@ -2,6 +2,7 @@ from core.driver import WebDriverSession, ELEMENT_TYPES
 from os import getenv
 from core.log import getLogger
 import time
+from core.track import result
 
 logger = getLogger(__name__)
 
@@ -40,12 +41,15 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     sesh.input.element(name_input, getenv("PUROLATOR_NAME"))
     sesh.input.element(email_input, getenv("PUROLATOR_EMAIL"))
     
+    submit_btn = chat_handler.get_button('Submit')
+    sesh.click.element(submit_btn)
+
     correct_btn = chat_handler.get_button('Correct')
     sesh.click.element(correct_btn)
     
-    waitForConfirm(sesh)
-
-    return True
+    waitForConfirm(chat_handler)
+    
+    return result.SUCCESS
 
 
 def waitForConfirm(chat_handler):
