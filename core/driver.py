@@ -80,12 +80,20 @@ class WebDriverSession:
     def injectJS(self, script):
         self.driver.execute_script(script)
 
-    def scrollToElement(self, element):
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
+    def scrollToElement(self, element, centered=False):
+        if centered:
+            self.driver.execute_script("arguments[0].scrollIntoView({block: \"center\", inline: \"nearest\"});", element)
+        else:
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
 
     def getShadowRoot(self, shadow_root_parent):
         return self.driver.execute_script(
             "return arguments[0].shadowRoot", shadow_root_parent
+        )
+
+    def remove_element(self, element):
+        self.driver.execute_script(
+                "arguments[0].remove();", element
         )
 
 
@@ -296,10 +304,6 @@ class click:
         element = self.sesh.find.path(pathTuple)
 
         self._click_element(element)
-
-    def element_by_js(self, element):
-        self.sesh.injectJS("arguments[0].scrollIntoView({block:'center'});", element)
-        self.sesh.injectJS("arguments[0].click();", element)
 
     def fromParent(self, parent, pathTuple):
         element = self.sesh.find.fromParent(parent, pathTuple)
