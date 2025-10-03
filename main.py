@@ -18,6 +18,7 @@ import handlers.site_handlers.management.freightcom as freightcom
 
 logger = getLogger(__name__)
 
+import testing.puro_testing as pt
 
 def main():
     logger.info("initializing...")
@@ -132,4 +133,4 @@ class cleanup:
 
 
 if __name__ == "__main__":
-    main()
+    pt.main()
