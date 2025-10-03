@@ -193,6 +193,21 @@ class find:
 
         return filtered_elements
 
+    def inputs_within(self, parent_element, filter=None, wait=5):
+        assert parent_element is not None
+
+        input_fields_locator = (ELEMENT_TYPES["tag"], "input")
+        input_fields = self.allFromParent(parent_element, input_fields_locator)
+        
+        if not filter:
+            return input_fields
+
+        filtered_elements = []
+        for field in input_fields:
+            if filter in self.sesh.read.textFromElement(field):
+                filtered_elements.append(field)
+
+        return filtered_elements
 
 class filter:
     def __init__(self, sesh: WebDriverSession):
@@ -205,6 +220,13 @@ class filter:
                 elmnts.append(elmnt)
         return elmnts
 
+    def byAttribute(self, elm_list, attribute, value):
+        elmnts = []
+        for elmnt in elm_list:
+            if elmnt.get_attribute(attribute) == value:
+                elmnts.append(elmnt)
+        return elmnts
+        
 
 class waitFor:
     def __init__(self, sesh: WebDriverSession):
