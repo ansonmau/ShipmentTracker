@@ -8,15 +8,11 @@ logger = getLogger(__name__)
 class Paths:
 
     page = {
-        "tracking_info": (ELEMENT_TYPES["id"], "tracking-details"),
-        "email_update_div": (ELEMENT_TYPES["css"], ".email-updates"),
-        "buttons": (ELEMENT_TYPES["css"], ".btn"),
-        "chat": (ELEMENT_TYPES["id"], "chat"),
-        "chat_messages": (ELEMENT_TYPES["tag"], "p"),
+        "tracking_info": (ELEMENT_TYPES["id"], "tracking-detail"),
     }
 
     chat = {
-            "widget": (ELEMENT_TYPES["css"], "[aria-label]=\"Chat Widget\""),
+            "widget": (ELEMENT_TYPES["css"], '[aria-label=\"Chat Widget\"]'),
             
     }
 
@@ -25,46 +21,41 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         "https://www.purolator.com/en/shipping/tracker?pin={}".format(tracking_num)
     )
 
-    sesh.waitFor.path(Paths.page["tracking_details"])
+    e_tracking_details = sesh.find.path(Paths.page["tracking_info"])
 
     removeCookiesBanner(sesh)
+    get_email_btn = sesh.find.links_within(e_tracking_details, filter="Get Email Notifications")
 
-    btns = sesh.find.all(Paths.page["buttons"])
+    sesh.click.element(get_email_btn[0])
 
-    for btn in btns:
-        if sesh.read.textFromElement(btn) == "Get Email Notifications":
-            email_notif_btn = btn
-            break
-
-    sesh.click.element(email_notif_btn)
-
+    chat_handler = Chat_Handler(sesh)
     chat_btn_txts = ["Agree to terms", "Both", "Only for myself"]
-
-    sesh.input.fromParent(
-        chat_elmnt, Paths.chat["name_input"], getenv("PUROLATOR_NAME")
-    )
-    sesh.input.fromParent(
-        chat_elmnt, Paths.chat["email_input"], getenv("PUROLATOR_EMAIL")
-    )
-    sesh.click.fromParent(chat_elmnt, Paths.chat["submit_btn"])
-    sesh.click.fromParent(chat_elmnt, Paths.chat["correct_btn"])
-
+    for btn_name in chat_btn_txts:
+        curr_btn = chat_handler.get_button(btn_name)
+        sesh.click.element(curr_btn)
+    
+    name_input = chat_handler.get_input("Name")
+    email_input = chat_handler.get_input("Email")
+    
+    sesh.input.element(name_input, getenv("PUROLATOR_NAME"))
+    sesh.input.element(email_input, getenv("PUROLATOR_EMAIL"))
+    
+    correct_btn = chat_handler.get_button('Correct')
+    sesh.click.element(correct_btn)
+    
     waitForConfirm(sesh)
 
     return True
 
 
-def waitForConfirm(sesh: WebDriverSession):
+def waitForConfirm(chat_handler):
     timeout = 10
     end_time = time.time() + timeout
 
-    chat = sesh.find.path(Paths.page["chat"])
     verif_text = "I have completed your registration for Email Notifications"
     while time.time() < end_time:
-        chat_msgs = sesh.find.allFromParent(chat, Paths.page["chat_messages"])
-        for msg in chat_msgs:
-            if verif_text in sesh.read.textFromElement(msg):
-                return True
+        if verif_text in chat_handler.get_text():
+            return True
 
     return False
 
@@ -75,10 +66,33 @@ def removeCookiesBanner(sesh: WebDriverSession):
     )
     sesh.injectJS(script)
 
-def get_chat_button(sesh: WebDriverSession, btn_name):
-    chat = sesh.find.path(Paths.chat["widget"])
+class Chat_Handler:
+    def __init__(self, sesh: WebDriverSession) -> None:
+        self.sesh = sesh
+        self.el_chat = self.get_chat_element()
 
-    btn = sesh.find.buttons_within(chat, filter=btn_name)
-    assert len(btn) == 1
-    return btn[0]
-    
+    def get_chat_element(self):
+        shadow_parent_loc = (ELEMENT_TYPES["css"], '.shadow-dom')
+        el_shadow_parent = self.sesh.find.path(shadow_parent_loc)
+        el_shadow_root = self.sesh.getShadowRoot(el_shadow_parent) 
+
+        return self.sesh.find.fromParent(el_shadow_root, Paths.chat['widget'])
+
+    def get_button(self, btn_name):
+        search_results = self.sesh.find.buttons_within(self.el_chat, btn_name)
+
+        assert len(search_results) > 0
+        return search_results[0]
+
+    def get_input(self, input_name):
+        input_locator = (ELEMENT_TYPES['tag'], 'input')
+
+        search_results = self.sesh.find.allFromParent(self.el_chat, input_locator)
+        filtered_results = self.sesh.filter.byAttribute(search_results, "label", input_name)
+
+        assert len(filtered_results) > 0
+        return filtered_results[0]
+
+    def get_text(self):
+        return self.sesh.read.textFromElement(self.el_chat)
+        
