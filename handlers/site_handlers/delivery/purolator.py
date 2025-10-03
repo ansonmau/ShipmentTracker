@@ -79,7 +79,10 @@ class Chat_Handler:
         return self.sesh.find.fromParent(el_shadow_root, Paths.chat['widget'])
 
     def get_button(self, btn_name):
-        search_results = self.sesh.find.buttons_within(self.el_chat, btn_name)
+        search_results = []
+        end_time = time.time() + 5
+        while len(search_results) == 0 and time.time() < end_time:
+            search_results = self.sesh.find.buttons_within(self.el_chat, btn_name)
 
         assert len(search_results) > 0
         return search_results[0]
@@ -87,7 +90,12 @@ class Chat_Handler:
     def get_input(self, input_name):
         input_locator = (ELEMENT_TYPES['tag'], 'input')
 
-        search_results = self.sesh.find.allFromParent(self.el_chat, input_locator)
+        search_results = []
+        end_time = time.time() + 5
+        while len(search_results) == 0 and time.time() < end_time:
+            search_results = self.sesh.find.allFromParent(self.el_chat, input_locator)
+
+        assert len(search_results) > 0
         filtered_results = self.sesh.filter.byAttribute(search_results, "label", input_name)
 
         assert len(filtered_results) > 0
@@ -95,4 +103,4 @@ class Chat_Handler:
 
     def get_text(self):
         return self.sesh.read.textFromElement(self.el_chat)
-        
+    
