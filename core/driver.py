@@ -81,9 +81,7 @@ class WebDriverSession:
         self.driver.execute_script(script)
 
     def scrollToElement(self, element):
-        self.driver.execute_script(
-            "arguments[0].scrollIntoView({block: 'center'});", element
-        )
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
 
     def getShadowRoot(self, shadow_root_parent):
         return self.driver.execute_script(
