@@ -1,6 +1,8 @@
 from core.driver import WebDriverSession, ELEMENT_TYPES
 from os import getenv
+from core.log import getLogger
 
+logger = getLogger(__name__)
 
 class Paths:
     startpage = {"login_btn": (ELEMENT_TYPES["css"], ".menu-login")}
@@ -46,6 +48,14 @@ def login(sesh: WebDriverSession):
 
 
 def scrape(sesh: WebDriverSession):
+    data = {
+        "UPS": [],
+        "Canpar": [],
+        "Purolator": [],
+        "Canada Post": [],
+        "Federal Express": [],
+    }
+        
     login(sesh)
 
     sesh.click.path(Paths.homepage["tracking_dropdown"])
@@ -56,8 +66,7 @@ def scrape(sesh: WebDriverSession):
     discard_btn = get_popup_discard_btn(sesh)
     sesh.click.element(discard_btn)
 
-    data = get_shipment_info(sesh)
-
+    get_shipment_info(sesh, data)
     return data
 
 
@@ -75,30 +84,26 @@ def get_popup_discard_btn(sesh: WebDriverSession):
     return discard_btn[0]
 
 
-def get_shipment_info(sesh: WebDriverSession):
-    info = {
-        "UPS": [],
-        "Canpar": [],
-        "Purolator": [],
-        "Canada Post": [],
-        "Federal Express": [],
-    }
-
+def get_shipment_info(sesh: WebDriverSession, info):
     table = sesh.find.path(Paths.tracking_page["shipment_table"])
 
     entries = sesh.find.allFromParent(table, Paths.tracking_page["table_entry"])
 
     for entry in entries:
+        if not check_valid_row(sesh, entry):
+            continue
+
         data = sesh.find.allFromParent(entry, Paths.tracking_page["table_data"])
         carrier, tracking_num, status = parse_entry_data(sesh, data)
 
         status = status.lower()
         if not "ready for shipping" in status and not "in transit" in status:
             continue
-
+        
+        if not carrier in info:
+            logger.
         info[carrier].append(tracking_num)
 
-    return info
 
 
 def parse_entry_data(sesh: WebDriverSession, row):
@@ -120,3 +125,9 @@ def get_carrier_name(sesh: WebDriverSession, carrier_entry_elm):
     img_child = sesh.find.fromParent(div_child, Paths.img)
 
     return sesh.read.attributeFromElement(img_child, "alt")
+
+def check_valid_row(sesh: WebDriverSession, row):
+    # website uses a new entry for putting in the "watched shipment" visual
+    if "Watched Shipment" in sesh.read.textFromElement(row):
+        return False
+    return True
