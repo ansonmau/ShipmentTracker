@@ -3,6 +3,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from os import getenv
 from core.log import getLogger
 from time import time
+from core.track import result
 
 logger = getLogger(__name__)
 
@@ -33,8 +34,10 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     sesh.input.path(paths["email_input"], getenv("FEDEX_EMAIL"))
     sesh.click.path(paths["submit_btn"])
 
-    return waitForConfirm(sesh)
+    if not waitForConfirm(sesh):
+        return result.FAIL
 
+    return result.SUCCESS
 
 def waitForConfirm(sesh: WebDriverSession, cd=3):
     end_time = time() + cd
