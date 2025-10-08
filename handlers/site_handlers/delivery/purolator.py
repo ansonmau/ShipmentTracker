@@ -14,7 +14,8 @@ class Paths:
 
     chat = {
             "widget": (ELEMENT_TYPES["css"], '[aria-label=\"Chat Widget\"]'),
-            
+            "close_btn": (ELEMENT_TYPES["css"], '[aria-label="Close"]'),
+            "confirm_close_btn": (ELEMENT_TYPES["id"], 'confirm-end-chat'),
     }
 
 def executeScript(sesh: WebDriverSession, tracking_num):
@@ -47,22 +48,10 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     correct_btn = chat_handler.get_button('Correct')
     sesh.click.element(correct_btn)
     
-    waitForConfirm(chat_handler)
+    chat_handler.wait_for_confirm()
+    chat_handler.exit_chat()
     
     return result.SUCCESS
-
-
-def waitForConfirm(chat_handler):
-    timeout = 10
-    end_time = time.time() + timeout
-
-    verif_text = "I have completed your registration for Email Notifications"
-    while time.time() < end_time:
-        if verif_text in chat_handler.get_text():
-            return True
-
-    return False
-
 
 def removeCookiesBanner(sesh: WebDriverSession):
     script = (
@@ -107,4 +96,23 @@ class Chat_Handler:
 
     def get_text(self):
         return self.sesh.read.textFromElement(self.el_chat)
+
+    def exit_chat(self):
+        sesh = self.sesh
+        
+        close_btn = sesh.find.fromParent(self.el_chat, Paths.chat["close_btn"])
+        sesh.click.element(close_btn)
+
+        confirm_close_btn = sesh.find.fromParent(self.el_chat, Paths.chat["confirm_close_btn"])
+        sesh.click.element(confirm_close_btn)
     
+    def wait_for_confirm(self):
+        timeout = 10
+        end_time = time.time() + timeout
+
+        verif_text = "I have completed your registration for Email Notifications"
+        while time.time() < end_time:
+            if verif_text in self.get_text():
+                return True
+
+        return False
