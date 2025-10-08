@@ -37,6 +37,12 @@ def main():
     logger.info("starting web driver...")
     sesh = driver.WebDriverSession(undetected=True)
 
+    logger.info("looking through freightcom...")
+    freightcom_data = freightcom.scrape(sesh)
+
+    logger.debug("parsed data: {}".format(freightcom_data))
+    utils.update_data(data, freightcom_data)
+
     logger.info("looking through eshipper...")
     eshipper.scrape(sesh)
 
@@ -45,12 +51,6 @@ def main():
 
     logger.debug("parsed data: {}".format(eshipper_data))
     utils.update_data(data, eshipper_data)
-
-    logger.info("looking through freightcom...")
-    freightcom_data = freightcom.scrape(sesh)
-
-    logger.debug("parsed data: {}".format(freightcom_data))
-    utils.update_data(data, freightcom_data)
 
     logger.info("starting tracking for Canada Post shipments")
     logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
