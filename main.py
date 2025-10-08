@@ -133,4 +133,5 @@ class cleanup:
 
 
 if __name__ == "__main__":
-    main()
+    import testing.ems_testing as et 
+    et.main()
