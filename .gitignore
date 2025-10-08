@@ -76,6 +76,7 @@ testing/
 
 # dls folder
 dls/
+dls_old/
 
 # logs
 logs/
