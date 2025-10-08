@@ -44,6 +44,7 @@ def track(sesh: WebDriverSession, tracking_nums, executeScript):
         except Exception as e:
             curr_result = result(result.CRASH, "Unknown error occured")
             logger.warning("(#{}) Unknown error: {}".format(tracking_num, e))
+            logger.info("crash :(")
             report["crash"].append((tracking_num, curr_result))
 
         random_wait(min=0.5, max=1.5)
