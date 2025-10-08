@@ -30,22 +30,26 @@ def track(sesh: WebDriverSession, tracking_nums, executeScript):
 
     for tracking_num in tracking_nums:
         counter += 1
-        logger.info(
-            f"Attempting tracking for #{tracking_num} ({counter}/{total_count})"
-        )
-        try:
-            curr_result = executeScript(sesh, tracking_num)
-            if curr_result == result.SUCCESS:
-                report["success"].append((tracking_num, curr_result))
-                logger.info("success")
-            else:
-                report["fail"].append((tracking_num, curr_result))
-                logger.info("failed")
-        except Exception as e:
-            curr_result = result(result.CRASH, "Unknown error occured")
-            logger.warning("(#{}) Unknown error: {}".format(tracking_num, e))
-            logger.info("crash :(")
-            report["crash"].append((tracking_num, curr_result))
+        attempt_count = 0 
+        while attempt_count <= 3:
+            attempt_count += 1
+            logger.info(
+                f"Attempting tracking for #{tracking_num} | attempt {attempt_count}/3 | package {counter}/{total_count}"
+            )
+            try:
+                curr_result = executeScript(sesh, tracking_num)
+                if curr_result == result.SUCCESS:
+                    report["success"].append((tracking_num, curr_result))
+                    logger.info("success")
+                    break
+                else:
+                    report["fail"].append((tracking_num, curr_result))
+                    logger.info("failed")
+            except Exception as e:
+                curr_result = result(result.CRASH, "Unknown error occured")
+                logger.warning("(#{}) Unknown error: {}".format(tracking_num, e))
+                logger.info("crash :(")
+                report["crash"].append((tracking_num, curr_result))
 
         random_wait(min=0.5, max=1.5)
 
