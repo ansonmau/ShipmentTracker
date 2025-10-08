@@ -101,7 +101,7 @@ def get_shipment_info(sesh: WebDriverSession, info):
             continue
         
         if not carrier in info:
-            logger.
+            logger.warning(f"Carrier not found: {carrier}")
         info[carrier].append(tracking_num)
 
 
