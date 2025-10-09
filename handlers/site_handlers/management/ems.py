@@ -18,7 +18,8 @@ class Paths:
             "shipment_table": (ELEMENT_TYPES['id'], 'shipmentTable'),
             "date_filter_div": (ELEMENT_TYPES['css'], '.input-daterange'),
             "filter_search": (ELEMENT_TYPES['id'], 'm_search'),
-            "table_length_selector": (ELEMENT_TYPES['css'], '[name="shipmentTable_length"]')
+            "table_length_selector": (ELEMENT_TYPES['css'], '[name="shipmentTable_length"]'),
+            "table_next_btn": (ELEMENT_TYPES['id'], 'shipmentTable_next')
             }
 
 
@@ -47,12 +48,16 @@ def scrape(sesh: WebDriverSession):
 
     sleep(3) # takes a second to update    
     
-    table_entries = get_shipment_table_entries(sesh)
+    next_page = True
+    while next_page:
+        table_entries = get_shipment_table_entries(sesh)
+        for entry in table_entries:
+            carrier, tracking_num, status = parse_table_entry(sesh, entry)
+            logger.debug(f"Entry found: {carrier} | {tracking_num} | {status}")
+            if carrier and tracking_num and status:
+                data[carrier].append(tracking_num)
 
-    for entry in table_entries:
-        carrier, tracking_num, status = parse_table_entry(sesh, entry)
-        logger.debug(f"Entry found: {carrier} | {tracking_num} | {status}")
-        data[carrier].append(tracking_num)
+        next_page = go_next_shipment_page(sesh)
 
     return data
 
@@ -115,6 +120,16 @@ def parse_table_entry(sesh: WebDriverSession, entry_elm):
 
     return carrier, tracking_num, status
 
+def go_next_shipment_page(sesh:WebDriverSession) -> bool:
+    next_btn = sesh.find.path(Paths.shipment_page['table_next_btn'])
+    
+    if 'disabled' in sesh.read.attributeFromElement(next_btn, 'class'):
+        return False
+    
+    sesh.click.element(next_btn)
+    sleep(3)
+    return True
+
 def _get_carrier(sesh: WebDriverSession, entry_part):
         carriers = {
             'purolator':'Purolator',
@@ -129,3 +144,4 @@ def _get_carrier(sesh: WebDriverSession, entry_part):
         for c in carriers:
             if c in carrier_link:
                 return carriers[c]
+
