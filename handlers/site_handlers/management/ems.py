@@ -1,6 +1,7 @@
 from core.driver import WebDriverSession, ELEMENT_TYPES
 from os import getenv
 from core.log import getLogger
+from time import sleep
 
 from datetime import datetime, timedelta
 
@@ -17,22 +18,43 @@ class Paths:
             "shipment_table": (ELEMENT_TYPES['id'], 'shipmentTable'),
             "date_filter_div": (ELEMENT_TYPES['css'], '.input-daterange'),
             "filter_search": (ELEMENT_TYPES['id'], 'm_search'),
+            "table_length_selector": (ELEMENT_TYPES['css'], '[name="shipmentTable_length"]')
             }
 
 
 def scrape(sesh: WebDriverSession):
-    login(sesh)
+    data = {
+        "UPS": [],
+        "Canpar": [],
+        "Purolator": [],
+        "Canada Post": [],
+        "Federal Express": [],
+    }
     
+    login(sesh)
+
     shipment_page_url = "https://emarketplaceservices.com/shipments"
     sesh.get(shipment_page_url)
 
-    s_from_date, s_today = get_filter_dates()
+    s_from_date, s_today = get_filter_dates(10)
     from_date_input, to_date_input = get_filter_inputs(sesh)
     sesh.input.element(from_date_input, s_from_date)
     sesh.input.element(to_date_input, s_today)
     sesh.click.path(Paths.shipment_page['filter_search'])
 
-    return
+    table_length_selector = sesh.find.select_list(Paths.shipment_page['table_length_selector'])
+    sesh.select.by_value(table_length_selector, '100')
+
+    sleep(3) # takes a second to update    
+    
+    table_entries = get_shipment_table_entries(sesh)
+
+    for entry in table_entries:
+        carrier, tracking_num, status = parse_table_entry(sesh, entry)
+        logger.debug(f"Entry found: {carrier} | {tracking_num} | {status}")
+        data[carrier].append(tracking_num)
+
+    return data
 
 def login(sesh: WebDriverSession):
     login_url = "https://emarketplaceservices.com/login"
@@ -60,3 +82,50 @@ def get_filter_inputs(sesh: WebDriverSession):
     
     assert len(inputs) == 2
     return inputs[0], inputs[1]
+
+def get_shipment_table_entries(sesh: WebDriverSession):
+    table_entry_loc = (ELEMENT_TYPES['tag'], 'tr')
+
+    table_elm = sesh.find.path(Paths.shipment_page['shipment_table'])
+    table_entries = sesh.find.allFromParent(table_elm, table_entry_loc)
+
+    return table_entries
+
+def parse_table_entry(sesh: WebDriverSession, entry_elm):
+    index = {
+            "tracking_number": 5,
+            "status": 8,
+            }
+
+    tracking_num = ''
+    carrier = ''
+    status = ''
+
+    entry_part_loc = (ELEMENT_TYPES['tag'], 'td')
+    entry_parts = sesh.find.allFromParent(entry_elm, entry_part_loc)
+
+    if entry_parts:
+        tracking_num = sesh.read.textFromElement(entry_parts[index['tracking_number']])
+        # get text up until first \n (rest is customer info)
+        tracking_num = tracking_num.split('\n')[0]
+        
+        carrier = _get_carrier(sesh, entry_parts[index['tracking_number']])
+
+        status = sesh.read.textFromElement(entry_parts[index['status']])
+
+    return carrier, tracking_num, status
+
+def _get_carrier(sesh: WebDriverSession, entry_part):
+        carriers = {
+            'purolator':'Purolator',
+            'ups':'UPS',
+            'canadapost':'Canada Post',
+            'fedex':'Federal Express',
+            'canpar':'Canpar',
+        }
+
+        carrier_link_elm = sesh.find.links_within(entry_part)[0]
+        carrier_link = sesh.read.attributeFromElement(carrier_link_elm, 'href')
+        for c in carriers:
+            if c in carrier_link:
+                return carriers[c]
