@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
@@ -44,7 +44,8 @@ class WebDriverSession:
         self.read = read(self)
         self.iframe = iframe(self)
         self.tabControl = tabControl(self)
-
+        self.select = select(self)
+         
     def __del__(self):
         # UC quit will always cause errors even though it works
         # doing this is safe because it's during shutdown
@@ -215,6 +216,11 @@ class find:
 
         return filtered_elements
 
+    def select_list(self, locator):
+        select_elm = self.sesh.find.path(locator)
+
+        return Select(select_elm)
+
 class filter:
     def __init__(self, sesh: WebDriverSession):
         self.sesh = sesh
@@ -382,3 +388,17 @@ class tabControl:
     def focusNewestTab(self):
         newest_tab = self.getTabs()[-1]
         self.focusTab(newest_tab)
+
+class select:
+    def __init__(self, sesh: WebDriverSession) -> None:
+        self.sesh = sesh
+    
+    def by_text(self, select_elm, text):
+        select_elm.select_by_visible_text(text) 
+
+    def by_value(self, select_elm, attr):
+        select_elm.select_by_value(attr)
+
+    def by_index(self, select_elm, index):
+        select_elm.select_by_index(index)
+        
