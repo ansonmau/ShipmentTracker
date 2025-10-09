@@ -43,11 +43,11 @@ def login(sesh: WebDriverSession):
 
     sesh.click.path(Paths.login["login_btn"])
     
-def get_filter_dates():
+def get_filter_dates(day_diff=3):
     date_format = "%m/%d/%Y"
     s_today = datetime.now().strftime(date_format)
     
-    from_date = datetime.now() - timedelta(days=3)
+    from_date = datetime.now() - timedelta(days=day_diff)
     s_from_date = from_date.strftime(date_format)
 
     return s_from_date, s_today
