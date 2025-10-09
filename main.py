@@ -10,6 +10,7 @@ import handlers.file_handlers.eshipper as eshipper_fh
 
 import handlers.site_handlers.management.eshipper as eshipper
 import handlers.site_handlers.management.freightcom as freightcom
+import handlers.site_handlers.management.ems as ems
 
 import handlers.site_handlers.delivery.canadapost as canpost
 import handlers.site_handlers.delivery.ups as ups
@@ -43,6 +44,12 @@ def main():
     logger.debug("parsed data: {}".format(freightcom_data))
     utils.update_data(data, freightcom_data)
 
+    logger.info("looking through EMS...")
+    ems_data = ems.scrape(sesh)
+
+    logger.debug("parsed data: {}".format(ems_data))
+    utils.update_data(data, ems_data)
+
     logger.info("looking through eshipper...")
     eshipper.scrape(sesh)
 
@@ -70,7 +77,7 @@ def main():
 
     logger.info("starting tracking for Fedex shipments")
     logger.debug("Fedex orders: {}".format(data["Federal Express"]))
-    reports["Fedex"] = track(sesh, data["Federal Express"], fdx.executeScript)
+    reports["Federal Express"] = track(sesh, data["Federal Express"], fdx.executeScript)
 
     logger.info("tracking complete. starting clean up.")
     cleanup.run()
