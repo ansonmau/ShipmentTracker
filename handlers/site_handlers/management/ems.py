@@ -16,7 +16,7 @@ class Paths:
     shipment_page = {
             "shipment_table": (ELEMENT_TYPES['id'], 'shipmentTable'),
             "date_filter_div": (ELEMENT_TYPES['css'], '.input-daterange'),
-
+            "filter_search": (ELEMENT_TYPES['id'], 'm_search'),
             }
 
 
@@ -26,9 +26,11 @@ def scrape(sesh: WebDriverSession):
     shipment_page_url = "https://emarketplaceservices.com/shipments"
     sesh.get(shipment_page_url)
 
-    s_today, s_from_date = get_filter_dates()
-    
-    
+    s_from_date, s_today = get_filter_dates()
+    from_date_input, to_date_input = get_filter_inputs(sesh)
+    sesh.input.element(from_date_input, s_from_date)
+    sesh.input.element(to_date_input, s_today)
+    sesh.click.path(Paths.shipment_page['filter_search'])
 
     return
 
@@ -42,7 +44,7 @@ def login(sesh: WebDriverSession):
     sesh.click.path(Paths.login["login_btn"])
     
 def get_filter_dates():
-    date_format = "%dd/%mm/%Y"
+    date_format = "%m/%d/%Y"
     s_today = datetime.now().strftime(date_format)
     
     from_date = datetime.now() - timedelta(days=3)
@@ -54,3 +56,7 @@ def get_filter_inputs(sesh: WebDriverSession):
     filter_div = sesh.find.path(Paths.shipment_page['date_filter_div'])
     
     # find inputs within filter_div -> return individually
+    inputs = sesh.find.inputs_within(filter_div)
+    
+    assert len(inputs) == 2
+    return inputs[0], inputs[1]
