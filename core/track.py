@@ -1,5 +1,6 @@
 from core.driver import WebDriverSession, random_wait
 from core.log import getLogger
+from time import sleep
 
 logger = getLogger(__name__)
 
@@ -10,7 +11,7 @@ class result:
     FAIL = 0
     CRASH = 2
 
-    def __init__(self, result, reason=""):
+    def __init__(self, result, reason="")
         assert result in [self.SUCCESS, self.FAIL, self.CRASH]
         self.result = result
         self.reason = reason
@@ -30,11 +31,11 @@ def track(sesh: WebDriverSession, tracking_nums, executeScript):
 
     for tracking_num in tracking_nums:
         counter += 1
-        attempt_count = 1 
+        attempt_count = 0 
         while attempt_count <= 3:
             attempt_count += 1
             logger.info(
-                f"Starting tracking... | #{tracking_num} | attempt {attempt_count}/3 | package {counter}/{total_count}"
+                    f"Starting tracking... ({counter}/{total_count}) | tracking number: {tracking_num} | attempt {attempt_count}/3"
             )
             try:
                 curr_result = executeScript(sesh, tracking_num)
@@ -50,7 +51,5 @@ def track(sesh: WebDriverSession, tracking_nums, executeScript):
                 logger.debug("(#{}) Unknown error: {}".format(tracking_num, e))
                 logger.info("unknown error encountered :(")
                 report["crash"].append((tracking_num, curr_result))
-
-        random_wait(min=1, max=2)
-
+        sleep(3)
     return report
