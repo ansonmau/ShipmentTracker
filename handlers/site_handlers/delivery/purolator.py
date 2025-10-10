@@ -22,15 +22,23 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     sesh.get(
         "https://www.purolator.com/en/shipping/tracker?pin={}".format(tracking_num)
     )
+    removeCookiesBanner(sesh)
 
     e_tracking_details = sesh.find.path(Paths.page["tracking_info"])
 
-    removeCookiesBanner(sesh)
-    get_email_btn = sesh.find.links_within(e_tracking_details, filter="Get Email Notifications")
+    if "Exceptions" in sesh.read.textFromElement(e_tracking_details):
+        logger.info("Invalid shipment detected.")
+        return result.FAIL
 
+    get_email_btn = sesh.find.links_within(e_tracking_details, filter="Get Email Notifications")
     sesh.click.element(get_email_btn[0])
 
     chat_handler = Chat_Handler(sesh)
+
+    if "I can sign you up for email notifications" not in chat_handler.get_text():
+        chat_handler.exit_chat()
+        return result.RETRY
+
     chat_btn_txts = ["Agree to terms", "Both", "Only for myself"]
     for btn_name in chat_btn_txts:
         curr_btn = chat_handler.get_button(btn_name)
@@ -49,6 +57,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     sesh.click.element(correct_btn)
     
     chat_handler.wait_for_confirm()
+
     chat_handler.exit_chat()
     
     return result.SUCCESS

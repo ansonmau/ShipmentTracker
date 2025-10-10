@@ -37,8 +37,9 @@ def scrape(sesh: WebDriverSession):
     shipment_page_url = "https://emarketplaceservices.com/shipments"
     sesh.get(shipment_page_url)
 
-    s_from_date, s_today = get_filter_dates(10)
+    s_from_date, s_today = get_filter_dates(day_diff=3)
     from_date_input, to_date_input = get_filter_inputs(sesh)
+
     sesh.input.element(from_date_input, s_from_date)
     sesh.input.element(to_date_input, s_today)
     sesh.click.path(Paths.shipment_page['filter_search'])
