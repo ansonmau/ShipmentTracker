@@ -55,7 +55,6 @@ def track(sesh: WebDriverSession, tracking_nums, executeScript):
                 logger.debug("(#{}) Unknown error: {}".format(tracking_num, e))
                 logger.info("unknown error encountered, retrying")
                 report["crash"].append((tracking_num, curr_result))
-
             sleep(1)
         sleep(2)
     return report
