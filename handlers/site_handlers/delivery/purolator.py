@@ -34,7 +34,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     sesh.click.element(get_email_btn[0])
 
     chat_handler = Chat_Handler(sesh)
-
+    time.sleep(3)
     if "I can sign you up for email notifications" not in chat_handler.get_text():
         chat_handler.exit_chat()
         return result.RETRY
@@ -42,6 +42,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     chat_btn_txts = ["Agree to terms", "Both", "Only for myself"]
     for btn_name in chat_btn_txts:
         curr_btn = chat_handler.get_button(btn_name)
+        time.sleep(0.5)
         sesh.click.element(curr_btn)
     
     name_input = chat_handler.get_input("Name")
