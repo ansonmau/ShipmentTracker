@@ -10,6 +10,7 @@ class Paths:
 
     page = {
         "tracking_info": (ELEMENT_TYPES["id"], "tracking-detail"),
+        "tracking_summary": (ELEMENT_TYPES['id'], 'tracking-summary'),
     }
 
     chat = {
@@ -26,7 +27,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
     e_tracking_details = sesh.find.path(Paths.page["tracking_info"])
 
-    if "Exceptions" in sesh.read.textFromElement(e_tracking_details):
+    if not check_valid(sesh):
         logger.info("Invalid shipment detected.")
         return result.FAIL
 
@@ -42,7 +43,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     chat_btn_txts = ["Agree to terms", "Both", "Only for myself"]
     for btn_name in chat_btn_txts:
         curr_btn = chat_handler.get_button(btn_name)
-        time.sleep(0.5)
+        time.sleep(1)
         sesh.click.element(curr_btn)
     
     name_input = chat_handler.get_input("Name")
@@ -68,6 +69,9 @@ def removeCookiesBanner(sesh: WebDriverSession):
         "document.querySelector('[aria-label=\"Cookie Consent Banner\"]')?.remove();"
     )
     sesh.injectJS(script)
+
+def check_valid(sesh: WebDriverSession) -> bool:
+    return "Exceptions" in sesh.read.text(Paths.page['tracking_summary'])
 
 class Chat_Handler:
     def __init__(self, sesh: WebDriverSession) -> None:
