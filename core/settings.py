@@ -20,3 +20,11 @@ def load_settings() -> None:
     global settings
     with open("settings.json", 'r') as f:
         settings = json.load(f)
+
+def check_settings_exists() -> bool:
+    from os.path import exists as file_exists
+    return file_exists("settings.json")
+
+def create_settings_file() -> None:
+    with open("settins.json", 'w') as f:
+        json.dump(settings, f, indent=4)
