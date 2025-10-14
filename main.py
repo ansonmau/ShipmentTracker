@@ -123,6 +123,9 @@ class initialize:
 
         logger.info("Creating reports folder if it does not exist...")
         initialize.create_reports_folder()
+        
+        logger.info("Creating logs folder if it does not exist...")
+        initialize.create_logs_folder()
 
         logger.info("Loading settings...")
         initialize.load_settings()
@@ -135,6 +138,11 @@ class initialize:
     @staticmethod
     def create_data_folder():
         dir_name = "data"
+        utils.create_folder(dir_name)
+
+    @staticmethod
+    def create_logs_folder():
+        dir_name = "logs"
         utils.create_folder(dir_name)
 
     @staticmethod

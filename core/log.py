@@ -2,9 +2,6 @@ import logging
 from datetime import datetime
 import os
 
-log_dir = os.path.abspath("./logs")
-os.makedirs(log_dir, exist_ok=True)
-
 time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 log_filename = os.path.join("./logs", "log_{}.log".format(time))
 
