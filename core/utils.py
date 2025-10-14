@@ -20,21 +20,24 @@ def save_data(data):
                     f.write("\t" + val + "\n")
                                                                                                         
 def save_results(results) -> None:
-    file_path = PROJ_FOLDER / "data" / "report.txt"
+    success_file = PROJ_FOLDER / "report" / "success.txt"
+    fail_file = PROJ_FOLDER / "report" / "failed.txt"
 
-    with open(str(file_path), "w") as f:
-        for result in results["crash"]:
-            carrier = result[0]
-            tracking_num = result[1]
-            f.write(f"[CRASH (FAIL)] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
-        for result in results["fail"]:
-            carrier = result[0]
-            tracking_num = result[1]
-            f.write(f"[FAIL] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
+    with open(str(success_file), "w") as f:
         for result in results["success"]:
             carrier = result[0]
             tracking_num = result[1]
             f.write(f"[SUCCESS] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
+
+    with open(str(fail_file), "w") as f:
+        for result in results["fail"]:
+            carrier = result[0]
+            tracking_num = result[1]
+            f.write(f"[FAIL] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
+        for result in results["crash"]:
+            carrier = result[0]
+            tracking_num = result[1]
+            f.write(f"[CRASH (FAIL)] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
 
 def generate_tracking_link(carrier, tracking_num):
     carrier_to_link = {
