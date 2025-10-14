@@ -19,3 +19,30 @@ def save_data(data):
                 for val in data[key]:
                     f.write("\t" + val + "\n")
                                                                                                         
+def save_results(results) -> None:
+    file_path = PROJ_FOLDER / "data" / "report.txt"
+
+    with open(str(file_path), "w") as f:
+        for result in results["crash"]:
+            carrier = result[0]
+            tracking_num = result[1]
+            f.write(f"[CRASH (FAIL)] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
+        for result in results["fail"]:
+            carrier = result[0]
+            tracking_num = result[1]
+            f.write(f"[FAIL] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
+        for result in results["success"]:
+            carrier = result[0]
+            tracking_num = result[1]
+            f.write(f"[SUCCESS] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
+
+def generate_tracking_link(carrier, tracking_num):
+    carrier_to_link = {
+            "canada post": f"https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={tracking_num}",
+            "purolator": f"https://www.purolator.com/en/shipping/tracker?pin={tracking_num}",
+            "fedex": f"https://www.fedex.com/fedextrack/?trknbr={tracking_num}",
+            "canpar": f"https://www.canpar.com/en/tracking/delivery_options.htm?barcode={tracking_num}",
+            "ups": f"https://www.ups.com/track?trackingNumber={tracking_num}",
+            }  
+
+    return carrier_to_link[carrier]
