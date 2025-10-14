@@ -9,7 +9,7 @@ def update_data(data_dict, new_dict):
             
 
 def save_data(data):
-    file_path = PROJ_FOLDER / "data" / "delivery_data.txt"
+    file_path = PROJ_FOLDER / "data" / "tracking_data.txt"
 
     with open(str(file_path), "w") as f:
             for key in data:
