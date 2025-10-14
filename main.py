@@ -2,6 +2,7 @@ import core.driver as driver
 from core.log import getLogger
 from core.track import track
 import core.utils as utils
+from core.settings import Settings
 
 from dotenv import load_dotenv
 import os
@@ -20,10 +21,14 @@ import handlers.site_handlers.delivery.purolator as puro
 
 logger = getLogger(__name__)
 
+Settings.clear_downloads = True
 
 def main():
     logger.info("initializing...")
     initialize.run()
+    
+    if Settings.clear_downloads:
+        cleanup.clearDLFolder()
 
     data = {
         "Canada Post": [],
@@ -37,50 +42,58 @@ def main():
 
     logger.info("starting web driver...")
     sesh = driver.WebDriverSession(undetected=True)
+    
+    if Settings.scrape["freightcom"]:
+        logger.info("looking through freightcom...")
+        freightcom_data = freightcom.scrape(sesh)
 
-    logger.info("looking through freightcom...")
-    freightcom_data = freightcom.scrape(sesh)
+        logger.debug("parsed data: {}".format(freightcom_data))
+        utils.update_data(data, freightcom_data)
 
-    logger.debug("parsed data: {}".format(freightcom_data))
-    utils.update_data(data, freightcom_data)
+    if Settings.scrape["ems"]:
+        logger.info("looking through EMS...")
+        ems_data = ems.scrape(sesh)
 
-    logger.info("looking through EMS...")
-    ems_data = ems.scrape(sesh)
+        logger.debug("parsed data: {}".format(ems_data))
+        utils.update_data(data, ems_data)
 
-    logger.debug("parsed data: {}".format(ems_data))
-    utils.update_data(data, ems_data)
+    if Settings.scrape["eshipper"]:
+        logger.info("looking through eshipper...")
+        eshipper.scrape(sesh)
 
-    logger.info("looking through eshipper...")
-    eshipper.scrape(sesh)
+        logger.debug("reading eshipper file")
+        eshipper_data = eshipper_fh.parse()
 
-    logger.debug("reading eshipper file")
-    eshipper_data = eshipper_fh.parse()
-
-    logger.debug("parsed data: {}".format(eshipper_data))
-    utils.update_data(data, eshipper_data)
+        logger.debug("parsed data: {}".format(eshipper_data))
+        utils.update_data(data, eshipper_data)
 
     logger.info("storing scraped data...")
     utils.save_data(data)
 
-    logger.info("starting tracking for Canada Post shipments")
-    logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
-    reports["Canada Post"] = track(sesh, data["Canada Post"], canpost.executeScript)
+    if Settings.track["canadapost"]:
+        logger.info("starting tracking for Canada Post shipments")
+        logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
+        reports["Canada Post"] = track(sesh, data["Canada Post"], canpost.executeScript)
 
-    logger.info("starting tracking for UPS shipments")
-    logger.debug("UPS orders: {}".format(data["UPS"]))
-    reports["UPS"] = track(sesh, data["UPS"], ups.executeScript)
+    if Settings.track["ups"]:
+        logger.info("starting tracking for UPS shipments")
+        logger.debug("UPS orders: {}".format(data["UPS"]))
+        reports["UPS"] = track(sesh, data["UPS"], ups.executeScript)
 
-    logger.info("starting tracking for Canpar shipments")
-    logger.debug("Canpar orders: {}".format(data["Canpar"]))
-    reports["Canpar"] = track(sesh, data["Canpar"], canpar.executeScript)
+    if Settings.track["canpar"]:
+        logger.info("starting tracking for Canpar shipments")
+        logger.debug("Canpar orders: {}".format(data["Canpar"]))
+        reports["Canpar"] = track(sesh, data["Canpar"], canpar.executeScript)
 
-    logger.info("starting tracking for Purolator shipments")
-    logger.debug("Purolator orders: {}".format(data["Purolator"]))
-    reports["Purolator"] = track(sesh, data["Purolator"], puro.executeScript)
+    if Settings.track["purolator"]:
+        logger.info("starting tracking for Purolator shipments")
+        logger.debug("Purolator orders: {}".format(data["Purolator"]))
+        reports["Purolator"] = track(sesh, data["Purolator"], puro.executeScript)
 
-    logger.info("starting tracking for Fedex shipments")
-    logger.debug("Fedex orders: {}".format(data["Federal Express"]))
-    reports["Federal Express"] = track(sesh, data["Federal Express"], fdx.executeScript)
+    if Settings.track["fedex"]:
+        logger.info("starting tracking for Fedex shipments")
+        logger.debug("Fedex orders: {}".format(data["Federal Express"]))
+        reports["Federal Express"] = track(sesh, data["Federal Express"], fdx.executeScript)
 
     logger.info("tracking complete. starting clean up.")
     cleanup.run()
