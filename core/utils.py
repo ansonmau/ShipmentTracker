@@ -19,22 +19,22 @@ def save_data(data):
                 for val in data[key]:
                     f.write("\t" + val + "\n")
                                                                                                         
-def save_results(results) -> None:
+def save_report(report) -> None:
     success_file = PROJ_FOLDER / "report" / "success.txt"
     fail_file = PROJ_FOLDER / "report" / "failed.txt"
 
     with open(str(success_file), "w") as f:
-        for result in results["success"]:
+        for result in report["success"]:
             carrier = result[0]
             tracking_num = result[1]
             f.write(f"[SUCCESS] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
 
     with open(str(fail_file), "w") as f:
-        for result in results["fail"]:
+        for result in report["fail"]:
             carrier = result[0]
             tracking_num = result[1]
             f.write(f"[FAIL] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
-        for result in results["crash"]:
+        for result in report["crash"]:
             carrier = result[0]
             tracking_num = result[1]
             f.write(f"[CRASH (FAIL)] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
