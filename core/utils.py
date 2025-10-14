@@ -49,3 +49,10 @@ def generate_tracking_link(carrier, tracking_num):
             }  
 
     return carrier_to_link[carrier]
+
+def create_folder(name):
+    from os import makedirs
+    folder = PROJ_FOLDER / name
+    makedirs(folder, exist_ok=True)
+    
+
