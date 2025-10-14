@@ -22,10 +22,10 @@ class Paths:
         }
 
     popup_options = {
-        "update_option_1": (ELEMENT_TYPES["id"], "stApp_pkgUpdatesDelaylbl"),
-        "update_option_2": (ELEMENT_TYPES["id"], "stApp_pkgUpdatesDeliveredlbl"),
-        "update_option_3": (ELEMENT_TYPES["id"], "stApp_pkgUpdatesCurStatusLbl"),
         "update_option_4": (ELEMENT_TYPES["id"], "stApp_pkgUpdatesNotifyProblemLbl"),
+        "update_option_2": (ELEMENT_TYPES["id"], "stApp_pkgUpdatesDeliveredlbl"),
+        "update_option_1": (ELEMENT_TYPES["id"], "stApp_pkgUpdatesDelaylbl"),
+        "update_option_3": (ELEMENT_TYPES["id"], "stApp_pkgUpdatesCurStatusLbl"),
         "update_option_5": (ELEMENT_TYPES["id"], "stApp_pkgUpdatesReadyPickuplbl"),
         }
 
