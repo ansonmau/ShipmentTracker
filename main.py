@@ -2,7 +2,7 @@ import core.driver as driver
 from core.log import getLogger
 from core.track import track
 import core.utils as utils
-from core.settings import Settings
+import core.settings as settings
 
 from dotenv import load_dotenv
 import os
@@ -21,13 +21,12 @@ import handlers.site_handlers.delivery.purolator as puro
 
 logger = getLogger(__name__)
 
-Settings.clear_downloads = True
 
 def main():
     logger.info("initializing...")
     initialize.run()
     
-    if Settings.clear_downloads:
+    if settings.settings['clear_downloads']:
         cleanup.clearDLFolder()
 
     data = {
@@ -47,21 +46,21 @@ def main():
     logger.info("starting web driver...")
     sesh = driver.WebDriverSession(undetected=True)
     
-    if Settings.scrape["freightcom"]:
+    if settings.settings['scrape']["freightcom"]:
         logger.info("looking through freightcom...")
         freightcom_data = freightcom.scrape(sesh)
 
         logger.debug("parsed data: {}".format(freightcom_data))
         utils.update_data(data, freightcom_data)
 
-    if Settings.scrape["ems"]:
+    if settings.settings['scrape']["ems"]:
         logger.info("looking through EMS...")
         ems_data = ems.scrape(sesh)
 
         logger.debug("parsed data: {}".format(ems_data))
         utils.update_data(data, ems_data)
 
-    if Settings.scrape["eshipper"]:
+    if settings.settings['scrape']["eshipper"]:
         logger.info("looking through eshipper...")
         eshipper.scrape(sesh)
 
@@ -74,27 +73,27 @@ def main():
     logger.info("storing scraped data...")
     utils.save_data(data)
 
-    if Settings.track["canadapost"]:
+    if settings.settings['track']["canadapost"]:
         logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
         utils.update_data(report, track(sesh, "Canada Post", data["Canada Post"], canpost.executeScript))
 
-    if Settings.track["ups"]:
+    if settings.settings['track']["ups"]:
         logger.info("starting tracking for UPS shipments")
         logger.debug("UPS orders: {}".format(data["UPS"]))
         utils.update_data(report, track(sesh, "UPS", data["UPS"], ups.executeScript))
 
-    if Settings.track["canpar"]:
+    if settings.settings['track']["canpar"]:
         logger.info("starting tracking for Canpar shipments")
         logger.debug("Canpar orders: {}".format(data["Canpar"]))
         utils.update_data(report, track(sesh, "Canpar", data["Canpar"], canpar.executeScript))
 
-    if Settings.track["purolator"]:
+    if settings.settings['track']["purolator"]:
         logger.info("starting tracking for Purolator shipments")
         logger.debug("Purolator orders: {}".format(data["Purolator"]))
         utils.update_data(report, track(sesh, "Purolator", data["Purolator"], puro.executeScript))
 
-    if Settings.track["fedex"]:
+    if settings.settings['track']["fedex"]:
         logger.info("starting tracking for Fedex shipments")
         logger.debug("Fedex orders: {}".format(data["Federal Express"]))
         utils.update_data(report, track(sesh, "Fedex", data["Federal Express"], fdx.executeScript))
@@ -112,32 +111,45 @@ def main():
 class initialize:
     @staticmethod
     def run():
-        logger.info("loading environment variables")
+        logger.info("Loading keys...")
         initialize.loadEnvFile()
 
-        logger.info("creating downloads folder if it does not exist")
+        logger.info("Creating downloads folder if it does not exist...")
         initialize.createDownloadsFolder()
 
-        logger.info("creating data folder if it does not exist")
+        logger.info("Creating data folder if it does not exist...")
         initialize.createDataFolder()
 
+        logger.info("Creating reports folder if it does not exist...")
+        initialize.createDataFolder()
+
+        logger.info("Loading settings...")
+        initialize.load_settings()
 
     @staticmethod
     def createDownloadsFolder():
-        for dir_name in ['./dls', './dls_old']:
-            dl_dir = os.path.abspath(dir_name)
-            os.makedirs(dl_dir, exist_ok=True)
+        for dir_name in ['dls', 'dls_old']:
+            utils.create_folder(dir_name)
 
     @staticmethod
     def createDataFolder():
-        data_dir = os.path.abspath("./data")
-        os.makedirs(data_dir, exist_ok=True)
+        dir_name = "data"
+        utils.create_folder(dir_name)
 
+    @staticmethod
+    def create_reports_folder():
+        dir_name = "reports"
+        utils.create_folder(dir_name)
+        
     @staticmethod
     def loadEnvFile():
         load_dotenv(dotenv_path="./data/keys.env")
 
-
+    @staticmethod
+    def load_settings():
+        settings.load_settings() 
+    
+        
 class cleanup:
     @staticmethod
     def run():
