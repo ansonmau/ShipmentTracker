@@ -25,6 +25,7 @@ logger = getLogger(__name__)
 def main():
     logger.info("initializing...")
     initialize.run()
+    logger.info("Initialization complete")
     
     if settings.settings['clear_downloads']:
         cleanup.clearDLFolder()
@@ -73,7 +74,7 @@ def main():
     logger.info("storing scraped data...")
     utils.save_data(data)
 
-    if settings.settings['track']["canadapost"]:
+    if settings.settings['track']["canada post"]:
         logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
         utils.update_data(report, track(sesh, "Canada Post", data["Canada Post"], canpost.executeScript))
@@ -147,7 +148,11 @@ class initialize:
 
     @staticmethod
     def load_settings():
-        settings.load_settings() 
+        if settings.check_settings_exists():
+            settings.load_settings() 
+        else:
+            logger.info("No settings file detected. Creating one with default settings...")
+            settings.create_settings_file()
     
         
 class cleanup:
