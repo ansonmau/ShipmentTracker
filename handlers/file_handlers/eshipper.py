@@ -40,7 +40,6 @@ def parse(file_search_time=30):
             else:
                 data[carrier] = [tracking_num]
 
-    save_data(data)
     return data
 
 
@@ -67,15 +66,3 @@ def check_downloads():
     files = dl_folder.glob("Track*.csv")  # returns generator
 
     return list(files)
-
-
-def save_data(data):
-    file_path = PROJ_FOLDER / "data" / "delivery_data.txt"
-
-    with open(str(file_path), "w") as f:
-        for key in data:
-            f.write(key + "\n")
-            if len(data[key]) == 0:
-                f.write("\t" + "N/A" + "\n")
-            for val in data[key]:
-                f.write("\t" + val + "\n")

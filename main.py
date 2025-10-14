@@ -59,6 +59,9 @@ def main():
     logger.debug("parsed data: {}".format(eshipper_data))
     utils.update_data(data, eshipper_data)
 
+    logger.info("storing scraped data...")
+    utils.save_data(data)
+
     logger.info("starting tracking for Canada Post shipments")
     logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
     reports["Canada Post"] = track(sesh, data["Canada Post"], canpost.executeScript)
