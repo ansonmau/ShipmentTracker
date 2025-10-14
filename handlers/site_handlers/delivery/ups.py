@@ -49,7 +49,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     sesh.input.path(Paths.popup["email_input_2"], getenv("UPS_EMAIL2"))
 
     sesh.click.path(Paths.popup["done_btn"])
-    sesh.waitFor.path(Paths.popup["close_btn"])
+    sesh.click.path(Paths.popup["close_btn"])
 
     return result.SUCCESS
  
