@@ -47,8 +47,10 @@ def scrape(sesh: WebDriverSession):
     table_length_selector = sesh.find.select_list(Paths.shipment_page['table_length_selector'])
     sesh.select.by_value(table_length_selector, '100')
 
+    logger.info("Waiting for table to update...")    
     sleep(3) # takes a second to update    
-    
+    logger.info("Reading table...")
+
     next_page = True
     while next_page:
         table_entries = get_shipment_table_entries(sesh)
