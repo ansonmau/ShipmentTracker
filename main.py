@@ -100,7 +100,7 @@ def main():
         utils.update_data(report, track(sesh, "Fedex", data["Federal Express"], fdx.executeScript))
 
     logger.info("Tracking complete. Saving results.")
-    utils.save_results(report)
+    utils.save_report(report)
 
     logger.info("Starting clean up...")
     cleanup.run()
@@ -116,24 +116,24 @@ class initialize:
         initialize.loadEnvFile()
 
         logger.info("Creating downloads folder if it does not exist...")
-        initialize.createDownloadsFolder()
+        initialize.create_downloads_folder()
 
         logger.info("Creating data folder if it does not exist...")
-        initialize.createDataFolder()
+        initialize.create_data_folder()
 
         logger.info("Creating reports folder if it does not exist...")
-        initialize.createDataFolder()
+        initialize.create_reports_folder()
 
         logger.info("Loading settings...")
         initialize.load_settings()
 
     @staticmethod
-    def createDownloadsFolder():
+    def create_downloads_folder():
         for dir_name in ['dls', 'dls_old']:
             utils.create_folder(dir_name)
 
     @staticmethod
-    def createDataFolder():
+    def create_data_folder():
         dir_name = "data"
         utils.create_folder(dir_name)
 
