@@ -26,5 +26,5 @@ def check_settings_exists() -> bool:
     return file_exists("settings.json")
 
 def create_settings_file() -> None:
-    with open("settins.json", 'w') as f:
+    with open("settings.json", 'w') as f:
         json.dump(settings, f, indent=4)
