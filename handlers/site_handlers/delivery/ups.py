@@ -61,7 +61,7 @@ def get_options(sesh:WebDriverSession):
     opt_elm_list = []
 
     for opt_path in Paths.popup_options.values():
-        elm_opt = sesh.find.path(opt_path)
+        elm_opt = sesh.find.path(opt_path, wait=2)
         if elm_opt:
             opt_elm_list.append(elm_opt)
 
