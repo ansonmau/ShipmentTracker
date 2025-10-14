@@ -9,8 +9,7 @@ logger = getLogger(__name__)
 class Paths:
 
     page = {
-        "tracking_info": (ELEMENT_TYPES["id"], "tracking-detail"),
-        "tracking_summary": (ELEMENT_TYPES['id'], 'tracking-summary'),
+        "tracking_info": (ELEMENT_TYPES["id"], "results-container"),
     }
 
     chat = {
@@ -25,11 +24,11 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     )
     removeCookiesBanner(sesh)
 
-    e_tracking_details = sesh.find.path(Paths.page["tracking_info"])
-
     if not check_valid(sesh):
         logger.info("Invalid shipment detected.")
         return result.FAIL
+
+    e_tracking_details = sesh.find.path(Paths.page["tracking_info"])
 
     get_email_btn = sesh.find.links_within(e_tracking_details, filter="Get Email Notifications")
     sesh.click.element(get_email_btn[0])
@@ -71,7 +70,7 @@ def removeCookiesBanner(sesh: WebDriverSession):
     sesh.injectJS(script)
 
 def check_valid(sesh: WebDriverSession) -> bool:
-    return "Exceptions" in sesh.read.text(Paths.page['tracking_summary'])
+    return "Exceptions" in sesh.read.text(Paths.page['tracking_info'])
 
 class Chat_Handler:
     def __init__(self, sesh: WebDriverSession) -> None:
