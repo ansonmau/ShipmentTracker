@@ -1,6 +1,6 @@
 import pathlib
 
-PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent.parent
+PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent
 
 def update_data(data_dict, new_dict):
     for key in new_dict:
