@@ -24,7 +24,7 @@ class result:
         return self.result == other
 
 
-def track(sesh: WebDriverSession, tracking_nums, executeScript):
+def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript):
     report = {"success": [], "fail": [], "crash": []}
 
     total_count = len(tracking_nums)
@@ -36,25 +36,25 @@ def track(sesh: WebDriverSession, tracking_nums, executeScript):
         while attempt_count <= 3:
             attempt_count += 1
             logger.info(
-                    f"Starting tracking... ({counter}/{total_count}) | tracking number: {tracking_num} | attempt {attempt_count}/3"
+                    f"({counter}/{total_count}) Starting tracking... | {carrier} {tracking_num} | attempt {attempt_count}/3"
             )
             try:
                 curr_result = executeScript(sesh, tracking_num)
                 if curr_result == result.RETRY:
                     continue
                 elif curr_result == result.SUCCESS:
-                    report["success"].append((tracking_num, curr_result))
-                    logger.info("success")
+                    report["success"].append((carrier, tracking_num))
+                    logger.info("Success")
                     break
                 else:
-                    report["fail"].append((tracking_num, curr_result))
+                    report["Fail"].append((carrier, tracking_num))
                     logger.info("failed")
                     break
             except Exception as e:
                 curr_result = result(result.CRASH, "Unknown error occured")
                 logger.debug("(#{}) Unknown error: {}".format(tracking_num, e))
                 logger.info("unknown error encountered, retrying")
-                report["crash"].append((tracking_num, curr_result))
-            sleep(1)
-        sleep(2)
+                report["crash"].append((carrier, tracking_num))
+            sleep(2)
+        sleep(3)
     return report

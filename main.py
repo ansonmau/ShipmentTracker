@@ -38,7 +38,11 @@ def main():
         "UPS": [],
     }
 
-    reports = {}
+    report = {
+            "success": [],
+            "fail": [],
+            "crash": [],
+            }
 
     logger.info("starting web driver...")
     sesh = driver.WebDriverSession(undetected=True)
@@ -73,31 +77,34 @@ def main():
     if Settings.track["canadapost"]:
         logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
-        reports["Canada Post"] = track(sesh, data["Canada Post"], canpost.executeScript)
+        utils.update_data(report, track(sesh, "Canada Post", data["Canada Post"], canpost.executeScript))
 
     if Settings.track["ups"]:
         logger.info("starting tracking for UPS shipments")
         logger.debug("UPS orders: {}".format(data["UPS"]))
-        reports["UPS"] = track(sesh, data["UPS"], ups.executeScript)
+        utils.update_data(report, track(sesh, "UPS", data["UPS"], ups.executeScript))
 
     if Settings.track["canpar"]:
         logger.info("starting tracking for Canpar shipments")
         logger.debug("Canpar orders: {}".format(data["Canpar"]))
-        reports["Canpar"] = track(sesh, data["Canpar"], canpar.executeScript)
+        utils.update_data(report, track(sesh, "Canpar", data["Canpar"], canpar.executeScript))
 
     if Settings.track["purolator"]:
         logger.info("starting tracking for Purolator shipments")
         logger.debug("Purolator orders: {}".format(data["Purolator"]))
-        reports["Purolator"] = track(sesh, data["Purolator"], puro.executeScript)
+        utils.update_data(report, track(sesh, "Purolator", data["Purolator"], puro.executeScript))
 
     if Settings.track["fedex"]:
         logger.info("starting tracking for Fedex shipments")
         logger.debug("Fedex orders: {}".format(data["Federal Express"]))
-        reports["Federal Express"] = track(sesh, data["Federal Express"], fdx.executeScript)
+        utils.update_data(report, track(sesh, "Fedex", data["Federal Express"], fdx.executeScript))
 
-    logger.info("tracking complete. starting clean up.")
+    logger.info("Tracking complete. Saving results.")
+    utils.save_results(report)
+
+    logger.info("Starting clean up...")
     cleanup.run()
-    logger.info("clean up completed")
+    logger.info("Clean up complete")
 
     return
 
