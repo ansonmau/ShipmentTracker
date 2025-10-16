@@ -1,6 +1,8 @@
 from core.driver import WebDriverSession, ELEMENT_TYPES
 from os import getenv
+from main import DAY_DIFF
 from core.log import getLogger
+from datetime import datetime, timedelta
 
 logger = getLogger(__name__)
 
@@ -33,6 +35,7 @@ class Paths:
 
 tracking_table_index = {
     "tracking_num": 3,
+    "date": 4,
     "status": 7,
     "carrier": 1,
 }
@@ -94,10 +97,16 @@ def read_table_into_dict(sesh: WebDriverSession, info):
             continue
 
         data = sesh.find.allFromParent(entry, Paths.tracking_page["table_data"])
-        carrier, tracking_num, status = parse_entry_data(sesh, data)
-
+        carrier, tracking_num, date, status = parse_entry_data(sesh, data)
+        logger.debug(f"Entry found: {carrier} | {tracking_num} | {date} | {status}")
+        
+        if not within_date_range(date):
+            # break here since it's ordered by date.
+            break 
+        
         status = status.lower()
         if not "ready for shipping" in status and not "in transit" in status:
+            logger.debug(f"entry {tracking_num} not ready for shipping / in transit")
             continue
         
         if not carrier in info:
@@ -115,7 +124,9 @@ def parse_entry_data(sesh: WebDriverSession, row):
 
     status = sesh.read.textFromElement(row[tracking_table_index["status"]])
 
-    return carrier, tracking_num, status
+    date = sesh.read.textFromElement(row[tracking_table_index["date"]])
+
+    return carrier, tracking_num, date, status
 
 
 def get_carrier_name(sesh: WebDriverSession, carrier_entry_elm):
@@ -131,3 +142,10 @@ def check_valid_row(sesh: WebDriverSession, row):
     if "Watched Shipment" in sesh.read.textFromElement(row):
         return False
     return True
+
+def within_date_range(date):
+    site_date_format = "%b %d, %Y"
+    check_date = datetime.strptime(date, site_date_format)
+    lower_bound = datetime.now() - timedelta(days=DAY_DIFF)
+
+    return check_date >= lower_bound

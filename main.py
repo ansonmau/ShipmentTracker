@@ -1,3 +1,5 @@
+DAY_DIFF = 3
+
 import core.driver as driver
 from core.log import getLogger
 from core.track import track
@@ -21,7 +23,6 @@ import handlers.site_handlers.delivery.purolator as puro
 
 logger = getLogger(__name__)
 
-DAY_DIFF = 3
 
 def main():
     logger.info("initializing...")
