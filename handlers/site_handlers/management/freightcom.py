@@ -66,7 +66,7 @@ def scrape(sesh: WebDriverSession):
     discard_btn = get_popup_discard_btn(sesh)
     sesh.click.element(discard_btn)
 
-    get_shipment_info(sesh, data)
+    read_table_into_dict(sesh, data)
     return data
 
 
@@ -84,7 +84,7 @@ def get_popup_discard_btn(sesh: WebDriverSession):
     return discard_btn[0]
 
 
-def get_shipment_info(sesh: WebDriverSession, info):
+def read_table_into_dict(sesh: WebDriverSession, info):
     table = sesh.find.path(Paths.tracking_page["shipment_table"])
 
     entries = sesh.find.allFromParent(table, Paths.tracking_page["table_entry"])
