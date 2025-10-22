@@ -117,16 +117,16 @@ class initialize:
         logger.info("Loading keys...")
         initialize.loadEnvFile()
 
-        logger.info("Creating downloads folder if it does not exist...")
+        logger.info("Initing downloads...")
         initialize.create_downloads_folder()
 
-        logger.info("Creating data folder if it does not exist...")
+        logger.info("Initing data...")
         initialize.create_data_folder()
 
-        logger.info("Creating reports folder if it does not exist...")
-        initialize.create_reports_folder()
+        logger.info("Initing reports...")
+        initialize.create_reports()
         
-        logger.info("Creating logs folder if it does not exist...")
+        logger.info("Initing logs...")
         initialize.create_logs_folder()
 
         logger.info("Loading settings...")
@@ -148,9 +148,13 @@ class initialize:
         utils.create_folder(dir_name)
 
     @staticmethod
-    def create_reports_folder():
+    def create_reports():
         dir_name = "reports"
+
         utils.create_folder(dir_name)
+        from pathlib import Path
+        for file_name in ["success", "fail"]:
+            Path(f"{dir_name}/{file_name}.txt").touch()
         
     @staticmethod
     def loadEnvFile():

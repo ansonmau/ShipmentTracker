@@ -1,15 +1,15 @@
 {
-    "clear_downloads": false,
+    "clear_downloads": true,
     "scrape": {
-        "eshipper": false,
+        "eshipper": true,
         "ems": true,
-        "freightcom": false
+        "freightcom": true
     },
     "track": {
-        "canada post": false,
-        "canpar": false,
-        "fedex": false,
+        "canada post": true,
+        "canpar": true,
+        "fedex": true,
         "purolator": true,
-        "ups": false
+        "ups": true
     }
 }
