@@ -25,19 +25,19 @@ def save_report(report) -> None:
 
     with open(str(success_file), "w") as f:
         for result in report["success"]:
-            carrier = result[0]
-            tracking_num = result[1]
-            f.write(f"[SUCCESS] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
+            info = result.detail()
+            link = generate_tracking_link(info['carrier'], info['tracking_number'])
+            f.write(f"[SUCCESS] | {info['carrier']} | #{info['tracking_number']} | {link}" + '\n')
 
     with open(str(fail_file), "w") as f:
         for result in report["fail"]:
-            carrier = result[0]
-            tracking_num = result[1]
-            f.write(f"[FAIL] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
+            info = result.detail()
+            link = generate_tracking_link(info['carrier'], info['tracking_number'])
+            f.write(f"[FAIL] | {info['carrier']} | #{info['tracking_number']} | reason: {info['reason']} | {link}" + '\n')
         for result in report["crash"]:
-            carrier = result[0]
-            tracking_num = result[1]
-            f.write(f"[CRASH (FAIL)] {carrier} #{tracking_num} ----- {generate_tracking_link(carrier, tracking_num)}" + '\n')
+            info = result.detail()
+            link = generate_tracking_link(info['carrier'], info['tracking_number'])
+            f.write(f"[CRASH (FAIL)] | {info['carrier']} | #{info['tracking_number']} | reason: {info['reason']} | {link}" + '\n')
 
 def generate_tracking_link(carrier, tracking_num):
     carrier_to_link = {

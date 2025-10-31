@@ -12,18 +12,12 @@ class result:
     CRASH = 2
     RETRY = 3
 
-    def __init__(self, result, carrier="", tracking_number="", reason=""):
+    def __init__(self, result=FAIL, carrier="", tracking_number="", reason=""):
         assert result in [self.SUCCESS, self.FAIL, self.CRASH]
         self.carrier = carrier
         self.result = result
         self.reason = reason
         self.tracking_number = tracking_number
-        self.info_dict = {
-                'result': self.result,
-                'carrier': self.carrier,
-                'tracking_number': self.tracking_number,
-                'reason': self.reason,
-                }
 
     def __str__(self):
         return f"{self.result}: {self.reason}"
@@ -32,7 +26,13 @@ class result:
         return self.result == other
     
     def detail(self):
-        return self.info_dict
+        info_dict = {
+                'result': self.result,
+                'carrier': self.carrier,
+                'tracking_number': self.tracking_number,
+                'reason': self.reason,
+                }
+        return info_dict
                 
 
 
@@ -59,11 +59,11 @@ def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript):
                     logger.info("Success")
                     break
                 else:
-                    report["fail"].append((carrier, tracking_num))
+                    report["fail"].append(curr_result)
                     logger.info("failed")
                     break
             except Exception as e:
-                curr_result = result(result.CRASH, "Unknown error occured")
+                curr_result = result(result.CRASH, reason="Unknown error occured")
                 logger.debug("(#{}) Unknown error: {}".format(tracking_num, e))
                 logger.info("unknown error encountered, retrying")
                 report["crash"].append((carrier, tracking_num))
