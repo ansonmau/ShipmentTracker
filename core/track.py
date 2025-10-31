@@ -12,16 +12,28 @@ class result:
     CRASH = 2
     RETRY = 3
 
-    def __init__(self, result, reason=""):
+    def __init__(self, result, carrier="", tracking_number="", reason=""):
         assert result in [self.SUCCESS, self.FAIL, self.CRASH]
+        self.carrier = carrier
         self.result = result
         self.reason = reason
+        self.tracking_number = tracking_number
+        self.info_dict = {
+                'result': self.result,
+                'carrier': self.carrier,
+                'tracking_number': self.tracking_number,
+                'reason': self.reason,
+                }
 
     def __str__(self):
         return f"{self.result}: {self.reason}"
 
     def __eq__(self, other):
         return self.result == other
+    
+    def detail(self):
+        return self.info_dict
+                
 
 
 def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript):
@@ -43,11 +55,11 @@ def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript):
                 if curr_result == result.RETRY:
                     continue
                 elif curr_result == result.SUCCESS:
-                    report["success"].append((carrier, tracking_num))
+                    report["success"].append(curr_result)
                     logger.info("Success")
                     break
                 else:
-                    report["Fail"].append((carrier, tracking_num))
+                    report["fail"].append((carrier, tracking_num))
                     logger.info("failed")
                     break
             except Exception as e:

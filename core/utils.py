@@ -21,7 +21,7 @@ def save_data(data):
                                                                                                         
 def save_report(report) -> None:
     success_file = PROJ_FOLDER / "reports" / "success.txt"
-    fail_file = PROJ_FOLDER / "reports" / "failed.txt"
+    fail_file = PROJ_FOLDER / "reports" / "fail.txt"
 
     with open(str(success_file), "w") as f:
         for result in report["success"]:
