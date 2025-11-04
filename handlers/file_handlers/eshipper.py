@@ -12,6 +12,14 @@ PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent.parent
 
 
 def parse(file_search_time=30):
+    data = {
+        "UPS": [],
+        "Canpar": [],
+        "Purolator": [],
+        "Canada Post": [],
+        "Federal Express": [],
+    }
+    
     file = get_downloaded_file(file_search_time)
 
     # should only be one file
@@ -35,10 +43,7 @@ def parse(file_search_time=30):
             tracking_num = entry["Tracking#"]
             carrier = entry["Carrier"]
 
-            if carrier in data:
-                data[carrier].append(tracking_num)
-            else:
-                data[carrier] = [tracking_num]
+            data[carrier].append(tracking_num)
 
     return data
 
