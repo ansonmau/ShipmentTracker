@@ -24,6 +24,18 @@ class result:
 
     def __eq__(self, other):
         return self.result == other
+
+    def set_reason(self, reason):
+        self.reason = reason
+
+    def set_result(self, result):
+        self.result = result
+
+    def set_tracking_number(self, tracking_number):
+        self.tracking_number = tracking_number
+
+    def set_carrier(self, carrier):
+        self.carrier = carrier
     
     def detail(self):
         info_dict = {

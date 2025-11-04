@@ -26,6 +26,7 @@ cookie_banner_paths = {
 
 
 def executeScript(sesh: WebDriverSession, tracking_num):
+    r = result(result.FAIL, carrier="Fedex", tracking_number=tracking_num)
     link = "https://www.fedex.com/fedextrack/?trknbr={}".format(tracking_num)
     sesh.get(link)
 
@@ -35,9 +36,11 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     sesh.click.path(paths["submit_btn"])
 
     if not waitForConfirm(sesh):
-        return result.FAIL
+        r.set_reason("Confirm button missing")
+        return r
 
-    return result.SUCCESS
+    r.set_result(result.SUCCESS)
+    return r
 
 def waitForConfirm(sesh: WebDriverSession, cd=3):
     end_time = time() + cd

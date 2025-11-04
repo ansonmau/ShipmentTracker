@@ -30,6 +30,7 @@ class Paths:
         }
 
 def executeScript(sesh: WebDriverSession, tracking_num):
+    r = result(result.FAIL, carrier="UPS", tracking_number=tracking_num)
     sesh.get("https://www.ups.com/track?trackingNumber={}".format(tracking_num))
     
     remove_cookies_popup(sesh)
@@ -51,7 +52,8 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     sesh.click.path(Paths.popup["done_btn"])
     sesh.click.path(Paths.popup["close_btn"])
 
-    return result.SUCCESS
+    r.set_result(result.SUCCESS)
+    return r
  
 def remove_cookies_popup(sesh):
     elm_popup = sesh.find.path(Paths.cookies_popup)
@@ -59,7 +61,7 @@ def remove_cookies_popup(sesh):
 
 def get_options(sesh:WebDriverSession):
     opt_elm_list = []
-
+    
     for opt_path in Paths.popup_options.values():
         elm_opt = sesh.find.path(opt_path, wait=2)
         if elm_opt:

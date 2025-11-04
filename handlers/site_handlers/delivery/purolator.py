@@ -19,6 +19,7 @@ class Paths:
     }
 
 def executeScript(sesh: WebDriverSession, tracking_num):
+    r = result(result.FAIL, carrier="Purolator", tracking_number=tracking_num)
     sesh.get(
         "https://www.purolator.com/en/shipping/tracker?pin={}".format(tracking_num)
     )
@@ -26,7 +27,8 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
     if check_invalid(sesh):
         logger.info("Invalid shipment detected.")
-        return result.FAIL
+        r.set_reason("Shipment not ready to be tracked")
+        return r
 
     e_tracking_details = sesh.find.path(Paths.page["tracking_info"])
 
@@ -37,7 +39,8 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     time.sleep(3)
     if "I can sign you up for email notifications" not in chat_handler.get_text():
         chat_handler.exit_chat()
-        return result.RETRY
+        r.set_result(result.RETRY)
+        return r
 
     chat_btn_txts = ["Agree to terms", "Both", "Only for myself"]
     for btn_name in chat_btn_txts:
@@ -61,7 +64,8 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
     chat_handler.exit_chat()
     
-    return result.SUCCESS
+    r.set_result(result.SUCCESS)
+    return r
 
 def removeCookiesBanner(sesh: WebDriverSession):
     script = (

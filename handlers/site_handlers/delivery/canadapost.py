@@ -21,13 +21,15 @@ paths = {
 
 
 def executeScript(sesh: WebDriverSession, tracking_num):
+    r = result(result.FAIL, carrier="Canada Post", tracking_number=tracking_num)
     link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(
         tracking_num
     )
     sesh.get(link)
 
     if not canGetNotifications(sesh):
-        return result.FAIL
+        r.set_reason("Notification button not found")
+        return r
 
     sesh.click.path(paths["get_email_notif"])
 
@@ -35,7 +37,8 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     dialog_txt = getDialogText(sesh)
 
     if "reached the maximum" in dialog_txt:
-        return result.FAIL
+        r.set_reason("Maximum emails reached")
+        return r
 
     if "You can add or remove email addresses" in dialog_txt:
         passDialog1(sesh)
@@ -44,7 +47,8 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     email_inputs = sesh.find.all(paths["email_input"])
     if len(email_inputs) == 1:
         if not canAddEmails(sesh):
-            return result.FAIL
+            r.set_reason("Maximum emails reached")
+            return r
         sesh.click.path(paths["add_email_btn"])
 
     email_inputs = sesh.find.all(paths["email_input"])
@@ -58,8 +62,9 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
     ok_btn = get_ok_button(sesh)
     sesh.click.element(ok_btn)
-
-    return result.SUCCESS
+    
+    r.set_result(result.SUCCESS)
+    return r
 
 
 def getDialogText(sesh: WebDriverSession):

@@ -21,6 +21,7 @@ paths = {
 }
 
 def executeScript(sesh: WebDriverSession, tracking_num):
+    r = result(result.FAIL, carrier="Canpar", tracking_number=tracking_num)
     sesh.get(
         "https://www.canpar.com/en/tracking/delivery_options.htm?barcode={}".format(
             tracking_num
@@ -39,7 +40,8 @@ def executeScript(sesh: WebDriverSession, tracking_num):
 
     waitForConfirm(sesh)
 
-    return result.SUCCESS
+    r.set_result(result.SUCCESS)
+    return r
 
 
 def waitForConfirm(sesh: WebDriverSession, cd=10):
