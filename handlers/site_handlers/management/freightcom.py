@@ -56,7 +56,7 @@ def scrape(sesh: WebDriverSession):
         "Canpar": [],
         "Purolator": [],
         "Canada Post": [],
-        "Federal Express": [],
+        "Fedex": [],
     }
         
     login(sesh)
@@ -88,6 +88,14 @@ def get_popup_discard_btn(sesh: WebDriverSession):
 
 
 def read_table_into_dict(sesh: WebDriverSession, info):
+    carrier_name_converter = {
+            "UPS": "UPS",
+            "Canpar": "Canpar",
+            "Purolator": "Purolator",
+            "Canada Post": "Canada Post",
+            "FedEx Courier": "Fedex",
+        }
+
     table = sesh.find.path(Paths.tracking_page["shipment_table"])
 
     entries = sesh.find.allFromParent(table, Paths.tracking_page["table_entry"])
@@ -98,6 +106,8 @@ def read_table_into_dict(sesh: WebDriverSession, info):
 
         data = sesh.find.allFromParent(entry, Paths.tracking_page["table_data"])
         carrier, tracking_num, date, status = parse_entry_data(sesh, data)
+        carrier = carrier_name_converter[carrier]
+
         logger.debug(f"Entry found: {carrier} | {tracking_num} | {date} | {status}")
         
         if not within_date_range(date):
@@ -111,6 +121,7 @@ def read_table_into_dict(sesh: WebDriverSession, info):
         
         if not carrier in info:
             logger.warning(f"Carrier not found: {carrier}")
+
         info[carrier].append(tracking_num)
 
 

@@ -13,14 +13,21 @@ class result:
     RETRY = 3
 
     def __init__(self, result=FAIL, carrier="", tracking_number="", reason=""):
-        assert result in [self.SUCCESS, self.FAIL, self.CRASH]
+        assert result in [self.SUCCESS, self.FAIL, self.CRASH, self.RETRY]
         self.carrier = carrier
         self.result = result
         self.reason = reason
         self.tracking_number = tracking_number
 
     def __str__(self):
-        return f"{self.result}: {self.reason}"
+        text_converter = {
+                self.SUCCESS: "Success",
+                self.FAIL: "Fail",
+                self.RETRY: "Retry",
+                self.CRASH: "Crash",
+                }
+        result = text_converter[self.result]
+        return f"{result}: {self.reason}"
 
     def __eq__(self, other):
         return self.result == other
@@ -67,17 +74,17 @@ def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript):
                 if curr_result == result.RETRY:
                     continue
                 elif curr_result == result.SUCCESS:
+                    logger.info(str(curr_result))
                     report["success"].append(curr_result)
-                    logger.info("Success")
                     break
                 else:
+                    logger.info(str(curr_result))
                     report["fail"].append(curr_result)
-                    logger.info("failed")
                     break
             except Exception as e:
                 curr_result = result(result.CRASH, reason="Unknown error occured")
                 logger.debug("(#{}) Unknown error: {}".format(tracking_num, e))
-                logger.info("unknown error encountered, retrying")
+                logger.info(str(curr_result))
                 report["crash"].append((carrier, tracking_num))
             sleep(2)
         sleep(3)
