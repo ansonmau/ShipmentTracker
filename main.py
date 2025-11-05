@@ -79,27 +79,32 @@ def main():
     if settings.settings['track']["canada post"]:
         logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
-        utils.update_data(report, track(sesh, "Canada Post", data["Canada Post"], canpost.executeScript))
+        cp_data = track(sesh, "Canada Post", data["Canada Post"], canpost.executeScript)
+        utils.update_data(report, cp_data)
 
     if settings.settings['track']["ups"]:
         logger.info("starting tracking for UPS shipments")
         logger.debug("UPS orders: {}".format(data["UPS"]))
-        utils.update_data(report, track(sesh, "UPS", data["UPS"], ups.executeScript))
+        ups_report = track(sesh, "UPS", data["UPS"], ups.executeScript)
+        utils.update_data(report, ups_report)
 
     if settings.settings['track']["canpar"]:
         logger.info("starting tracking for Canpar shipments")
         logger.debug("Canpar orders: {}".format(data["Canpar"]))
-        utils.update_data(report, track(sesh, "Canpar", data["Canpar"], canpar.executeScript))
+        canpar_report = track(sesh, "Canpar", data["Canpar"], canpar.executeScript)
+        utils.update_data(report, canpar_report)
 
     if settings.settings['track']["purolator"]:
         logger.info("starting tracking for Purolator shipments")
         logger.debug("Purolator orders: {}".format(data["Purolator"]))
-        utils.update_data(report, track(sesh, "Purolator", data["Purolator"], puro.executeScript))
+        puro_report = track(sesh, "Purolator", data["Purolator"], puro.executeScript)
+        utils.update_data(report, puro_report)
 
     if settings.settings['track']["fedex"]:
         logger.info("starting tracking for Fedex shipments")
         logger.debug("Fedex orders: {}".format(data["Federal Express"]))
-        utils.update_data(report, track(sesh, "Fedex", data["Federal Express"], fdx.executeScript))
+        fdx_report = track(sesh, "Fedex", data["Federal Express"], fdx.executeScript)
+        utils.update_data(report, fdx_report)
 
     logger.info("Tracking complete. Saving results.")
     utils.save_report(report)

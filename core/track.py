@@ -67,7 +67,7 @@ def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript):
         while attempt_count < 3:
             attempt_count += 1
             logger.info(
-                    f"({counter}/{total_count}) Starting tracking... | {carrier} {tracking_num} | attempt {attempt_count}/3"
+                    f"({counter}/{total_count}) Starting tracking... | {carrier} | {tracking_num} | attempt {attempt_count}/3"
             )
             try:
                 curr_result = executeScript(sesh, tracking_num)
