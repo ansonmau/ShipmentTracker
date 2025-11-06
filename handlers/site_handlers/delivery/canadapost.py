@@ -52,7 +52,6 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         sesh.click.path(paths["add_email_btn"])
 
     email_inputs = sesh.find.all(paths["email_input"])
-    assert len(email_inputs) >= 2
     sesh.input.element(email_inputs[0], getenv("CANADAPOST_EMAIL1"))
     sesh.input.element(email_inputs[1], getenv("CANADAPOST_EMAIL2"))
 

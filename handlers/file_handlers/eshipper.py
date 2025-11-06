@@ -29,7 +29,6 @@ def parse(file_search_time=30):
 
         date_format = "%m/%d/%Y"
         min_date = calc_oldest_day(DAY_DIFF)
-        data = {}
 
         for entry in file_dict:
             entry_date = datetime.strptime(entry["Ship Date"], date_format)
