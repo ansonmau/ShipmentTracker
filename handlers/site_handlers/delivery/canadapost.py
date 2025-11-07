@@ -16,7 +16,7 @@ paths = {
     "submit_btn": (ELEMENT_TYPES["id"], "submitButton"),
     "dialog_type_1": (ELEMENT_TYPES["tag"], "track-email-dialog"),
     "dialog_type_2": (ELEMENT_TYPES["tag"], "add-emails-dialog"),
-    "error_msg": (ELEMENT_TYPES["id"], "modalError"),
+    "error_msg": (ELEMENT_TYPES["id"], "errorModal"),
 }
 
 
@@ -26,6 +26,10 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         tracking_num
     )
     sesh.get(link)
+    
+    if check_for_error_msg(sesh):
+        r.set_reason("Error message (likely bot detection)")
+        return r
 
     if not canGetNotifications(sesh):
         r.set_reason("Notification button not found")
@@ -103,9 +107,6 @@ def emailInputCountCheck(sesh: WebDriverSession):
 
 
 def canGetNotifications(sesh: WebDriverSession):
-    if check_for_error_msg(sesh):
-        return False
-
     get_notif_btn = sesh.find.path(paths["get_email_notif"], wait=3)
     if get_notif_btn is None:
         return False

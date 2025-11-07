@@ -1,4 +1,4 @@
-DAY_DIFF = 10
+DAY_DIFF = 3
 
 import core.driver as driver
 from core.log import getLogger
@@ -37,7 +37,7 @@ def main():
         "Canpar": [],
         "Federal Express": [],
         "Purolator": [],
-        "UPS": [],
+        "UPS": []   
     }
 
     report = {
