@@ -5,6 +5,7 @@ from core.log import getLogger
 from core.track import track
 import core.utils as utils
 import core.settings as settings
+import handlers.file_handlers.reports as report_handler
 
 from dotenv import load_dotenv
 import os
@@ -35,7 +36,7 @@ def main():
     data = {
         "Canada Post": [],
         "Canpar": [],
-        "Federal Express": [],
+        "Fedex": [],
         "Purolator": [],
         "UPS": [],
     }
@@ -73,6 +74,9 @@ def main():
         logger.debug("parsed data: {}".format(eshipper_data))
         utils.update_data(data, eshipper_data)
 
+    if settings.settings['ignore_old']:
+        pass
+
     logger.info("storing scraped data...")
     utils.save_data(data)
 
@@ -102,12 +106,12 @@ def main():
 
     if settings.settings['track']["fedex"]:
         logger.info("starting tracking for Fedex shipments")
-        logger.debug("Fedex orders: {}".format(data["Federal Express"]))
-        fdx_report = track(sesh, "Fedex", data["Federal Express"], fdx.executeScript)
+        logger.debug("Fedex orders: {}".format(data["Fedex"]))
+        fdx_report = track(sesh, "Fedex", data["Fedex"], fdx.executeScript)
         utils.update_data(report, fdx_report)
 
     logger.info("Tracking complete. Saving results.")
-    utils.save_report(report)
+    report_handler.write_report(report)
 
     logger.info("Starting clean up...")
     cleanup.run()

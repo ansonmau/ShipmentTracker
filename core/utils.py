@@ -1,4 +1,5 @@
 import pathlib
+from datetime import datetime
 
 PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent
 
@@ -19,25 +20,6 @@ def save_data(data):
                 for val in data[key]:
                     f.write("\t" + val + "\n")
                                                                                                         
-def save_report(report) -> None:
-    success_file = PROJ_FOLDER / "reports" / "success.txt"
-    fail_file = PROJ_FOLDER / "reports" / "fail.txt"
-
-    with open(str(success_file), "w") as f:
-        for result in report["success"]:
-            info = result.detail()
-            link = generate_tracking_link(info['carrier'], info['tracking_number'])
-            f.write(f"[SUCCESS] | {info['carrier']} | #{info['tracking_number']} | {link}" + '\n')
-
-    with open(str(fail_file), "w") as f:
-        for result in report["fail"]:
-            info = result.detail()
-            link = generate_tracking_link(info['carrier'], info['tracking_number'])
-            f.write(f"[FAIL] | {info['carrier']} | #{info['tracking_number']} | reason: {info['reason']} | {link}" + '\n')
-        for result in report["crash"]:
-            info = result.detail()
-            link = generate_tracking_link(info['carrier'], info['tracking_number'])
-            f.write(f"[CRASH (FAIL)] | {info['carrier']} | #{info['tracking_number']} | reason: {info['reason']} | {link}" + '\n')
 
 def generate_tracking_link(carrier, tracking_num):
     carrier_to_link = {

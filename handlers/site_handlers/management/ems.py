@@ -30,7 +30,7 @@ def scrape(sesh: WebDriverSession):
         "Canpar": [],
         "Purolator": [],
         "Canada Post": [],
-        "Federal Express": [],
+        "Fedex": [],
     }
     
     login(sesh)
@@ -139,7 +139,7 @@ def _get_carrier(sesh: WebDriverSession, entry_part):
             'purolator':'Purolator',
             'ups':'UPS',
             'canadapost':'Canada Post',
-            'fedex':'Federal Express',
+            'fedex':'Fedex',
             'canpar':'Canpar',
         }
 
