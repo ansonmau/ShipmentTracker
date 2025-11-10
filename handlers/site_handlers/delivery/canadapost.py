@@ -33,7 +33,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         sesh.click.element(okay_button_elm)
     
     if not canGetNotifications(sesh):
-        r.set_reason("Notification button not found")
+        r.set_reason("Notification button not found (likely already delivered)")
         return r
 
     sesh.click.path(paths["get_email_notif"])
