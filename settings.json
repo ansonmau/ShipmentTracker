@@ -1,9 +1,10 @@
 {
+    "ignore_old": true,
     "clear_downloads": true,
     "scrape": {
         "eshipper": true,
         "ems": true,
-        "freightcom": false
+        "freightcom": true
     },
     "track": {
         "canada post": true,

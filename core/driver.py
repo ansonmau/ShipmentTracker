@@ -184,7 +184,7 @@ class find:
 
         return filtered_elements
 
-    def buttons_within(self, parent_element, filter=None, wait=5):
+    def buttons_within(self, parent_element, filter=None, wait=5) -> list:
         assert parent_element is not None
 
         btn = (ELEMENT_TYPES["tag"], "button")

@@ -31,6 +31,7 @@ def main():
     logger.info("Initialization complete")
     
     if settings.settings['clear_downloads']:
+        logger.info("Clearing downloads folder...")
         cleanup.clearDLFolder()
 
     data = {
@@ -55,14 +56,14 @@ def main():
         freightcom_data = freightcom.scrape(sesh)
 
         logger.debug("parsed data: {}".format(freightcom_data))
-        utils.update_data(data, freightcom_data)
+        utils.update_tracking_data(data, freightcom_data)
 
     if settings.settings['scrape']["ems"]:
         logger.info("looking through EMS...")
         ems_data = ems.scrape(sesh)
 
         logger.debug("parsed data: {}".format(ems_data))
-        utils.update_data(data, ems_data)
+        utils.update_tracking_data(data, ems_data)
 
     if settings.settings['scrape']["eshipper"]:
         logger.info("looking through eshipper...")
@@ -72,43 +73,48 @@ def main():
         eshipper_data = eshipper_fh.parse()
 
         logger.debug("parsed data: {}".format(eshipper_data))
-        utils.update_data(data, eshipper_data)
+        utils.update_tracking_data(data, eshipper_data)
 
     if settings.settings['ignore_old']:
-        pass
+        logger.info("Removing previously tracked numbers...")
+        old = report_handler.read.recent_success()
+        for carrier_key in data:
+            for i in [x for x in old if x.carrier==carrier_key]:
+                if i in data[carrier_key]:
+                    data[carrier_key].remove(i)
 
     logger.info("storing scraped data...")
-    utils.save_data(data)
+    utils.save_tracking_data(data)
 
     if settings.settings['track']["canada post"]:
         logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
         cp_data = track(sesh, "Canada Post", data["Canada Post"], canpost.executeScript)
-        utils.update_data(report, cp_data)
+        utils.update_tracking_data(report, cp_data)
 
     if settings.settings['track']["ups"]:
         logger.info("starting tracking for UPS shipments")
         logger.debug("UPS orders: {}".format(data["UPS"]))
         ups_report = track(sesh, "UPS", data["UPS"], ups.executeScript)
-        utils.update_data(report, ups_report)
+        utils.update_tracking_data(report, ups_report)
 
     if settings.settings['track']["canpar"]:
         logger.info("starting tracking for Canpar shipments")
         logger.debug("Canpar orders: {}".format(data["Canpar"]))
         canpar_report = track(sesh, "Canpar", data["Canpar"], canpar.executeScript)
-        utils.update_data(report, canpar_report)
+        utils.update_tracking_data(report, canpar_report)
 
     if settings.settings['track']["purolator"]:
         logger.info("starting tracking for Purolator shipments")
         logger.debug("Purolator orders: {}".format(data["Purolator"]))
         puro_report = track(sesh, "Purolator", data["Purolator"], puro.executeScript)
-        utils.update_data(report, puro_report)
+        utils.update_tracking_data(report, puro_report)
 
     if settings.settings['track']["fedex"]:
         logger.info("starting tracking for Fedex shipments")
         logger.debug("Fedex orders: {}".format(data["Fedex"]))
         fdx_report = track(sesh, "Fedex", data["Fedex"], fdx.executeScript)
-        utils.update_data(report, fdx_report)
+        utils.update_tracking_data(report, fdx_report)
 
     logger.info("Tracking complete. Saving results.")
     report_handler.write_report(report)
@@ -159,11 +165,7 @@ class initialize:
     @staticmethod
     def create_reports():
         dir_name = "reports"
-
         utils.create_folder(dir_name)
-        from pathlib import Path
-        for file_name in ["success", "fail"]:
-            Path(f"{dir_name}/{file_name}.txt").touch()
         
     @staticmethod
     def loadEnvFile():
