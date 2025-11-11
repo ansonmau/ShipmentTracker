@@ -4,7 +4,7 @@ import pathlib
 from datetime import datetime, timedelta
 import time
 from core.log import getLogger
-from main import DAY_DIFF
+from core.settings import settings
 
 log = getLogger(__name__)
 
@@ -28,7 +28,7 @@ def parse(file_search_time=30):
         file_dict = csv.DictReader(file)
 
         date_format = "%m/%d/%Y"
-        min_date = calc_oldest_day(DAY_DIFF)
+        min_date = calc_oldest_day(settings['day_diff'])
 
         for entry in file_dict:
             entry_date = datetime.strptime(entry["Ship Date"], date_format)

@@ -1,6 +1,6 @@
 from core.driver import WebDriverSession, ELEMENT_TYPES
 from os import getenv
-from main import DAY_DIFF
+from core.settings import settings
 from core.log import getLogger
 from datetime import datetime, timedelta
 
@@ -157,6 +157,6 @@ def check_valid_row(sesh: WebDriverSession, row):
 def within_date_range(date):
     site_date_format = "%b %d, %Y"
     check_date = datetime.strptime(date, site_date_format)
-    lower_bound = datetime.now() - timedelta(days=DAY_DIFF)
+    lower_bound = datetime.now() - timedelta(days=settings['day_diff'])
 
     return check_date >= lower_bound

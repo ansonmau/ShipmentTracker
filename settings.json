@@ -1,5 +1,6 @@
 {
     "ignore_old": true,
+    "day_diff": 3,
     "clear_downloads": true,
     "scrape": {
         "eshipper": true,

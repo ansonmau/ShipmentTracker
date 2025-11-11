@@ -2,7 +2,7 @@ from core.driver import WebDriverSession, ELEMENT_TYPES
 from os import getenv
 from core.log import getLogger
 from time import sleep
-from main import DAY_DIFF
+from core.settings import settings
 
 from datetime import datetime, timedelta
 
@@ -38,7 +38,7 @@ def scrape(sesh: WebDriverSession):
     shipment_page_url = "https://emarketplaceservices.com/shipments"
     sesh.get(shipment_page_url)
 
-    s_from_date, s_today = get_filter_dates(DAY_DIFF)
+    s_from_date, s_today = get_filter_dates(settings['day_diff'])
     from_date_input, to_date_input = get_filter_inputs(sesh)
 
     sesh.input.element(from_date_input, s_from_date)
