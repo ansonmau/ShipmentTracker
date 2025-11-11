@@ -81,6 +81,7 @@ def main():
         for carrier_key in data:
             for i in [x for x in old if x.carrier==carrier_key]:
                 if i in data[carrier_key]:
+                    logger.debug(f"duplicate found: {i}")
                     data[carrier_key].remove(i)
 
     logger.info("storing scraped data...")
