@@ -17,7 +17,7 @@ def parse(file_search_time=30):
         "Canpar": [],
         "Purolator": [],
         "Canada Post": [],
-        "Federal Express": [],
+        "Fedex": [],
     }
     
     file = get_downloaded_file(file_search_time)
@@ -40,7 +40,7 @@ def parse(file_search_time=30):
                 continue
 
             tracking_num = entry["Tracking#"]
-            carrier = entry["Carrier"]
+            carrier = standardize_carrier_name(entry["Carrier"])
 
             data[carrier].append(tracking_num)
 
@@ -70,3 +70,14 @@ def check_downloads():
     files = dl_folder.glob("Track*.csv")  # returns generator
 
     return list(files)
+
+def standardize_carrier_name(carrier_name):
+    translator = {
+        "UPS": "UPS",
+        "Canpar": "Canpar",
+        "Purolator": "Purolator",
+        "Canada Post": "Canada Post",
+        "Federal Express": "Fedex"
+    }
+
+    return translator[carrier_name]

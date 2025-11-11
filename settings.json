@@ -1,4 +1,5 @@
 {
+    "ignore_old": true,
     "clear_downloads": true,
     "scrape": {
         "eshipper": true,

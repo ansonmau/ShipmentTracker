@@ -56,7 +56,7 @@ def scrape(sesh: WebDriverSession):
         "Canpar": [],
         "Purolator": [],
         "Canada Post": [],
-        "Federal Express": [],
+        "Fedex": [],
     }
         
     login(sesh)
@@ -93,7 +93,7 @@ def read_table_into_dict(sesh: WebDriverSession, info):
             "Canpar": "Canpar",
             "Purolator": "Purolator",
             "Canada Post": "Canada Post",
-            "FedEx Courier": "Federal Express",
+            "FedEx Courier": "Fedex",
         }
 
     table = sesh.find.path(Paths.tracking_page["shipment_table"])

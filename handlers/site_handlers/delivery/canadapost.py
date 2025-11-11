@@ -31,8 +31,13 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         r.set_reason("Error message (likely bot detection)")
         return r
 
+    if check_for_error_msg(sesh):
+        error_box = sesh.find.path(paths['error_msg'])
+        okay_button_elm = sesh.find.buttons_within(error_box, filter="OK")[0]
+        sesh.click.element(okay_button_elm)
+    
     if not canGetNotifications(sesh):
-        r.set_reason("Notification button not found")
+        r.set_reason("Notification button not found (likely already delivered)")
         return r
 
     sesh.click.path(paths["get_email_notif"])
@@ -110,7 +115,6 @@ def canGetNotifications(sesh: WebDriverSession):
     get_notif_btn = sesh.find.path(paths["get_email_notif"], wait=3)
     if get_notif_btn is None:
         return False
-
     return True
 
 

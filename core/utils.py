@@ -1,13 +1,14 @@
 import pathlib
+from datetime import datetime
 
 PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent
 
-def update_data(data_dict, new_dict):
+def update_tracking_data(data_dict, new_dict):
     for key in new_dict:
         if key in data_dict:
             data_dict[key] = data_dict[key] + new_dict[key]
 
-def save_data(data):
+def save_tracking_data(data):
     file_path = PROJ_FOLDER / "data" / "tracking_data.txt"
 
     with open(str(file_path), "w") as f:
@@ -18,26 +19,6 @@ def save_data(data):
                 for val in data[key]:
                     f.write("\t" + val + "\n")
                                                                                                         
-def save_report(report) -> None:
-    success_file = PROJ_FOLDER / "reports" / "success.txt"
-    fail_file = PROJ_FOLDER / "reports" / "fail.txt"
-
-    with open(str(success_file), "w") as f:
-        for result in report["success"]:
-            info = result.detail()
-            link = generate_tracking_link(info['carrier'], info['tracking_number'])
-            f.write(f"[SUCCESS] | {info['carrier']} | {info['tracking_number']} | {link}" + '\n')
-
-    with open(str(fail_file), "w") as f:
-        for result in report["fail"]:
-            info = result.detail()
-            link = generate_tracking_link(info['carrier'], info['tracking_number'])
-            f.write(f"[FAIL] | {info['carrier']} | {info['tracking_number']} | reason: {info['reason']} | {link}" + '\n')
-        for result in report["crash"]:
-            info = result.detail()
-            link = generate_tracking_link(info['carrier'], info['tracking_number'])
-            f.write(f"[CRASH (FAIL)] | {info['carrier']} | {info['tracking_number']} | reason: {info['reason']} | {link}" + '\n')
-
 def generate_tracking_link(carrier, tracking_num):
     carrier_to_link = {
             "Canada Post": f"https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={tracking_num}",
