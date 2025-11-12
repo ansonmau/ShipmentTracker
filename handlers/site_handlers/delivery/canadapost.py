@@ -1,9 +1,11 @@
 from core.track import result
 from core.driver import WebDriverSession, ELEMENT_TYPES
-from selenium.common.exceptions import StaleElementReferenceException
-from os import getenv
 from core.log import getLogger
 from core.track import result
+
+from selenium.common.exceptions import StaleElementReferenceException
+from os import getenv
+from time import sleep
 
 logger = getLogger(__name__)
 
@@ -28,13 +30,12 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     sesh.get(link)
     
     if check_for_error_msg(sesh):
-        r.set_reason("Error message (likely bot detection)")
-        return r
-
-    if check_for_error_msg(sesh):
         error_box = sesh.find.path(paths['error_msg'])
         okay_button_elm = sesh.find.buttons_within(error_box, filter="OK")[0]
         sesh.click.element(okay_button_elm)
+        sleep(1)
+        if check_for_error_msg(sesh):
+            r.set_reason("Error message (likely bot detection)")
     
     if not canGetNotifications(sesh):
         r.set_reason("Notification button not found (likely already delivered)")
@@ -119,7 +120,8 @@ def canGetNotifications(sesh: WebDriverSession):
 
 
 def check_for_error_msg(sesh: WebDriverSession):
-    return sesh.waitFor.path(paths["error_msg"], wait=1)
+    error_modal_elm = sesh.find.path(paths['error_msg'])
+    return error_modal_elm.is_displayed()
 
 
 def canAddEmails(sesh: WebDriverSession):
