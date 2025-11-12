@@ -20,7 +20,7 @@ def read_tracking_data(file_name="tracking_data") -> dict:
         data = json.load(f)
     return data
                                                                                                         
-def generate_tracking_link(carrier, tracking_num):
+def generate_tracking_link(carrier, tracking_num) -> str:
     carrier_to_link = {
             "Canada Post": f"https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={tracking_num}",
             "Purolator": f"https://www.purolator.com/en/shipping/tracker?pin={tracking_num}",
@@ -29,7 +29,10 @@ def generate_tracking_link(carrier, tracking_num):
             "UPS": f"https://www.ups.com/track?trackingNumber={tracking_num}",
             }  
 
-    return carrier_to_link[carrier]
+    if carrier in carrier_to_link:
+        return carrier_to_link[carrier]
+
+    return ''
 
 def create_folder(name):
     from os import makedirs
