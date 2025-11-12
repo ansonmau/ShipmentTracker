@@ -1,5 +1,3 @@
-DAY_DIFF = 3
-
 import core.driver as driver
 from core.log import getLogger
 from core.track import track
