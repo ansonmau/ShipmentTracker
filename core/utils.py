@@ -1,5 +1,6 @@
 import pathlib
 from datetime import datetime
+import json
 
 PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent
 
@@ -8,16 +9,16 @@ def update_tracking_data(data_dict, new_dict):
         if key in data_dict:
             data_dict[key] = data_dict[key] + new_dict[key]
 
-def save_tracking_data(data):
-    file_path = PROJ_FOLDER / "data" / "tracking_data.txt"
+def save_tracking_data(data: dict, file_name="tracking_data") -> None:
+    file_path = PROJ_FOLDER / "data" / f"{file_name}.json"
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=4)
 
-    with open(str(file_path), "w") as f:
-            for key in data:
-                f.write(key + "\n")
-                if len(data[key]) == 0:
-                    f.write("\t" + "N/A" + "\n")
-                for val in data[key]:
-                    f.write("\t" + val + "\n")
+def read_tracking_data(file_name="tracking_data") -> dict:
+    file_path = PROJ_FOLDER / "data" / f"{file_name}.json"
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+    return data
                                                                                                         
 def generate_tracking_link(carrier, tracking_num):
     carrier_to_link = {

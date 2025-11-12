@@ -50,6 +50,12 @@ def main():
 
     logger.info("starting web driver...")
     sesh = driver.WebDriverSession(undetected=True)
+
+    if settings.settings['reuse_data']:
+        utils.update_tracking_data(data, utils.read_tracking_data())
+        settings.settings['scrape']['freightcom'] = False
+        settings.settings['scrape']['ems'] = False
+        settings.settings['scrape']['eshipper'] = False
     
     if settings.settings['scrape']["freightcom"]:
         logger.info("looking through freightcom...")
@@ -80,7 +86,7 @@ def main():
         old = report_handler.read.recent_success()
         for carrier_key in data:
             for i in [x for x in old if x.carrier==carrier_key]:
-                if i in data[carrier_key]:
+                if i.tracking_number in data[carrier_key]:
                     logger.debug(f"duplicate found: {i}")
                     data[carrier_key].remove(i)
 
