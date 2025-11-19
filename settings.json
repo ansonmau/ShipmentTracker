@@ -1,5 +1,5 @@
 {
-    "reuse_data": true,
+    "reuse_data": false,
     "ignore_old": true,
     "day_diff": 3,
     "clear_downloads": true,

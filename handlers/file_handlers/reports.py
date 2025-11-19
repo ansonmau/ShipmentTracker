@@ -18,10 +18,10 @@ def write_report(report) -> None:
             link = generate_tracking_link(info['carrier'], info['tracking_number'])
             f.write(f"[FAIL] | {info['carrier']} | #{info['tracking_number']} | reason: {info['reason']} | {link}" + '\n')
         f.write("\n" +"-"*50 + "\n")
-    for result in report["crash"]:
-            info = result.detail()
-            link = generate_tracking_link(info['carrier'], info['tracking_number'])
-            f.write(f"[CRASH (FAIL)] | {info['carrier']} | #{info['tracking_number']} | reason: {info['reason']} | {link}" + '\n')
+        for result in report["crash"]:
+                info = result.detail()
+                link = generate_tracking_link(info['carrier'], info['tracking_number'])
+                f.write(f"[CRASH (FAIL)] | {info['carrier']} | #{info['tracking_number']} | reason: {info['reason']} | {link}" + '\n')
 
 class read:
     @staticmethod
