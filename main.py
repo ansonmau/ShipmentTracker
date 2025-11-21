@@ -50,21 +50,21 @@ def main():
     sesh = driver.WebDriverSession(undetected=True)
 
     if settings.settings['reuse_data']:
-        utils.update_tracking_data(data, utils.read_tracking_data())
+        utils.merge_dict_lists(data, utils.read_tracking_data())
     
     if settings.settings['scrape']["freightcom"]:
         logger.info("looking through freightcom...")
         freightcom_data = freightcom.scrape(sesh)
 
         logger.debug("parsed data: {}".format(freightcom_data))
-        utils.update_tracking_data(data, freightcom_data)
+        utils.merge_dict_lists(data, freightcom_data)
 
     if settings.settings['scrape']["ems"]:
         logger.info("looking through EMS...")
         ems_data = ems.scrape(sesh)
 
         logger.debug("parsed data: {}".format(ems_data))
-        utils.update_tracking_data(data, ems_data)
+        utils.merge_dict_lists(data, ems_data)
 
     if settings.settings['scrape']["eshipper"]:
         logger.info("looking through eshipper...")
@@ -74,13 +74,14 @@ def main():
         eshipper_data = eshipper_fh.parse()
 
         logger.debug("parsed data: {}".format(eshipper_data))
-        utils.update_tracking_data(data, eshipper_data)
+        utils.merge_dict_lists(data, eshipper_data)
 
     if settings.settings['ignore_old']:
         logger.info("Removing previously tracked numbers...")
         old = report_handler.read.recent_success()
         for carrier_key in data:
             for i in [x for x in old if x.carrier==carrier_key]:
+                logger.debug("checking duplicate: {} {} {}".format(i.carrier, i.tracking_number, i.result))
                 if i.tracking_number in data[carrier_key]:
                     logger.debug(f"duplicate found: {i}")
                     data[carrier_key].remove(i)
@@ -91,32 +92,32 @@ def main():
     if settings.settings['track']["canada post"]:
         logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
-        cp_data = track(sesh, "Canada Post", data["Canada Post"], canpost.executeScript)
-        utils.update_tracking_data(report, cp_data)
+        cp_report = track(sesh, "Canada Post", data["Canada Post"], canpost.executeScript)
+        utils.merge_dict_lists(report, cp_report)
 
     if settings.settings['track']["ups"]:
         logger.info("starting tracking for UPS shipments")
         logger.debug("UPS orders: {}".format(data["UPS"]))
         ups_report = track(sesh, "UPS", data["UPS"], ups.executeScript)
-        utils.update_tracking_data(report, ups_report)
+        utils.merge_dict_lists(report, ups_report)
 
     if settings.settings['track']["canpar"]:
         logger.info("starting tracking for Canpar shipments")
         logger.debug("Canpar orders: {}".format(data["Canpar"]))
         canpar_report = track(sesh, "Canpar", data["Canpar"], canpar.executeScript)
-        utils.update_tracking_data(report, canpar_report)
+        utils.merge_dict_lists(report, canpar_report)
 
     if settings.settings['track']["purolator"]:
         logger.info("starting tracking for Purolator shipments")
         logger.debug("Purolator orders: {}".format(data["Purolator"]))
         puro_report = track(sesh, "Purolator", data["Purolator"], puro.executeScript)
-        utils.update_tracking_data(report, puro_report)
+        utils.merge_dict_lists(report, puro_report)
 
     if settings.settings['track']["fedex"]:
         logger.info("starting tracking for Fedex shipments")
         logger.debug("Fedex orders: {}".format(data["Fedex"]))
         fdx_report = track(sesh, "Fedex", data["Fedex"], fdx.executeScript)
-        utils.update_tracking_data(report, fdx_report)
+        utils.merge_dict_lists(report, fdx_report)
 
     logger.info("Tracking complete. Saving results.")
     report_handler.write_report(report)
