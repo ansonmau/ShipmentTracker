@@ -7,7 +7,8 @@ PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent
 def update_tracking_data(data_dict, new_dict):
     for key in new_dict:
         if key in data_dict:
-            data_dict[key] = data_dict[key] + new_dict[key]
+            # merge without duplicates
+            data_dict[key] = list(dict.fromkeys(data_dict[key] + new_dict[key]))
 
 def save_tracking_data(data: dict, file_name="tracking_data") -> None:
     file_path = PROJ_FOLDER / "data" / f"{file_name}.json"

@@ -82,7 +82,7 @@ def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript):
                     report["fail"].append(curr_result)
                     break
             except Exception as e:
-                curr_result = result(result.CRASH, carrier=carrier, reason="Unknown error occured")
+                curr_result = result(result.CRASH, carrier=carrier, reason="Unknown error occured", tracking_number=tracking_num)
                 logger.debug("(#{}) Unknown error: {}".format(tracking_num, e))
                 logger.info(str(curr_result))
                 if attempt_count == 3:

@@ -51,9 +51,6 @@ def main():
 
     if settings.settings['reuse_data']:
         utils.update_tracking_data(data, utils.read_tracking_data())
-        settings.settings['scrape']['freightcom'] = False
-        settings.settings['scrape']['ems'] = False
-        settings.settings['scrape']['eshipper'] = False
     
     if settings.settings['scrape']["freightcom"]:
         logger.info("looking through freightcom...")
