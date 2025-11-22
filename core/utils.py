@@ -8,7 +8,9 @@ def merge_dict_lists(dict_1, dict_2):
     for key in dict_2:
         assert key in dict_1
         # merge without duplicates
-        dict_1[key] = list(dict.fromkeys(dict_1[key] + dict_2[key]))
+        for val in dict_2[key]:
+            if val not in dict_1[key]:
+                dict_1[key].append(val)
 
 def save_tracking_data(data: dict, file_name="tracking_data") -> None:
     file_path = PROJ_FOLDER / "data" / f"{file_name}.json"

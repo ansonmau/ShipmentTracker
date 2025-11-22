@@ -36,6 +36,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         sleep(1)
         if check_for_error_msg(sesh):
             r.set_reason("Error message (likely bot detection)")
+            return r
     
     if not canGetNotifications(sesh):
         r.set_reason("Notification button not found (likely already delivered)")

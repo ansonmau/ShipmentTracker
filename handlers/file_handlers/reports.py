@@ -56,7 +56,8 @@ class read:
                 # is a separator line (i.e. ----------)
                 continue
             cols = line.split(' | ')
-            r = result(result.SUCCESS, carrier=cols[1], tracking_number=cols[2])
+            curr_tracking_num = cols[2][1:] # first char is '#'
+            r = result(result.SUCCESS, carrier=cols[1], tracking_number=curr_tracking_num)
             if "CRASH" in cols[0]:
                 r.set_result(result.CRASH)
                 parsed['crash'].append(r)
