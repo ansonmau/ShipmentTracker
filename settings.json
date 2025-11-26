@@ -1,6 +1,6 @@
 {
     "reuse_data": false,
-    "ignore_old": true,
+    "ignore_old": false,
     "day_diff": 5,
     "clear_downloads": true,
     "scrape": {

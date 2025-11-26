@@ -30,3 +30,21 @@ def check_settings_exists() -> bool:
 def create_settings_file() -> None:
     with open("settings.json", 'w') as f:
         json.dump(settings, f, indent=4)
+
+def write_to_settings(d: dict):
+    assert _check_dict(d)
+
+    with open("settings.json", 'w') as f:
+        json.dump(settings, f, indent=4)
+
+def _check_dict(d: dict) -> bool:
+    with open("settings.json", 'r') as f:
+        settings = json.load(f)
+    
+    for key in settings:
+        if key not in d:
+            return False
+    
+    return True
+
+
