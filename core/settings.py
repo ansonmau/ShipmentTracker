@@ -35,7 +35,7 @@ def write_to_settings(d: dict):
     assert _check_dict(d)
 
     with open("settings.json", 'w') as f:
-        json.dump(settings, f, indent=4)
+        json.dump(d, f, indent=4)
 
 def _check_dict(d: dict) -> bool:
     with open("settings.json", 'r') as f:

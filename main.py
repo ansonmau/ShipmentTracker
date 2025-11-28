@@ -23,6 +23,8 @@ class LogRedirector(logging.Handler):
         self.emitter = emitter
 
     def emit(self, record):
+        self.setFormatter(logging.Formatter("%(name)s: [%(levelname)s] %(message)s"))
+        record = self.format(record)
         self.emitter.log_stream.emit(record)
 
     def flush(self):
@@ -35,6 +37,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Shipment Tracker")
         self.resize(300, 650)
 
+        self.has_console = False
         self.main_widget = QWidget()
         self.main_layout = QHBoxLayout()
 
@@ -63,6 +66,9 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def add_terminal_to_window(self):
+        if self.has_console:
+            return
+
         self.console = QPlainTextEdit()
         self.console.setReadOnly(True)
         self.console.setStyleSheet("font-size: 10pt;")
@@ -75,6 +81,7 @@ class MainWindow(QMainWindow):
         
         self.log_emitter.log_stream.connect(self.console.appendPlainText)
         logging.getLogger().addHandler(self.log_redirector)
+        self.has_console = True
 
 
     @Slot()
@@ -116,6 +123,7 @@ class MainWindow(QMainWindow):
     def disable_buttons(self):
         pass
 
+    @Slot()
     def save_settings(self):
         self.settings_widget.save_settings_to_file()
 

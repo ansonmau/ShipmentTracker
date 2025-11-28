@@ -133,6 +133,7 @@ class SettingsWidget(QWidget):
         self.settings['ignore_old'] = self.cb_ignore_old.isChecked()
         self.settings['day_diff'] = self.sb_day_diff.value()
 
+
         settings.write_to_settings(self.settings)
 
     def reset_btn_clicked(self):
