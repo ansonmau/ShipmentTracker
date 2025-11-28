@@ -1,3 +1,4 @@
+from PySide6.QtCore import Signal
 import core.driver as driver
 from core.log import getLogger
 from core.track import track
@@ -23,7 +24,7 @@ import handlers.site_handlers.delivery.purolator as puro
 logger = getLogger(__name__)
 
 
-def run():
+def run(worker):
     logger.info("initializing...")
     initialize.run()
     logger.info("Initialization complete")
@@ -54,7 +55,7 @@ def run():
     
     if settings.settings['scrape']["freightcom"]:
         logger.info("looking through freightcom...")
-        freightcom_data = freightcom.scrape(sesh)
+        freightcom_data = freightcom.scrape(sesh, worker)
 
         logger.debug("parsed data: {}".format(freightcom_data))
         utils.merge_dict_lists(data, freightcom_data)
@@ -125,6 +126,7 @@ def run():
     logger.info("Starting clean up...")
     cleanup.run()
     logger.info("Clean up complete")
+    sesh.endself()
 
     return
 

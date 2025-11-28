@@ -41,16 +41,18 @@ tracking_table_index = {
 }
 
 
-def login(sesh: WebDriverSession):
+def login(sesh: WebDriverSession, worker):
     sesh.get("https://www.freightcom.com")
     sesh.click.path(Paths.startpage["login_btn"])
     sesh.input.path(Paths.login["user_input"], getenv("FREIGHTCOM_USER"))
     sesh.input.path(Paths.login["pw_input"], getenv("FREIGHTCOM_PW"))
 
-    input("[INPUT REQUIRED] Complete login process then come back and press enter")
+    worker.pause_signal.emit()
+    worker.pause_event.wait()
+    worker.pause_event.clear()
 
 
-def scrape(sesh: WebDriverSession):
+def scrape(sesh: WebDriverSession, worker):
     data = {
         "UPS": [],
         "Canpar": [],
@@ -59,7 +61,7 @@ def scrape(sesh: WebDriverSession):
         "Fedex": [],
     }
         
-    login(sesh)
+    login(sesh, worker)
 
     sesh.click.path(Paths.homepage["tracking_dropdown"])
 

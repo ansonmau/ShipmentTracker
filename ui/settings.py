@@ -65,8 +65,8 @@ class SettingsWidget(QWidget):
 
         overall_layout.addWidget(scrape_area)
         overall_layout.addWidget(carrier_area)
-        overall_layout.addWidget(extras_area)
         overall_layout.addWidget(self._get_button_area())
+        overall_layout.addWidget(extras_area)
 
         self.setLayout(overall_layout)
         self.load_settings_to_ui()
@@ -75,10 +75,10 @@ class SettingsWidget(QWidget):
         btn_group = QWidget()
         btn_layout = QHBoxLayout()
 
-        btn_save = QPushButton("Save")
-        btn_reset = QPushButton("Reset")
+        btn_save = QPushButton("Set all")
+        btn_reset = QPushButton("Set none")
 
-        btn_save.clicked.connect(self.save_btn_clicked)
+        btn_save.clicked.connect(self.set_btn_clicked)
         btn_reset.clicked.connect(self.reset_btn_clicked)
         btn_layout.addWidget(btn_save)
         btn_layout.addWidget(btn_reset)
@@ -86,8 +86,20 @@ class SettingsWidget(QWidget):
         btn_group.setLayout(btn_layout)
         return btn_group
 
-    def save_btn_clicked(self):
-        self.load_settings_to_ui()
+    def set_btn_clicked(self):
+        self.set_normal_settings_to(True)
+
+    def set_normal_settings_to(self, val: bool):
+        self.cb_eshipper.setChecked(val)
+        self.cb_ems.setChecked(val)
+        self.cb_freightcom.setChecked(val)
+
+        self.cb_canadapost.setChecked(val)
+        self.cb_purolator.setChecked(val)
+        self.cb_ups.setChecked(val)
+        self.cb_canpar.setChecked(val)
+        self.cb_fedex.setChecked(val)
+
 
     def load_settings_to_ui(self):
         self.cb_eshipper.setChecked(self.settings['scrape']['eshipper'])
@@ -122,10 +134,9 @@ class SettingsWidget(QWidget):
         self.settings['day_diff'] = self.sb_day_diff.value()
 
         settings.write_to_settings(self.settings)
-        self.close_self()
 
     def reset_btn_clicked(self):
-        self.load_settings_to_ui()
+        self.set_normal_settings_to(False)
 
     def close_self(self):
         self.close()

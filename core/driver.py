@@ -97,6 +97,9 @@ class WebDriverSession:
                 "arguments[0].remove();", element
         )
 
+    def endself(self):
+        self.driver.quit()
+
 
 class find:
     def __init__(self, sesh: WebDriverSession):

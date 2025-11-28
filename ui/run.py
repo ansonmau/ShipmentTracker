@@ -1,3 +1,4 @@
+import threading
 from PySide6.QtCore import QObject, Signal, Slot, QThread
 from PySide6.QtGui import QTextCursor
 from PySide6.QtWidgets import (
@@ -11,6 +12,7 @@ from app import run as run_main_app
 class RunWidget(QWidget):
     def __init__(self):
         super().__init__()
+        self.pause_event = threading.Event()
 
         main_layout = QVBoxLayout()
     
@@ -25,11 +27,18 @@ class RunWidget(QWidget):
         self.setLayout(main_layout)
     
     def run_btn_clicked(self):
-        self.worker = Worker()
+        self.window().add_terminal_to_window()
+        self.window().save_settings()
+        self.start_main_thread()
+
+    def start_main_thread(self):
+        self.worker = Worker(self.pause_event)
         self.w_thread = QThread()
         
         self.worker.moveToThread(self.w_thread)
         self.w_thread.started.connect(self.worker.run)
+
+        self.worker.pause_signal.connect(self.window().show_continue_dialog)
 
         self.worker.finished.connect(self.w_thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
@@ -37,21 +46,20 @@ class RunWidget(QWidget):
 
         self.w_thread.start()
 
+    def unpause_worker(self):
+        self.pause_event.set()
         
-class ConsoleStream(QObject):
-    txt_stream = Signal(str)
-
-    def write(self, text):
-        if text:
-            self.txt_stream.emit(str(text))
-
 
 class Worker(QObject):
     progress = Signal(int)
     finished = Signal()
+    pause_signal = Signal()
+    def __init__(self, pause_event):
+        super().__init__()
+        self.pause_event = pause_event
 
     @Slot()
     def run(self):
-        run_main_app()
+        run_main_app(self)
         self.finished.emit()
 
