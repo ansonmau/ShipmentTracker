@@ -36,17 +36,38 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     sesh.click.element(get_email_btn[0])
 
     chat_handler = Chat_Handler(sesh)
-    time.sleep(3)
+    time.sleep(2)
+
     if "I can sign you up for email notifications" not in chat_handler.get_text():
         chat_handler.exit_chat()
         r.set_result(result.RETRY)
         return r
 
-    chat_btn_txts = ["Agree to terms", "Both", "Only for myself"]
-    for btn_name in chat_btn_txts:
-        curr_btn = chat_handler.get_button(btn_name)
+    chat_btn_name_buffer = []
+
+    if "Before connecting you to one of our Customer Service Representative to look into this further" in chat_handler.get_text():
+        chat_btn_name_buffer.append("No")
+        chat_btn_name_buffer.append("Get updates")
+    else:
+        chat_btn_name_buffer.append("Agree to terms")
+    
+    for btn_name in chat_btn_name_buffer:
+        sesh.click.element(chat_handler.get_button(btn_name))
         time.sleep(1)
-        sesh.click.element(curr_btn)
+
+    chat_btn_name_buffer.clear()
+    
+    time.sleep(1)
+    if "Before connecting you to one of our Customer Service Representative to look into this further" in chat_handler.get_text():
+        chat_btn_name_buffer.append("No")
+        chat_btn_name_buffer.append("Get updates")
+
+    chat_btn_name_buffer.append("Both")
+    chat_btn_name_buffer.append("Only for myself")
+
+    for btn_name in chat_btn_name_buffer:
+        sesh.click.element(chat_handler.get_button(btn_name))
+        time.sleep(1)
     
     name_input = chat_handler.get_input("Name")
     email_input = chat_handler.get_input("Email")
@@ -94,7 +115,7 @@ class Chat_Handler:
         while len(search_results) == 0 and time.time() < end_time:
             search_results = self.sesh.find.buttons_within(self.el_chat, btn_name)
 
-        assert len(search_results) > 0
+        assert len(search_results) == 1
         return search_results[0]
 
     def get_input(self, input_name):
