@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QLabel,
      )
 
+from app import initialize
 from ui.settings import SettingsWidget
 from ui.run import RunWidget
 
@@ -23,7 +24,7 @@ class LogRedirector(logging.Handler):
         self.emitter = emitter
 
     def emit(self, record):
-        self.setFormatter(logging.Formatter("%(name)s: [%(levelname)s] %(message)s"))
+        self.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
         record = self.format(record)
         self.emitter.log_stream.emit(record)
 
@@ -99,7 +100,7 @@ class MainWindow(QMainWindow):
         dlg.resize(400,200)
         
         continue_btn = QPushButton("Login complete")
-        label = QLabel("Finish logging in to freightcom then press the button")
+        label = QLabel("Complete login to freightcom then click the button once the main page is reached")
         label_font = QFont()
 
         label_font.setBold(True)

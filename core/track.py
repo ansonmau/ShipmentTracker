@@ -30,7 +30,7 @@ class result:
         return f"{result}: {self.reason}"
 
     def __eq__(self, other):
-        return self.result == other
+        return self.result == other.result and self.tracking_number == other.tracking_number
 
     def set_reason(self, reason):
         self.reason = reason
@@ -71,9 +71,9 @@ def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript):
             )
             try:
                 curr_result = executeScript(sesh, tracking_num)
-                if curr_result == result.RETRY:
+                if curr_result.result == result.RETRY:
                     continue
-                elif curr_result == result.SUCCESS:
+                elif curr_result.result == result.SUCCESS:
                     logger.info(str(curr_result))
                     report["success"].append(curr_result)
                     break

@@ -1,8 +1,15 @@
 import pathlib
 from datetime import datetime
 import json
+import sys
 
-PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent
+def _get_proj_folder():
+    if getattr(sys, "frozen", False):
+        return pathlib.Path(sys.executable).parent
+    
+    return pathlib.Path(pathlib.Path(__file__).resolve().parent.parent)
+
+PROJ_FOLDER = _get_proj_folder()
 
 def merge_dict_lists(dict_1, dict_2):
     for key in dict_2:
@@ -41,5 +48,10 @@ def create_folder(name):
     from os import makedirs
     folder = PROJ_FOLDER / name
     makedirs(folder, exist_ok=True)
-    
+
+def create_file(dir: pathlib.Path | str, name: str | None = None):
+    dir = pathlib.Path(dir)
+
+    full_path = dir if name is None else dir / name
+    full_path.touch()
 

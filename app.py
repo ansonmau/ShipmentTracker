@@ -1,6 +1,7 @@
-from PySide6.QtCore import Signal
+from pathlib import Path
+from PySide6.QtCore import Signal, QObject
 import core.driver as driver
-from core.log import getLogger
+from core.log import getLogger, MyLogger
 from core.track import track
 import core.utils as utils
 import core.settings as settings
@@ -21,13 +22,35 @@ import handlers.site_handlers.delivery.canpar as canpar
 import handlers.site_handlers.delivery.fedex as fdx
 import handlers.site_handlers.delivery.purolator as puro
 
-logger = getLogger(__name__)
 
+
+class Worker:
+    worker: QObject | None = None
+
+    def set_worker(self, worker):
+        Worker.worker = worker
+    
+    def stop(self):
+        Worker.worker.stop_signal.emit()
+
+    def pause(self):
+        Worker.worker.pause_signal.emit()
+        Worker.worker.pause_event.wait()
+        Worker.worker.pause_signal.clear()
+        
+
+logger = getLogger(__name__)
+init_pass = True
 
 def run(worker):
-    logger.info("initializing...")
+    Worker().set_worker(worker)
     initialize.run()
-    logger.info("Initialization complete")
+
+    if not init_pass:
+        logger.critical("Initialization failed. Please review.")
+        return
+
+    logger.info("Initialization successful")
     
     if settings.settings['clear_downloads']:
         logger.info("Clearing downloads folder...")
@@ -84,8 +107,8 @@ def run(worker):
             for i in [x for x in old if x.carrier==carrier_key]:
                 logger.debug("checking duplicate: {} {} {}".format(i.carrier, i.tracking_number, i.result))
                 if i.tracking_number in data[carrier_key]:
-                    logger.debug(f"duplicate found: {i}")
-                    data[carrier_key].remove(i)
+                    logger.debug(f"duplicate found: {i.tracking_number}")
+                    data[carrier_key].remove(i.tracking_number)
 
     logger.info("storing scraped data...")
     utils.save_tracking_data(data)
@@ -135,54 +158,65 @@ class initialize:
     @staticmethod
     def run():
         logger.info("Loading keys...")
-        initialize.loadEnvFile()
+        initialize.init_env()
 
-        logger.info("Initing downloads...")
-        initialize.create_downloads_folder()
+        logger.info("Initializing downloads...")
+        initialize.init_downloads()
 
-        logger.info("Initing data...")
-        initialize.create_data_folder()
+        logger.info("Initializing data...")
+        initialize.init_data()
 
-        logger.info("Initing reports...")
-        initialize.create_reports()
+        logger.info("Initializing reports...")
+        initialize.init_reports()
         
-        logger.info("Initing logs...")
-        initialize.create_logs_folder()
+        logger.info("Initializing logs...")
+        MyLogger().init()
 
-        logger.info("Loading settings...")
-        initialize.load_settings()
+        logger.info("Initializing settings...")
+        initialize.init_settings()
 
     @staticmethod
-    def create_downloads_folder():
+    def init_downloads():
         for dir_name in ['dls', 'dls_old']:
             utils.create_folder(dir_name)
 
     @staticmethod
-    def create_data_folder():
+    def init_data():
         dir_name = "data"
         utils.create_folder(dir_name)
 
     @staticmethod
-    def create_logs_folder():
-        dir_name = "logs"
-        utils.create_folder(dir_name)
-
-    @staticmethod
-    def create_reports():
+    def init_reports():
         dir_name = "reports"
         utils.create_folder(dir_name)
         
     @staticmethod
-    def loadEnvFile():
-        load_dotenv(dotenv_path="./data/keys.env")
+    def init_env():
+        global init_pass
+        init_pass = False
+
+        env_path = utils.PROJ_FOLDER / "data" / "keys.env"
+
+        if not Path(env_path).exists():
+            logger.critical("Login keys missing. Creating one...")
+            utils.create_folder(utils.PROJ_FOLDER / "data")
+            utils.create_file(env_path)
+        elif Path(env_path).stat().st_size == 0:
+            logger.critical("Login keys empty. Please check data -> keys")
+        else:
+            load_dotenv(dotenv_path=env_path)
+            init_pass = True
 
     @staticmethod
-    def load_settings():
+    def init_settings():
+        global init_pass
         if settings.check_settings_exists():
             settings.load_settings() 
         else:
-            logger.info("No settings file detected. Creating one with default settings...")
+            logger.critical("No settings file detected. Creating one with default settings...")
             settings.create_settings_file()
+            init_pass = False
+            
     
         
 class cleanup:
@@ -198,8 +232,8 @@ class cleanup:
         purpose: makes reading the newest downloads easier
         """
         import shutil
-        src = os.path.abspath("./dls")
-        dst = os.path.abspath("./dls_old")
+        src = os.path.abspath(utils.PROJ_FOLDER / 'dls')
+        dst = os.path.abspath(utils.PROJ_FOLDER / 'dls_old')
         
         for file in os.listdir(src):
             og_file = os.path.join(src, file)
@@ -207,7 +241,3 @@ class cleanup:
             if os.path.isfile(og_file):
                 shutil.move(og_file, dst_file)
         pass
-
-
-if __name__ == "__main__":
-    main()

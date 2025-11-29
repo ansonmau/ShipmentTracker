@@ -5,10 +5,10 @@ from datetime import datetime, timedelta
 import time
 from core.log import getLogger
 from core.settings import settings
+from core.utils import PROJ_FOLDER
 
 log = getLogger(__name__)
 
-PROJ_FOLDER = pathlib.Path(__file__).resolve().parent.parent.parent
 
 
 def parse(file_search_time=30):

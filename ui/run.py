@@ -54,6 +54,8 @@ class Worker(QObject):
     progress = Signal(int)
     finished = Signal()
     pause_signal = Signal()
+    stop_signal = Signal()
+
     def __init__(self, pause_event):
         super().__init__()
         self.pause_event = pause_event

@@ -9,7 +9,9 @@ import core.settings as settings
 class SettingsWidget(QWidget):
     def __init__(self):
         super().__init__()
-        settings.load_settings()
+        if settings.check_settings_exists():
+            settings.load_settings()
+
         self.settings = settings.settings
 
         overall_layout = QVBoxLayout()
@@ -89,7 +91,7 @@ class SettingsWidget(QWidget):
     def set_btn_clicked(self):
         self.set_normal_settings_to(True)
 
-    def set_normal_settings_to(self, val: bool):
+    def set_normal_settings_to(self, val: bool, all: bool = False):
         self.cb_eshipper.setChecked(val)
         self.cb_ems.setChecked(val)
         self.cb_freightcom.setChecked(val)
@@ -100,22 +102,30 @@ class SettingsWidget(QWidget):
         self.cb_canpar.setChecked(val)
         self.cb_fedex.setChecked(val)
 
+        if all:
+            self.cb_clear_dls.setChecked(val)
+            self.cb_reuse_data.setChecked(val)
+            self.cb_ignore_old.setChecked(val)
+            self.sb_day_diff.setValue(3)
 
     def load_settings_to_ui(self):
-        self.cb_eshipper.setChecked(self.settings['scrape']['eshipper'])
-        self.cb_ems.setChecked(self.settings['scrape']['ems'])
-        self.cb_freightcom.setChecked(self.settings['scrape']['freightcom'])
+        if settings.check_settings_exists():
+            self.cb_eshipper.setChecked(self.settings['scrape']['eshipper'])
+            self.cb_ems.setChecked(self.settings['scrape']['ems'])
+            self.cb_freightcom.setChecked(self.settings['scrape']['freightcom'])
 
-        self.cb_canadapost.setChecked(self.settings['track']['canada post'])
-        self.cb_purolator.setChecked(self.settings['track']['purolator'])
-        self.cb_ups.setChecked(self.settings['track']['ups'])
-        self.cb_canpar.setChecked(self.settings['track']['canpar'])
-        self.cb_fedex.setChecked(self.settings['track']['fedex'])
+            self.cb_canadapost.setChecked(self.settings['track']['canada post'])
+            self.cb_purolator.setChecked(self.settings['track']['purolator'])
+            self.cb_ups.setChecked(self.settings['track']['ups'])
+            self.cb_canpar.setChecked(self.settings['track']['canpar'])
+            self.cb_fedex.setChecked(self.settings['track']['fedex'])
 
-        self.cb_clear_dls.setChecked(self.settings['clear_downloads'])
-        self.cb_reuse_data.setChecked(self.settings['reuse_data'])
-        self.cb_ignore_old.setChecked(self.settings['ignore_old'])
-        self.sb_day_diff.setValue(self.settings['day_diff'])
+            self.cb_clear_dls.setChecked(self.settings['clear_downloads'])
+            self.cb_reuse_data.setChecked(self.settings['reuse_data'])
+            self.cb_ignore_old.setChecked(self.settings['ignore_old'])
+            self.sb_day_diff.setValue(self.settings['day_diff'])
+        else:
+            self.set_normal_settings_to(False, all=True)
 
     def save_settings_to_file(self):
         self.settings['scrape']['eshipper'] = self.cb_eshipper.isChecked()
@@ -133,8 +143,11 @@ class SettingsWidget(QWidget):
         self.settings['ignore_old'] = self.cb_ignore_old.isChecked()
         self.settings['day_diff'] = self.sb_day_diff.value()
 
-
-        settings.write_to_settings(self.settings)
+        if settings.check_settings_exists():
+            settings.write_to_settings(self.settings)
+        else:
+            settings.settings = self.settings
+            settings.create_settings_file()
 
     def reset_btn_clicked(self):
         self.set_normal_settings_to(False)

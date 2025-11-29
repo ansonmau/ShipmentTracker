@@ -1,4 +1,5 @@
 import json
+from core.utils import PROJ_FOLDER
 
 settings = {
         "ignore_old": True,
@@ -20,25 +21,25 @@ settings = {
 
 def load_settings() -> None:
     global settings
-    with open("settings.json", 'r') as f:
+    with open(PROJ_FOLDER / "settings.json", 'r') as f:
         settings = json.load(f)
 
 def check_settings_exists() -> bool:
     from os.path import exists as file_exists
-    return file_exists("settings.json")
+    return file_exists(PROJ_FOLDER / "settings.json")
 
 def create_settings_file() -> None:
-    with open("settings.json", 'w') as f:
+    with open(PROJ_FOLDER / "settings.json", 'w') as f:
         json.dump(settings, f, indent=4)
 
 def write_to_settings(d: dict):
     assert _check_dict(d)
 
-    with open("settings.json", 'w') as f:
+    with open(PROJ_FOLDER / "settings.json", 'w') as f:
         json.dump(d, f, indent=4)
 
 def _check_dict(d: dict) -> bool:
-    with open("settings.json", 'r') as f:
+    with open(PROJ_FOLDER / "settings.json", 'r') as f:
         settings = json.load(f)
     
     for key in settings:
