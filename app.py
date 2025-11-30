@@ -100,15 +100,19 @@ def run(worker):
         logger.debug("parsed data: {}".format(eshipper_data))
         utils.merge_dict_lists(data, eshipper_data)
 
+    duplicates_found = 0
     if settings.settings['ignore_old']:
-        logger.info("Removing previously tracked numbers...")
-        old = report_handler.read.recent_success()
-        for carrier_key in data:
-            for i in [x for x in old if x.carrier==carrier_key]:
-                logger.debug("checking duplicate: {} {} {}".format(i.carrier, i.tracking_number, i.result))
-                if i.tracking_number in data[carrier_key]:
-                    logger.debug(f"duplicate found: {i.tracking_number}")
-                    data[carrier_key].remove(i.tracking_number)
+        logger.info("Removing previously successfully tracked shipments...")
+        remove = []
+        remove.extend(report_handler.read.successes())
+        remove.extend([x for x in report_handler.read.fails() if x.carrier=="Canada Post" and x.reason=="Maximum emails reached"])
+        for result in remove:
+            logger.debug("Attempting to remove shipment: {} {}".format(result.carrier, result.tracking_number))
+            if result.tracking_number in data[result.carrier]:
+                logger.debug("duplicate found: {} {}".format(result.carrier, result.tracking_number))
+                duplicates_found+=1
+                data[result.carrier].remove(result.tracking_number)
+        logger.info("{} duplicates removed".format(duplicates_found))
 
     logger.info("storing scraped data...")
     utils.save_tracking_data(data)

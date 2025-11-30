@@ -30,19 +30,11 @@ class read:
         return datetime.strptime(report_file.name.split('+')[1], report_date_fmt)
 
     @staticmethod
-    def _get_newest_report() -> Path:
+    def _get_reports() -> list:
         report_dir = Path("./reports")
         report_files = [f for f in report_dir.iterdir() if f.is_file()]
-        
-        newest_report = report_files[0]
-        nr_date = read._get_report_file_date(newest_report)
-        for r in report_files[1:]:
-            r_date = read._get_report_file_date(r)
-            if r_date > nr_date:
-                newest_report = r
-                nr_date = r_date
 
-        return newest_report
+        return report_files
 
     @staticmethod
     def _parse_report(report: Path) -> dict:
@@ -57,12 +49,15 @@ class read:
                 continue
             cols = line.split(' | ')
             curr_tracking_num = cols[2][1:] # first char is '#'
-            r = result(result.SUCCESS, carrier=cols[1], tracking_number=curr_tracking_num)
+            curr_carrier = cols[1]
+            r = result(result.SUCCESS, carrier=curr_carrier, tracking_number=curr_tracking_num)
             if "CRASH" in cols[0]:
                 r.set_result(result.CRASH)
                 parsed['crash'].append(r)
             elif "FAIL" in cols[0]:
+                curr_reason = cols[3].split("reason: ")[1]
                 r.set_result(result.FAIL)
+                r.set_reason(curr_reason)
                 parsed['fail'].append(r)
             elif "SUCCESS" in cols[0]:
                 parsed['success'].append(r)
@@ -70,25 +65,28 @@ class read:
         return parsed
 
     @staticmethod
-    def recent_success() -> list[result]:
-        newest_report = read._get_newest_report()
-        report_d = read._parse_report(newest_report)
+    def successes() -> list[result]:
+        report_files = read._get_reports()
+        successes = []
+        for report in report_files:
+            for result in read._parse_report(report)['success']:
+                successes.append(result)
         
-        return report_d['success']
+        return successes
 
     @staticmethod
-    def recent_crashed() -> list[result]:
-        newest_report = read._get_newest_report()
-        report_d = read._parse_report(newest_report)
-        
-        return report_d['crash']
+    def get_crashed():
+        pass
 
     @staticmethod
-    def recent_failed() -> list[result]:
-        newest_report = read._get_newest_report()
-        report_d = read._parse_report(newest_report)
+    def fails():
+        report_files = read._get_reports()
+        fail = []
+        for report in report_files:
+            for result in read._parse_report(report)['fail']:
+                fail.append(result)
         
-        return report_d['fail']
+        return fail
 
         
 
