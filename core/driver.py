@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, SessionNotCreatedException
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
@@ -30,10 +30,18 @@ def random_wait(min=0.25, max=0.75):
 class WebDriverSession:
     def __init__(self, undetected=False):
         options = self._getOptions(undetected=undetected)
-        if undetected:
-            self.driver = uc.Chrome(options=options)
-        else:
-            self.driver = webdriver.Chrome(options=options)
+        try:
+            if undetected:
+                self.driver = uc.Chrome(options=options)
+            else:
+                self.driver = webdriver.Chrome(options=options)
+        except SessionNotCreatedException as e:
+            if e.msg:
+                if "this version of chromedriver only supports" in e.msg.lower():
+                    logger.critical("Chrome outdated. Please update.")
+                    self.driver = None
+                    return
+
         self.driver.maximize_window()
 
         self.find = find(self)

@@ -72,6 +72,9 @@ def run(worker):
 
     logger.info("starting web driver...")
     sesh = driver.WebDriverSession(undetected=True)
+    if sesh == None: # in case something goes wrong
+        logger.critical("Webdriver unable to start.")
+        return
 
     if settings.settings['reuse_data']:
         utils.merge_dict_lists(data, utils.read_tracking_data())
