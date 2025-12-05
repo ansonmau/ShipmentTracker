@@ -8,7 +8,6 @@ from PySide6.QtWidgets import (
     QLabel,
      )
 
-from app import initialize
 from ui.settings import SettingsWidget
 from ui.run import RunWidget
 
