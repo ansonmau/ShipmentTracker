@@ -2,7 +2,7 @@ import json
 from core.utils import PROJ_FOLDER
 
 settings = {
-        "ignore_old": True,
+    "ignore_old": True,
     "day_diff": 3,
     "clear_downloads": False,
     "scrape": {

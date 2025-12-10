@@ -146,8 +146,8 @@ class SettingsWidget(QWidget):
         if settings.check_settings_exists():
             settings.write_to_settings(self.settings)
         else:
-            settings.settings = self.settings
             settings.create_settings_file()
+            settings.write_to_settings(self.settings)
 
     def reset_btn_clicked(self):
         self.set_normal_settings_to(False)

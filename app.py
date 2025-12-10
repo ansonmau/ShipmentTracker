@@ -153,6 +153,10 @@ def run(worker):
     logger.info("Tracking complete. Saving results.")
     report_handler.write_report(report)
 
+    logger.info("Successes: {}".format(len(report['success'])))
+    logger.info("Fails: {}".format(len(report['fail'])))
+    logger.info("Crashes: {}".format(len(report['crash'])))
+
     logger.info("Starting clean up...")
     cleanup.run()
     logger.info("Clean up complete")
@@ -229,7 +233,7 @@ class initialize:
 class cleanup:
     @staticmethod
     def run():
-        logger.info("clearing downloads folder")
+        logger.info("Clearing downloads folder")
         cleanup.clearDLFolder()
 
     @staticmethod
