@@ -52,9 +52,6 @@ def run(worker):
 
     logger.info("Initialization successful")
     
-    if settings.settings['clear_downloads']:
-        logger.info("Clearing downloads folder...")
-        cleanup.clearDLFolder()
 
     data = {
         "Canada Post": [],
@@ -69,6 +66,10 @@ def run(worker):
             "fail": [],
             "crash": [],
             }
+
+    if settings.settings['clear_downloads']:
+        logger.info("Clearing downloads folder...")
+        cleanup.clearDLFolder()
 
     logger.info("starting web driver...")
     sesh = driver.WebDriverSession(undetected=True)
