@@ -52,6 +52,7 @@ class SettingsWidget(QWidget):
         self.cb_ignore_old = QCheckBox("Ignore previously tracked shipments")
         self.cb_reuse_data = QCheckBox("Reuse previous data")
         self.cb_clear_dls = QCheckBox("Clear current downloads folder")
+        self.cb_debug = QCheckBox("Debug Mode")
         self.label_day_diff = QLabel("Day difference:")
         self.sb_day_diff = QSpinBox()
         self.sb_day_diff.setMinimum(0)
@@ -59,6 +60,7 @@ class SettingsWidget(QWidget):
 
         extras_layout.addWidget(self.cb_ignore_old)
         extras_layout.addWidget(self.cb_reuse_data)
+        extras_layout.addWidget(self.cb_debug)
         extras_layout.addWidget(self.cb_clear_dls)
         extras_layout.addWidget(self.label_day_diff)
         extras_layout.addWidget(self.sb_day_diff)
@@ -107,6 +109,7 @@ class SettingsWidget(QWidget):
             self.cb_reuse_data.setChecked(val)
             self.cb_ignore_old.setChecked(val)
             self.sb_day_diff.setValue(3)
+            self.cb_debug.setChecked(val)
 
     def load_settings_to_ui(self):
         if settings.check_settings_exists():
@@ -124,6 +127,7 @@ class SettingsWidget(QWidget):
             self.cb_reuse_data.setChecked(self.settings['reuse_data'])
             self.cb_ignore_old.setChecked(self.settings['ignore_old'])
             self.sb_day_diff.setValue(self.settings['day_diff'])
+            self.cb_debug.setChecked(self.settings['debug'])
         else:
             self.set_normal_settings_to(False, all=True)
 
@@ -142,12 +146,12 @@ class SettingsWidget(QWidget):
         self.settings['reuse_data'] = self.cb_reuse_data.isChecked()
         self.settings['ignore_old'] = self.cb_ignore_old.isChecked()
         self.settings['day_diff'] = self.sb_day_diff.value()
+        self.settings['debug'] = self.cb_debug.isChecked()
 
-        if settings.check_settings_exists():
-            settings.write_to_settings(self.settings)
-        else:
+        if not settings.check_settings_exists():
             settings.create_settings_file()
-            settings.write_to_settings(self.settings)
+
+        settings.write_to_settings(self.settings)
 
     def reset_btn_clicked(self):
         self.set_normal_settings_to(False)

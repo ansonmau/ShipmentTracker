@@ -182,10 +182,14 @@ class initialize:
         initialize.init_reports()
         
         logger.info("Initializing logs...")
-        MyLogger().init()
+        initialize.init_logs()
 
         logger.info("Initializing settings...")
         initialize.init_settings()
+
+    @staticmethod
+    def init_logs():
+        MyLogger().init()
 
     @staticmethod
     def init_downloads():

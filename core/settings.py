@@ -5,6 +5,7 @@ settings = {
     "ignore_old": True,
     "day_diff": 3,
     "clear_downloads": False,
+    "debug": False,
     "scrape": {
             "eshipper": True,
             "ems": True,

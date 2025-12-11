@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QApplication, QGroupBox, QMainWindow, QPushButton, QStatusBar, QVBoxLayout, QWidget, QPlainTextEdit, QHBoxLayout, QDialog,
     QLabel,
      )
+import core.settings as settings
 
 from ui.settings import SettingsWidget
 from ui.run import RunWidget
@@ -21,6 +22,8 @@ class LogRedirector(logging.Handler):
     def __init__(self, emitter: LogEmitter):
         super().__init__()
         self.emitter = emitter
+        self.log_level = logging.DEBUG
+        self.setLevel(self.log_level)
 
     def emit(self, record):
         self.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
@@ -66,22 +69,20 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def add_terminal_to_window(self):
-        if self.has_console:
-            return
+        if not self.has_console:
+            self.console = QPlainTextEdit()
+            self.console.setReadOnly(True)
+            self.console.setStyleSheet("font-size: 10pt;")
 
-        self.console = QPlainTextEdit()
-        self.console.setReadOnly(True)
-        self.console.setStyleSheet("font-size: 10pt;")
-
-        self.main_layout.addWidget(self.console, stretch=7)
-        self.resize(self.width() + 500, self.height())
+            self.main_layout.addWidget(self.console, stretch=7)
+            self.resize(self.width() + 500, self.height())
+            self.has_console = True
 
         self.log_emitter = LogEmitter()
         self.log_redirector = LogRedirector(self.log_emitter)
         
         self.log_emitter.log_stream.connect(self.console.appendPlainText)
         logging.getLogger().addHandler(self.log_redirector)
-        self.has_console = True
 
 
     @Slot()

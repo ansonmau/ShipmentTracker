@@ -1,11 +1,12 @@
 {
-    "reuse_data": false,
-    "ignore_old": false,
+    "reuse_data": true,
+    "ignore_old": true,
     "day_diff": 5,
-    "clear_downloads": true,
+    "clear_downloads": false,
+    "debug": true,
     "scrape": {
-        "eshipper": true,
-        "ems": true,
+        "eshipper": false,
+        "ems": false,
         "freightcom": true
     },
     "track": {
