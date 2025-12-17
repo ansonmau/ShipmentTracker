@@ -27,8 +27,8 @@ class RunWidget(QWidget):
         self.setLayout(main_layout)
     
     def run_btn_clicked(self):
-        self.window().add_terminal_to_window()
         self.window().save_settings()
+        self.window().add_terminal_to_window()
         self.start_main_thread()
 
     def start_main_thread(self):

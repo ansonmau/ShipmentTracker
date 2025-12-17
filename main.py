@@ -30,6 +30,10 @@ class LogRedirector(logging.Handler):
         record = self.format(record)
         self.emitter.log_stream.emit(record)
 
+    def set_level(self, level):
+        self.log_level = level 
+        self.setLevel(level)
+
     def flush(self):
         pass
 
@@ -69,20 +73,27 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def add_terminal_to_window(self):
-        if not self.has_console:
-            self.console = QPlainTextEdit()
-            self.console.setReadOnly(True)
-            self.console.setStyleSheet("font-size: 10pt;")
+        log_level = logging.DEBUG if settings.settings['debug'] else logging.INFO
 
-            self.main_layout.addWidget(self.console, stretch=7)
-            self.resize(self.width() + 500, self.height())
-            self.has_console = True
+        if self.has_console:
+            self.log_redirector.set_level(log_level)
+            return
+
+        self.console = QPlainTextEdit()
+        self.console.setReadOnly(True)
+        self.console.setStyleSheet("font-size: 10pt;")
+
+        self.main_layout.addWidget(self.console, stretch=7)
+        self.resize(self.width() + 500, self.height())
 
         self.log_emitter = LogEmitter()
         self.log_redirector = LogRedirector(self.log_emitter)
+        self.log_redirector.set_level(log_level)
         
         self.log_emitter.log_stream.connect(self.console.appendPlainText)
         logging.getLogger().addHandler(self.log_redirector)
+
+        self.has_console = True
 
 
     @Slot()
