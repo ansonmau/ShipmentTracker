@@ -109,7 +109,7 @@ def run(worker):
         logger.info("Removing previously successfully tracked shipments...")
         remove = []
         remove.extend(report_handler.read.successes())
-        remove.extend([x for x in report_handler.read.fails() if x.carrier=="Canada Post" and x.reason=="Maximum emails reached"])
+        remove.extend([x for x in report_handler.read.fails() if "DNR" in x.reason])
         for result in remove:
             logger.debug("Attempting to remove shipment: {} {}".format(result.carrier, result.tracking_number))
             if result.tracking_number in data[result.carrier]:

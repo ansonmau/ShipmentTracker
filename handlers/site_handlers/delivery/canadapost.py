@@ -48,7 +48,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     dialog_txt = getDialogText(sesh)
 
     if "reached the maximum" in dialog_txt:
-        r.set_reason("Maximum emails reached")
+        r.set_reason("Maximum emails reached [DNR]")
         return r
 
     if "You can add or remove email addresses" in dialog_txt:
@@ -58,11 +58,15 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     email_inputs = sesh.find.all(paths["email_input"])
     if len(email_inputs) == 1:
         if not canAddEmails(sesh):
-            r.set_reason("Maximum emails reached")
+            r.set_reason("Maximum emails reached [DNR]")
             return r
         sesh.click.path(paths["add_email_btn"])
 
     email_inputs = sesh.find.all(paths["email_input"])
+    if sesh.read.textFromElement(email_inputs[0]) != "":
+        r.set_reason("Email field already filled [DNR]")
+        return r
+
     sesh.input.element(email_inputs[0], getenv("CANADAPOST_EMAIL1"))
     sesh.input.element(email_inputs[1], getenv("CANADAPOST_EMAIL2"))
 

@@ -43,7 +43,7 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         return r
 
     if check_if_delivered():
-        r.set_reason("Shipment already delivered")
+        r.set_reason("Shipment already delivered [DNR]")
         return r
 
     e_tracking_details = sesh.find.path(Paths.page["tracking_info"])
