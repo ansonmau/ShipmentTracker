@@ -27,12 +27,13 @@ class result:
                 self.CRASH: "Crash",
                 }
         result = text_converter[self.result]
-        return f"{result}: {self.reason}"
+        return f"{result} {self.reason}"
 
     def __eq__(self, other):
         return self.result == other.result and self.tracking_number == other.tracking_number
 
     def set_reason(self, reason):
+        reason = "".join([': ', reason])
         self.reason = reason
 
     def set_result(self, result):
