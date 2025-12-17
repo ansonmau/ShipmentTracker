@@ -81,6 +81,10 @@ dls_old/
 # logs
 logs/
 
+reports/
+bin/
+icons/
 
 # misc
 delivery_data.txt
+tracking_data.json
