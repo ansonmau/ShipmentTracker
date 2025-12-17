@@ -6,10 +6,21 @@ from core.track import result
 
 logger = getLogger(__name__)
 
+class Driver():
+    web_driver: WebDriverSession | None = None
+
+    def set(self, sesh: WebDriverSession):
+        Driver.web_driver = sesh
+
+    def get(self) -> WebDriverSession:
+        return self.web_driver
+
 class Paths:
 
     page = {
         "tracking_info": (ELEMENT_TYPES["css"], ".results-container"),
+        "progress_labels": (ELEMENT_TYPES['css'], ".progress-labels"),
+        "active_classes": (ELEMENT_TYPES['css'], '.active')
     }
 
     chat = {
@@ -19,15 +30,20 @@ class Paths:
     }
 
 def executeScript(sesh: WebDriverSession, tracking_num):
+    Driver().set(sesh)
+
     r = result(result.FAIL, carrier="Purolator", tracking_number=tracking_num)
     sesh.get(
         "https://www.purolator.com/en/shipping/tracker?pin={}".format(tracking_num)
     )
     removeCookiesBanner(sesh)
 
-    if check_invalid(sesh):
-        logger.info("Invalid shipment detected.")
+    if check_is_exception(sesh):
         r.set_reason("Shipment not ready to be tracked")
+        return r
+
+    if check_if_delivered():
+        r.set_reason("Shipment already delivered")
         return r
 
     e_tracking_details = sesh.find.path(Paths.page["tracking_info"])
@@ -94,8 +110,18 @@ def removeCookiesBanner(sesh: WebDriverSession):
     )
     sesh.injectJS(script)
 
-def check_invalid(sesh: WebDriverSession) -> bool:
+def check_is_exception(sesh: WebDriverSession) -> bool:
     return "Exceptions" in sesh.read.text(Paths.page['tracking_info'])
+
+def check_if_delivered():
+    sesh = Driver().get()
+    # progress labels -> class = "active" -> text
+    progress_labels = sesh.find.path(Paths.page['progress_labels'])
+    active_class = sesh.find.fromParent(progress_labels, Paths.page['active_classes'])
+    txt = sesh.read.textFromElement(active_class)
+    logger.debug("progress label: {}".format(txt))
+
+    return txt == "Delivered"
 
 class Chat_Handler:
     def __init__(self, sesh: WebDriverSession) -> None:
