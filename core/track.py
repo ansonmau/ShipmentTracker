@@ -73,7 +73,11 @@ def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript):
             try:
                 curr_result = executeScript(sesh, tracking_num)
                 if curr_result.result == result.RETRY:
-                    continue
+                    if not attempt_count == 3:
+                        continue
+                    curr_result.set_result(result.FAIL)
+                    curr_result.set_reason("Failed after 3 attempts")
+                    report['fail'].append(curr_result)
                 elif curr_result.result == result.SUCCESS:
                     logger.info(str(curr_result))
                     report["success"].append(curr_result)
