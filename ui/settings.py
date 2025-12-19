@@ -16,7 +16,7 @@ class SettingsWidget(QWidget):
 
         overall_layout = QVBoxLayout()
 
-        scrape_area = QGroupBox("Scrape")
+        scrape_area = QGroupBox("Sources")
         scrape_layout = QVBoxLayout()
 
         self.cb_eshipper = QCheckBox("Eshipper")
