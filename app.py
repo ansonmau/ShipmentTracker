@@ -198,8 +198,9 @@ class initialize:
 
     @staticmethod
     def init_data():
-        dir_name = "data"
-        utils.create_folder(dir_name)
+        utils.create_folder(utils.PROJ_FOLDER / 'data')
+        utils.create_file(utils.PROJ_FOLDER / 'data' / "delivery_data.txt")
+        utils.create_file(utils.PROJ_FOLDER / 'data' / "keys.env")
 
     @staticmethod
     def init_reports():
@@ -213,11 +214,7 @@ class initialize:
 
         env_path = utils.PROJ_FOLDER / "data" / "keys.env"
 
-        if not Path(env_path).exists():
-            logger.critical("Login keys missing. Creating one...")
-            utils.create_folder(utils.PROJ_FOLDER / "data")
-            utils.create_file(env_path)
-        elif Path(env_path).stat().st_size == 0:
+        if Path(env_path).stat().st_size == 0:
             logger.critical("Login keys empty. Please check data -> keys")
         else:
             load_dotenv(dotenv_path=env_path)
