@@ -68,9 +68,6 @@ def run(worker):
             }
 
     cleanup.clearDLFolder()
-    if settings.settings['clear_downloads']:
-        logger.info("Clearing downloads folder...")
-        cleanup.clearDLFolder()
 
     logger.info("starting web driver...")
     sesh = driver.WebDriverSession(undetected=True)
@@ -200,7 +197,7 @@ class initialize:
     @staticmethod
     def init_data():
         utils.create_folder(utils.PROJ_FOLDER / 'data')
-        utils.create_file(utils.PROJ_FOLDER / 'data' / "delivery_data.txt")
+        utils.create_file(utils.PROJ_FOLDER / 'data' / "delivery_data.json")
         utils.create_file(utils.PROJ_FOLDER / 'data' / "keys.env")
 
     @staticmethod
