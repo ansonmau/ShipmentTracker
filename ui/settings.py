@@ -51,7 +51,6 @@ class SettingsWidget(QWidget):
 
         self.cb_ignore_old = QCheckBox("Ignore previously tracked shipments")
         self.cb_reuse_data = QCheckBox("Reuse previous data")
-        self.cb_clear_dls = QCheckBox("Clear current downloads folder")
         self.cb_debug = QCheckBox("Debug Mode")
         self.label_day_diff = QLabel("Day difference:")
         self.sb_day_diff = QSpinBox()
@@ -61,7 +60,6 @@ class SettingsWidget(QWidget):
         extras_layout.addWidget(self.cb_ignore_old)
         extras_layout.addWidget(self.cb_reuse_data)
         extras_layout.addWidget(self.cb_debug)
-        extras_layout.addWidget(self.cb_clear_dls)
         extras_layout.addWidget(self.label_day_diff)
         extras_layout.addWidget(self.sb_day_diff)
 
@@ -105,7 +103,6 @@ class SettingsWidget(QWidget):
         self.cb_fedex.setChecked(val)
 
         if all:
-            self.cb_clear_dls.setChecked(val)
             self.cb_reuse_data.setChecked(val)
             self.cb_ignore_old.setChecked(val)
             self.sb_day_diff.setValue(3)
@@ -123,7 +120,6 @@ class SettingsWidget(QWidget):
             self.cb_canpar.setChecked(self.settings['track']['canpar'])
             self.cb_fedex.setChecked(self.settings['track']['fedex'])
 
-            self.cb_clear_dls.setChecked(self.settings['clear_downloads'])
             self.cb_reuse_data.setChecked(self.settings['reuse_data'])
             self.cb_ignore_old.setChecked(self.settings['ignore_old'])
             self.sb_day_diff.setValue(self.settings['day_diff'])
@@ -142,11 +138,10 @@ class SettingsWidget(QWidget):
         self.settings['track']['canpar'] = self.cb_canpar.isChecked()
         self.settings['track']['fedex'] = self.cb_fedex.isChecked()
 
-        self.settings['clear_downloads'] = self.cb_clear_dls.isChecked()
         self.settings['reuse_data'] = self.cb_reuse_data.isChecked()
         self.settings['ignore_old'] = self.cb_ignore_old.isChecked()
-        self.settings['day_diff'] = self.sb_day_diff.value()
         self.settings['debug'] = self.cb_debug.isChecked()
+        self.settings['day_diff'] = self.sb_day_diff.value()
 
         if not settings.check_settings_exists():
             settings.create_settings_file()

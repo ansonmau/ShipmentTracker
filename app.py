@@ -67,6 +67,7 @@ def run(worker):
             "crash": [],
             }
 
+    cleanup.clearDLFolder()
     if settings.settings['clear_downloads']:
         logger.info("Clearing downloads folder...")
         cleanup.clearDLFolder()
