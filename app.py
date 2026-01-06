@@ -45,13 +45,13 @@ init_pass = True
 def run(worker):
     Worker().set_worker(worker)
     initialize.run()
+    cleanup.clearDLFolder()
 
     if not init_pass:
         logger.critical("Initialization failed. Please review.")
         return
 
     logger.info("Initialization successful")
-    
 
     data = {
         "Canada Post": [],
@@ -67,7 +67,6 @@ def run(worker):
             "crash": [],
             }
 
-    cleanup.clearDLFolder()
 
     logger.info("starting web driver...")
     sesh = driver.WebDriverSession(undetected=True)

@@ -12,6 +12,7 @@ import random
 import os
 
 from core.log import getLogger
+from core.utils import PROJ_FOLDER
 
 logger = getLogger(__name__)
 
@@ -28,6 +29,7 @@ def random_wait(min=0.25, max=0.75):
 
 
 class WebDriverSession:
+    from core.utils import PROJ_FOLDER
     def __init__(self, undetected=False):
         options = self._getOptions(undetected=undetected)
         try:
@@ -63,8 +65,7 @@ class WebDriverSession:
             pass
 
     def _getOptions(self, undetected=False):
-        relative_path = "./dls"
-        downloadPath = os.path.abspath(relative_path)
+        downloadPath = str((PROJ_FOLDER / 'dls').resolve())
 
         # set options for downloading
         prefs = {
@@ -74,12 +75,12 @@ class WebDriverSession:
             "safebrowsing.enabled": True,
         }
 
-        if undetected:
-            options = uc.ChromeOptions()
-        else:
-            options = Options()
+        options = uc.ChromeOptions() if undetected else Options()
 
         options.add_experimental_option("prefs", prefs)
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
 
         return options
 

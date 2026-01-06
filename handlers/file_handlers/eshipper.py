@@ -4,12 +4,10 @@ import pathlib
 from datetime import datetime, timedelta
 import time
 from core.log import getLogger
-from core.settings import settings
+import core.settings as settings
 from core.utils import PROJ_FOLDER
 
-log = getLogger(__name__)
-
-
+logger = getLogger(__name__)
 
 def parse(file_search_time=30):
     data = {
@@ -28,7 +26,8 @@ def parse(file_search_time=30):
         file_dict = csv.DictReader(file)
 
         date_format = "%m/%d/%Y"
-        min_date = calc_oldest_day(settings['day_diff'])
+        min_date = calc_oldest_day(settings.settings['day_diff'])
+        logger.debug("Searching from date: {}".format(min_date))
 
         for entry in file_dict:
             entry_date = datetime.strptime(entry["Ship Date"], date_format)
@@ -57,16 +56,17 @@ def get_downloaded_file(search_time=30):
     end_time = time.time() + search_time
 
     files = check_downloads()
-    og_file_num = len(files)
-    while len(files) <= og_file_num and time.time() < end_time:
+    while len(files) == 0 and time.time() < end_time:
         files = check_downloads()
+
+    if len(files) == 0:
+        logger.debug("Failed to find downloaded eshipper file")
 
     return files[0]
 
 
 def check_downloads():
     dl_folder = PROJ_FOLDER / "dls"
-
     files = dl_folder.glob("Track*.csv")  # returns generator
 
     return list(files)

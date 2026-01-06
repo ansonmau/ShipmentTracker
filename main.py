@@ -12,7 +12,7 @@ import core.settings as settings
 from ui.settings import SettingsWidget
 from ui.run import RunWidget
 
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 
 class LogEmitter(QObject):
     log_stream = Signal(str)
