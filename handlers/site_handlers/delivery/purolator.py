@@ -68,6 +68,9 @@ def executeScript(sesh: WebDriverSession, tracking_num):
         chat_btn_name_buffer.append("Agree to terms")
     
     for btn_name in chat_btn_name_buffer:
+        btn = chat_handler.get_button(btn_name)
+        while btn == None:
+            btn = chat_handler.get_button(btn_name)
         sesh.click.element(chat_handler.get_button(btn_name))
         time.sleep(1)
 
@@ -82,8 +85,9 @@ def executeScript(sesh: WebDriverSession, tracking_num):
     chat_btn_name_buffer.append("Only for myself")
 
     for btn_name in chat_btn_name_buffer:
-        sesh.click.element(chat_handler.get_button(btn_name))
+        btn = chat_handler.get_button(btn_name)
         time.sleep(1)
+        sesh.click.element(chat_handler.get_button(btn_name))
     
     name_input = chat_handler.get_input("Name")
     email_input = chat_handler.get_input("Email")
@@ -141,7 +145,9 @@ class Chat_Handler:
         while len(search_results) == 0 and time.time() < end_time:
             search_results = self.sesh.find.buttons_within(self.el_chat, btn_name)
 
-        assert len(search_results) == 1
+        if len(search_results) == 0:
+            return None
+
         return search_results[0]
 
     def get_input(self, input_name):
@@ -152,7 +158,9 @@ class Chat_Handler:
         while len(search_results) == 0 and time.time() < end_time:
             search_results = self.sesh.find.allFromParent(self.el_chat, input_locator)
 
-        assert len(search_results) > 0
+        if len(search_results) <= 0:
+            raise Exception("Failed to find input")
+
         filtered_results = self.sesh.filter.byAttribute(search_results, "label", input_name)
 
         assert len(filtered_results) > 0

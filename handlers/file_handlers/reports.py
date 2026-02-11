@@ -24,21 +24,19 @@ def write_report(report) -> None:
             f.write(f"[CRASH (FAIL)] | {info['carrier']} | #{info['tracking_number']} | reason: {info['reason']} | {link}" + '\n')
 
 class read:
-    @staticmethod
-    def _get_report_file_date(report_file) -> datetime:
-        report_date_fmt = "%m-%d_%H-%M.txt"
-        return datetime.strptime(report_file.name.split('+')[1], report_date_fmt)
+    report = {"success":[], "fail":[], "crash":[]}
 
-    @staticmethod
-    def _get_reports() -> list:
+    def __init__(self):
+        for r in self._get_reports():
+            self._parse_report(r)
+
+    def _get_reports(self) -> list:
         report_dir = Path("./reports")
         report_files = [f for f in report_dir.iterdir() if f.is_file()]
 
         return report_files
 
-    @staticmethod
-    def _parse_report(report: Path) -> dict:
-        parsed = {"success":[], "fail":[], "crash":[]}
+    def _parse_report(self, report: Path) -> dict:
         report_txt = report.read_text()
         lines = report_txt.split('\n')
         for line in lines:
@@ -53,40 +51,25 @@ class read:
             r = result(result.SUCCESS, carrier=curr_carrier, tracking_number=curr_tracking_num)
             if "CRASH" in cols[0]:
                 r.set_result(result.CRASH)
-                parsed['crash'].append(r)
+                self.report['crash'].append(r)
             elif "FAIL" in cols[0]:
                 curr_reason = cols[3].split("reason: ")[1]
                 r.set_result(result.FAIL)
                 r.set_reason(curr_reason)
-                parsed['fail'].append(r)
+                self.report['fail'].append(r)
             elif "SUCCESS" in cols[0]:
-                parsed['success'].append(r)
+                self.report['success'].append(r)
 
-        return parsed
+        return self.report
 
-    @staticmethod
-    def successes() -> list[result]:
-        report_files = read._get_reports()
-        successes = []
-        for report in report_files:
-            for result in read._parse_report(report)['success']:
-                successes.append(result)
-        
-        return successes
+    def successes(self) -> list[result]:
+        return self.report['success']
 
-    @staticmethod
-    def get_crashed():
-        pass
+    def get_crashed(self):
+        return self.report['crash']
 
-    @staticmethod
-    def fails():
-        report_files = read._get_reports()
-        fail = []
-        for report in report_files:
-            for result in read._parse_report(report)['fail']:
-                fail.append(result)
-        
-        return fail
+    def fails(self):
+        return self.report['fail']
 
         
 

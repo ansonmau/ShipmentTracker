@@ -20,6 +20,11 @@ def parse(file_search_time=30):
     
     file = get_downloaded_file(file_search_time)
 
+    if file == None:
+        logger.info("Failed to find eshipper file")
+        return data
+
+    logger.info("Eshipper file found")
     # should only be one file
     file_path = str(file)
     with open(file_path, "r") as file:
@@ -55,12 +60,13 @@ def calc_oldest_day(day_diff):
 def get_downloaded_file(search_time=30):
     end_time = time.time() + search_time
 
-    files = check_downloads()
+    files = []
     while len(files) == 0 and time.time() < end_time:
         files = check_downloads()
 
     if len(files) == 0:
-        logger.debug("Failed to find downloaded eshipper file")
+        logger.info("Failed to find downloaded eshipper file")
+        return None
 
     return files[0]
 

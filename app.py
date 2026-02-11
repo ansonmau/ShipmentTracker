@@ -95,7 +95,6 @@ def run(worker):
         logger.info("looking through eshipper...")
         eshipper.scrape(sesh)
 
-        logger.debug("reading eshipper file")
         eshipper_data = eshipper_fh.parse()
 
         logger.debug("parsed data: {}".format(eshipper_data))
@@ -103,17 +102,17 @@ def run(worker):
 
     duplicates_found = 0
     if settings.settings['ignore_old']:
-        logger.info("Removing previously successfully tracked shipments...")
+        report_reader = report_handler.read()
         remove = []
-        remove.extend(report_handler.read.successes())
-        remove.extend([x for x in report_handler.read.fails() if "DNR" in x.reason])
+        remove.extend(report_reader.successes())
+        remove.extend([x for x in report_reader.fails() if "DNR" in x.reason])
         for result in remove:
             logger.debug("Attempting to remove shipment: {} {}".format(result.carrier, result.tracking_number))
             if result.tracking_number in data[result.carrier]:
                 logger.debug("duplicate found: {} {}".format(result.carrier, result.tracking_number))
                 duplicates_found+=1
                 data[result.carrier].remove(result.tracking_number)
-        logger.info("{} duplicates removed".format(duplicates_found))
+        logger.info("{} tracking numbers ignored.".format(duplicates_found))
 
     logger.info("storing scraped data...")
     utils.save_tracking_data(data)
