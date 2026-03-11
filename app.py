@@ -47,6 +47,9 @@ def run(worker):
     initialize.run()
     cleanup.clearDLFolder()
 
+    from main import VERSION
+    logger.info("Shipment Tracker v{}".format(VERSION))
+
     if not init_pass:
         logger.critical("Initialization failed. Please review.")
         return
