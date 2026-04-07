@@ -39,6 +39,7 @@ class WebDriverSession:
                 self.driver = webdriver.Chrome(options=options)
         except SessionNotCreatedException as e:
             if e.msg:
+                print(e.msg)
                 if "this version of chromedriver only supports" in e.msg.lower():
                     logger.critical("Chrome outdated. Please update.")
                     self.driver = None
