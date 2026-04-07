@@ -1,6 +1,6 @@
 from pathlib import Path
 from PySide6.QtCore import Signal, QObject
-import core.driver as driver
+import core.driver.driver as driver
 from core.log import getLogger, MyLogger
 from core.track import track
 import core.utils as utils
@@ -72,8 +72,9 @@ def run(worker):
 
 
     logger.info("starting web driver...")
-    sesh = driver.WebDriverSession(undetected=True)
-    if sesh == None: # in case something goes wrong
+    wds = driver.WebDriverSession()
+    wds.setUndetected(1)
+    if (not wds.start()):
         logger.critical("Webdriver unable to start.")
         return
 
@@ -82,21 +83,21 @@ def run(worker):
     
     if settings.settings['scrape']["freightcom"]:
         logger.info("looking through freightcom...")
-        freightcom_data = freightcom.scrape(sesh, worker)
+        freightcom_data = freightcom.scrape(wds, worker)
 
         logger.debug("parsed data: {}".format(freightcom_data))
         utils.merge_dict_lists(data, freightcom_data)
 
     if settings.settings['scrape']["ems"]:
         logger.info("looking through EMS...")
-        ems_data = ems.scrape(sesh)
+        ems_data = ems.scrape(wds)
 
         logger.debug("parsed data: {}".format(ems_data))
         utils.merge_dict_lists(data, ems_data)
 
     if settings.settings['scrape']["eshipper"]:
         logger.info("looking through eshipper...")
-        eshipper.scrape(sesh)
+        eshipper.scrape(wds)
 
         eshipper_data = eshipper_fh.parse()
 
@@ -123,31 +124,31 @@ def run(worker):
     if settings.settings['track']["canada post"]:
         logger.info("starting tracking for Canada Post shipments")
         logger.debug("Canada Post orders: {}".format(data["Canada Post"]))
-        cp_report = track(sesh, "Canada Post", data["Canada Post"], canpost.executeScript)
+        cp_report = track(wds, "Canada Post", data["Canada Post"], canpost.executeScript)
         utils.merge_dict_lists(report, cp_report)
 
     if settings.settings['track']["ups"]:
         logger.info("starting tracking for UPS shipments")
         logger.debug("UPS orders: {}".format(data["UPS"]))
-        ups_report = track(sesh, "UPS", data["UPS"], ups.executeScript)
+        ups_report = track(wds, "UPS", data["UPS"], ups.executeScript)
         utils.merge_dict_lists(report, ups_report)
 
     if settings.settings['track']["canpar"]:
         logger.info("starting tracking for Canpar shipments")
         logger.debug("Canpar orders: {}".format(data["Canpar"]))
-        canpar_report = track(sesh, "Canpar", data["Canpar"], canpar.executeScript)
+        canpar_report = track(wds, "Canpar", data["Canpar"], canpar.executeScript)
         utils.merge_dict_lists(report, canpar_report)
 
     if settings.settings['track']["purolator"]:
         logger.info("starting tracking for Purolator shipments")
         logger.debug("Purolator orders: {}".format(data["Purolator"]))
-        puro_report = track(sesh, "Purolator", data["Purolator"], puro.executeScript)
+        puro_report = track(wds, "Purolator", data["Purolator"], puro.executeScript)
         utils.merge_dict_lists(report, puro_report)
 
     if settings.settings['track']["fedex"]:
         logger.info("starting tracking for Fedex shipments")
         logger.debug("Fedex orders: {}".format(data["Fedex"]))
-        fdx_report = track(sesh, "Fedex", data["Fedex"], fdx.executeScript)
+        fdx_report = track(wds, "Fedex", data["Fedex"], fdx.executeScript)
         utils.merge_dict_lists(report, fdx_report)
 
     logger.info("Tracking complete. Saving results.")
@@ -160,7 +161,6 @@ def run(worker):
     logger.info("Starting clean up...")
     cleanup.run()
     logger.info("Clean up complete")
-    sesh.endself()
 
     return
 
