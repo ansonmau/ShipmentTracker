@@ -12,7 +12,7 @@ import core.settings as settings
 from ui.settings import SettingsWidget
 from ui.run import RunWidget
 
-VERSION = "1.0.4"
+VERSION = "2.0.0"
 
 class LogEmitter(QObject):
     log_stream = Signal(str)
@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
 
         self.console = QPlainTextEdit()
         self.console.setReadOnly(True)
-        self.console.setStyleSheet("font-size: 10pt;")
+        self.console.setStyleSheet("font-size: 15pt;")
 
         self.main_layout.addWidget(self.console, stretch=7)
         self.resize(self.width() + 500, self.height())

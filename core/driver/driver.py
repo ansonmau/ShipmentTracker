@@ -60,12 +60,14 @@ class WebDriverSession:
             if e.msg:
                 if "this version of chromedriver only supports" in e.msg.lower():
                     logger.critical("Chrome outdated. Please update.")
-                    return False
+                else:
+                    logger.critical("Unknwon webdriver error:\n{}".format(e.msg))
+                return False
 
         return True
 
     def _getOptions(self):
-        downloadPath = str((PROJ_FOLDER / 'dls').resolve())
+        downloadPath = str((PROJ_FOLDER / 'data' / 'dls').resolve())
 
         # set options for downloading
         prefs = {

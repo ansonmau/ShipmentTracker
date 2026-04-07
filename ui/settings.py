@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QSpinBox, QWidget,
-    QVBoxLayout, QPushButton, QLabel, QStatusBar,
+    QSpinBox, QWidget,
+    QVBoxLayout, QPushButton, QLabel,
     QCheckBox, QGroupBox, QHBoxLayout
 )
 
