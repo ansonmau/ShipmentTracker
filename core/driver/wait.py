@@ -19,8 +19,11 @@ class Wait:
             lambda d: d.execute_script("return document.readyState") == "complete"
         )
 
-    def element_located(self, locator, timeout):
-        end_time = now() + timeout
+    def element_located(self, locator, wait=0):
+        if (not wait):
+            wait = self.wds.default_wait_time
+
+        end_time = now() + wait
         while (now() < end_time):
             if (self.wds.find.element(locator, wait=1)):
                 return True
