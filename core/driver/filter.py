@@ -1,8 +1,7 @@
-from core.driver.driver import WebDriverSession
 from core.driver.locator import Locator, ElementTypes
 
 class Filter:
-    def __init__(self, wds: WebDriverSession):
+    def __init__(self, wds):
         self.wds = wds
         self.driver = wds.driver
 

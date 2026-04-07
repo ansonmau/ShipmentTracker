@@ -1,7 +1,5 @@
-from core.driver.driver import WebDriverSession
-
 class Select:
-    def __init__(self, wds: WebDriverSession):
+    def __init__(self, wds):
         pass
     
     def by_text(self, select_elm, text):

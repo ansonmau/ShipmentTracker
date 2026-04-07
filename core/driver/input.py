@@ -1,5 +1,5 @@
 class Input:
-    def __init__(self, wds: WebDriverSession):
+    def __init__(self, wds):
         self.wds = wds
 
     def _sendKeys(self, target_element, keys):

@@ -1,13 +1,10 @@
 from time import sleep
 from time import time as now
 from random import uniform
-from 
-from core.driver.driver import WebDriverSession
-from core.driver.locator import Locator
 from selenium.webdriver.support.ui import WebDriverWait
 
 class Wait:
-    def __init__(self, wds: WebDriverSession):
+    def __init__(self, wds):
         self.wds = wds
         self.driver = wds.driver
 

@@ -1,56 +1,62 @@
-from core.driver import WebDriverSession, ELEMENT_TYPES
-from os import getenv
+from core.driver.driver import WebDriverSession
+from core.driver.locator import Locator, ElementTypes
 from core.log import getLogger
-import time
 from core.track import result
+
+import time
+from os import getenv
 
 logger = getLogger(__name__)
 
-paths = {
-    "notify_me_btn": (
-        ELEMENT_TYPES["id"],
+locators = {
+    "notify_me_btn": Locator(
+        ElementTypes.id,
         "options-block_5f6a6725bde09-accordion-4-heading",
     ),
-    "notify_exception_toggle": (ELEMENT_TYPES["css"], '[for="notifyAtException"]'),
-    "email_input": (ELEMENT_TYPES["id"], "notifyList"),
-    "add_notification_btn": (
-        ELEMENT_TYPES["css"],
+    "notify_exception_toggle": Locator(ElementTypes.css, '[for="notifyAtException"]'),
+    "email_input": Locator(ElementTypes.id, "notifyList"),
+    "add_notification_btn": Locator(
+        ElementTypes.css,
         "[onclick='doSubmit(\"addNotification\");']",
     ),
-    "notification_section": (ELEMENT_TYPES["id"], "notifyContent"),
+    "notification_section": Locator(ElementTypes.id, "notifyContent"),
 }
 
-def executeScript(sesh: WebDriverSession, tracking_num):
+def executeScript(wds: WebDriverSession, tracking_num):
     r = result(result.FAIL, carrier="Canpar", tracking_number=tracking_num)
-    sesh.get(
+
+    wds.nav.get(
         "https://www.canpar.com/en/tracking/delivery_options.htm?barcode={}".format(
             tracking_num
         )
     )
 
-    notify_me = sesh.find.path(paths["notify_me_btn"])
-    sesh.click.element(notify_me)
-    sesh.scrollToElement(notify_me)
+    notify_me = wds.find.element(locators["notify_me_btn"])
+    wds.click.element(notify_me)
+    wds.misc.scrollToElement(notify_me)
     time.sleep(1)
-    sesh.click.path(paths["notify_exception_toggle"])
+    wds.click.element(locators["notify_exception_toggle"])
     
     email_input_txt = "{}\n{}".format(getenv("CANPAR_EMAIL1"), getenv("CANPAR_EMAIL2")) 
-    sesh.input.path(paths["email_input"], email_input_txt)
-    sesh.click.path(paths["add_notification_btn"])
+    wds.input.element(locators["email_input"], email_input_txt)
+    wds.click.element(locators["add_notification_btn"])
 
-    waitForConfirm(sesh)
+    if (not waitForConfirm(wds)):
+        r.set_reason("Confirmation dialog failed to appear")
+        return r
 
     r.set_result(result.SUCCESS)
     return r
 
 
-def waitForConfirm(sesh: WebDriverSession, cd=10):
+def waitForConfirm(wds, wait=0):
+    if (not wait):
+        wait = wds.default_wait_time
+
     confirmation_text = "Thank you. Notifications have been updated."
-
-    end_time = time.time() + cd
-
+    end_time = time.time() + wait
     while time.time() < end_time:
-        if sesh.read.text(paths["notification_section"]) == confirmation_text:
+        if wds.read.text(locators["notification_section"]) == confirmation_text:
             return True
 
     return False

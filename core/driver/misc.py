@@ -1,7 +1,5 @@
-from core.driver.driver import WebDriverSession
-
 class Misc:
-    def __init__(self, wds: WebDriverSession):
+    def __init__(self, wds):
         self.wds = wds
         self.driver = wds.driver
 

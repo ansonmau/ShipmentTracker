@@ -1,4 +1,4 @@
-from core.driver import WebDriverSession, random_wait
+from core.driver.driver import WebDriverSession
 from core.log import getLogger
 from time import sleep
 

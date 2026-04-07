@@ -1,7 +1,5 @@
-from core.driver.driver import WebDriverSession
-
 class Read:
-    def __init__(self, wds: WebDriverSession):
+    def __init__(self, wds):
         self.wds = wds
 
     def text(self, locator):
@@ -18,11 +16,11 @@ class Read:
         return self._get_element_attribute(elm, attr_name)
 
     def _get_element_attribute(self, element, attribute):
-        if element:
-            return element.get_attribute(attribute)
+        attribute = element.get_attribute(attribute) if element else ''
+        return attribute
 
     def _get_element_text(self, element):
-        if element:
-            return element.text
+        text = element.text if element else ''
+        return text
 
 

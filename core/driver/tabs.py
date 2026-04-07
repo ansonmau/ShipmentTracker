@@ -1,9 +1,8 @@
-from core.driver.driver import WebDriverSession
-
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
 
 class TabControl:
-    def __init__(self, wds: WebDriverSession):
+    def __init__(self, wds):
         self.wds = wds
         self.driver = wds.driver
 

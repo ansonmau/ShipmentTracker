@@ -1,4 +1,6 @@
-from core.driver import WebDriverSession, ELEMENT_TYPES
+from core.driver.driver import WebDriverSession
+from core.driver.locator import Locator, ElementTypes
+
 from os import getenv
 from core.settings import settings
 from core.log import getLogger
@@ -7,30 +9,31 @@ from datetime import datetime, timedelta
 logger = getLogger(__name__)
 
 class Paths:
-    startpage = {"login_btn": (ELEMENT_TYPES["css"], ".menu-login")}
+    startpage = {"login_btn": Locator(ElementTypes.css, ".menu-login")}
 
     login = {
-        "user_input": (ELEMENT_TYPES["id"], "j_username"),
-        "pw_input": (ELEMENT_TYPES["id"], "j_password"),
-        "login_btn": (ELEMENT_TYPES["css"], ".next-btn"),
+        "user_input": Locator(ElementTypes.id, "j_username"),
+        "pw_input": Locator(ElementTypes.id, "j_password"),
+        "login_btn": Locator(ElementTypes.css, ".next-btn"),
     }
 
     homepage = {
-        "nav_bar": (ELEMENT_TYPES["css"], ".main-menu-items"),
-        "filter_bar": (ELEMENT_TYPES["css"], ".tab-radio-bar"),
-        "tracking_dropdown": (ELEMENT_TYPES["id"], "trackDropdown"),
+        "nav_bar": Locator(ElementTypes.css, ".main-menu-items"),
+        "filter_bar": Locator(ElementTypes.css, ".tab-radio-bar"),
+        "tracking_dropdown": Locator(ElementTypes.id, "trackDropdown"),
     }
 
-    popup = {"dialog": (ELEMENT_TYPES["css"], ".modal-dialog")}
+    popup = {"dialog": Locator(ElementTypes.css, ".modal-dialog")}
 
     tracking_page = {
-        "shipment_table": (ELEMENT_TYPES["css"], ".shipments-table"),
-        "table_entry": (ELEMENT_TYPES["tag"], "tr"),
-        "table_data": (ELEMENT_TYPES["tag"], "td"),
+        "shipment_table": Locator(ElementTypes.css, ".shipments-table"),
+        "table_entry": Locator(ElementTypes.tag, "tr"),
+        "table_data": Locator(ElementTypes.tag, "td"),
     }
 
-    div = (ELEMENT_TYPES["tag"], "div")
-    img = (ELEMENT_TYPES["tag"], "img")
+    div = Locator(ElementTypes.tag, "div")
+    img = Locator(ElementTypes.tag, "img")
+
 
 
 tracking_table_index = {
@@ -42,10 +45,10 @@ tracking_table_index = {
 
 
 def login(sesh: WebDriverSession, worker):
-    sesh.get("https://www.freightcom.com")
-    sesh.click.path(Paths.startpage["login_btn"])
-    sesh.input.path(Paths.login["user_input"], getenv("FREIGHTCOM_USER"))
-    sesh.input.path(Paths.login["pw_input"], getenv("FREIGHTCOM_PW"))
+    sesh.nav.get("https://www.freightcom.com")
+    sesh.click.by_locator(Paths.startpage["login_btn"])
+    sesh.input.by_locator(Paths.login["user_input"], getenv("FREIGHTCOM_USER"))
+    sesh.input.by_locator(Paths.login["pw_input"], getenv("FREIGHTCOM_PW"))
 
     worker.pause_signal.emit()
     worker.pause_event.wait()
@@ -63,7 +66,7 @@ def scrape(sesh: WebDriverSession, worker):
         
     login(sesh, worker)
 
-    sesh.click.path(Paths.homepage["tracking_dropdown"])
+    sesh.click.by_locator(Paths.homepage["tracking_dropdown"])
 
     trackingpage_btn = get_trackingpage_btn(sesh)
     sesh.click.element(trackingpage_btn)
@@ -76,14 +79,14 @@ def scrape(sesh: WebDriverSession, worker):
 
 
 def get_trackingpage_btn(sesh: WebDriverSession):
-    nav_bar = sesh.find.path(Paths.homepage["nav_bar"])
+    nav_bar = sesh.find.element(Paths.homepage["nav_bar"])
     dashboard_links = sesh.find.links_within(nav_bar, filter="Tracking Dashboard")
     assert len(dashboard_links) == 1
     return dashboard_links[0]
 
 
 def get_popup_discard_btn(sesh: WebDriverSession):
-    dialog = sesh.find.path(Paths.popup["dialog"])
+    dialog = sesh.find.element(Paths.popup["dialog"])
     discard_btn = sesh.find.buttons_within(dialog, filter="Discard Progress")
     assert len(discard_btn) == 1
     return discard_btn[0]
@@ -98,15 +101,15 @@ def read_table_into_dict(sesh: WebDriverSession, info):
             "FedEx Courier": "Fedex",
         }
 
-    table = sesh.find.path(Paths.tracking_page["shipment_table"])
+    table = sesh.find.element(Paths.tracking_page["shipment_table"])
 
-    entries = sesh.find.allFromParent(table, Paths.tracking_page["table_entry"])
+    entries = sesh.find.all_in_parent(table, Paths.tracking_page["table_entry"])
 
     for entry in entries:
         if not check_valid_row(sesh, entry):
             continue
 
-        data = sesh.find.allFromParent(entry, Paths.tracking_page["table_data"])
+        data = sesh.find.all_in_parent(entry, Paths.tracking_page["table_data"])
         carrier, tracking_num, date, status = parse_entry_data(sesh, data)
         carrier = carrier_name_converter[carrier]
 
@@ -131,13 +134,13 @@ def read_table_into_dict(sesh: WebDriverSession, info):
 def parse_entry_data(sesh: WebDriverSession, row):
     carrier = get_carrier_name(sesh, row[tracking_table_index["carrier"]])
 
-    tracking_num = sesh.read.textFromElement(row[tracking_table_index["tracking_num"]])
+    tracking_num = sesh.read.element_text(row[tracking_table_index["tracking_num"]])
     # this text has 2 parts to it (tracking number and some other random text after a '\n')
     tracking_num = tracking_num.split("\n")[0]
 
-    status = sesh.read.textFromElement(row[tracking_table_index["status"]])
+    status = sesh.read.element_text(row[tracking_table_index["status"]])
 
-    date = sesh.read.textFromElement(row[tracking_table_index["date"]])
+    date = sesh.read.element_text(row[tracking_table_index["date"]])
 
     return carrier, tracking_num, date, status
 
@@ -145,14 +148,14 @@ def parse_entry_data(sesh: WebDriverSession, row):
 def get_carrier_name(sesh: WebDriverSession, carrier_entry_elm):
     # first div child -> first img child -> "alt" attribute
 
-    div_child = sesh.find.fromParent(carrier_entry_elm, Paths.div)
-    img_child = sesh.find.fromParent(div_child, Paths.img)
+    div_child = sesh.find.element_in_parent(carrier_entry_elm, Paths.div)
+    img_child = sesh.find.element_in_parent(div_child, Paths.img)
 
-    return sesh.read.attributeFromElement(img_child, "alt")
+    return sesh.read.element_attribute(img_child, "alt")
 
 def check_valid_row(sesh: WebDriverSession, row):
     # website uses a new entry for putting in the "watched shipment" visual
-    if "Watched Shipment" in sesh.read.textFromElement(row):
+    if "Watched Shipment" in sesh.read.element_text(row):
         return False
     return True
 
