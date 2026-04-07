@@ -1,5 +1,6 @@
 from core.track import result
-from core.driver import WebDriverSession, ELEMENT_TYPES
+from core.driver.driver import WebDriverSession
+from core.driver.locator import Locator, ElementTypes
 from core.log import getLogger
 from core.track import result
 
@@ -9,138 +10,182 @@ from time import sleep
 
 logger = getLogger(__name__)
 
-paths = {
-    "get_email_notif": (ELEMENT_TYPES["css"], ".trackEmail"),
-    "buttons": (ELEMENT_TYPES["css"], ".button"),
-    "email_input": (ELEMENT_TYPES["id"], "emailAddressInput"),
-    "add_email_btn": (ELEMENT_TYPES["css"], ".add"),
-    "add_email_blocked": (ELEMENT_TYPES["css"], ".disabled"),
-    "submit_btn": (ELEMENT_TYPES["id"], "submitButton"),
-    "dialog_type_1": (ELEMENT_TYPES["tag"], "track-email-dialog"),
-    "dialog_type_2": (ELEMENT_TYPES["tag"], "add-emails-dialog"),
-    "error_msg": (ELEMENT_TYPES["id"], "errorModal"),
+locators = {
+    "get_email_notif": Locator(ElementTypes.css, ".trackEmail"),
+    "buttons": Locator(ElementTypes.css, ".button"),
+    "email_input": Locator(ElementTypes.id, "emailAddressInput"),
+    "add_email_btn": Locator(ElementTypes.css, ".add"),
+    "add_email_blocked": Locator(ElementTypes.css, ".disabled"),
+    "submit_btn": Locator(ElementTypes.id, "submitButton"),
+    "dialog_type_1": Locator(ElementTypes.tag, "track-email-dialog"),
+    "dialog_type_2": Locator(ElementTypes.tag, "add-emails-dialog"),
+    "error_msg": Locator(ElementTypes.id, "errorModal"),
 }
 
-
-def executeScript(sesh: WebDriverSession, tracking_num):
+def executeScript(wds: WebDriverSession, tracking_num):
     r = result(result.FAIL, carrier="Canada Post", tracking_number=tracking_num)
+    check = StateCheck(wds)
+    dialog = DialogHandler(wds)
     link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(
         tracking_num
     )
-    sesh.get(link)
-    
-    if check_for_error_msg(sesh):
-        error_box = sesh.find.path(paths['error_msg'])
-        okay_button_elm = sesh.find.buttons_within(error_box, filter="OK")[0]
-        sesh.click.element(okay_button_elm)
-        sleep(1)
-        if check_for_error_msg(sesh):
-            r.set_reason("Error message (likely bot detection)")
-            return r
-    
-    if not canGetNotifications(sesh):
-        r.set_reason("Notification button not found (likely already delivered)")
+
+    wds.nav.get(link)
+
+    if (check.full_block()):
+        r.set_reason("Error message (likely bot detection)")
         return r
 
-    sesh.click.path(paths["get_email_notif"])
+    if (check.is_delivered()):
+        r.set_reason("Package already delivered")
+        return r
+    
+    if (not check.can_get_notifications()):
+        r.set_reason("Notification button not found")
+        return r
 
-    wait_dialog_load(sesh)
-    dialog_txt = getDialogText(sesh)
+    wds.click.element(locators["get_email_notif"])
 
-    if "reached the maximum" in dialog_txt:
+    while (not check.dialog_is_loaded()):
+        sleep(0.5)
+
+    if (check.max_emails_reached()):
         r.set_reason("Maximum emails reached [DNR]")
         return r
 
-    if "You can add or remove email addresses" in dialog_txt:
-        passDialog1(sesh)
-        wait_dialog_load(sesh)
+    if (check.add_emails_dialog()):
+        add_button = wds.find.buttons_within(dialog.get_current_dialog_element(), filter="Add")[0]
+        wds.click.element(add_button)
+        while (not check.dialog_is_loaded()):
+            sleep(0.5)
 
-    email_inputs = sesh.find.all(paths["email_input"])
-    if len(email_inputs) == 1:
-        if not canAddEmails(sesh):
-            r.set_reason("Maximum emails reached [DNR]")
-            return r
-        sesh.click.path(paths["add_email_btn"])
+    if (check.add_emails_button_blocked()):
+        r.set_reason("3 or more emails already added [DNR]")
+        return r
 
-    email_inputs = sesh.find.all(paths["email_input"])
-    if sesh.read.textFromElement(email_inputs[0]) != "":
+    wds.click.element(locators["add_email_btn"])
+
+    email_inputs = wds.find.all(locators["email_input"])
+    if wds.read.element_text(email_inputs[0]) != "":
         r.set_reason("Email field already filled [DNR]")
         return r
 
-    sesh.input.element(email_inputs[0], getenv("CANADAPOST_EMAIL1"))
-    sesh.input.element(email_inputs[1], getenv("CANADAPOST_EMAIL2"))
+    wds.input.element(email_inputs[0], getenv("CANADAPOST_EMAIL1"))
+    wds.input.element(email_inputs[1], getenv("CANADAPOST_EMAIL2"))
 
-    sesh.click.path(paths["submit_btn"])
+    wds.click.element(locators["submit_btn"])
 
-    wait_dialog_load(sesh)
+    while (not check.dialog_is_loaded()):
+        sleep(0.5)
 
-    ok_btn = get_ok_button(sesh)
-    sesh.click.element(ok_btn)
+    ok_button = wds.find.buttons_within(dialog.get_current_dialog_element(), filter="Okay")[0]
+    wds.click.element(ok_button)
     
     r.set_result(result.SUCCESS)
     return r
 
 
-def getDialogText(sesh: WebDriverSession):
-    dialog_element = sesh.find.path(paths["dialog_type_2"], wait=1)
+def getDialogText(wds: WebDriverSession):
+    dialog_element = wds.find.element(locators["dialog_type_2"], wait=1)
     if dialog_element is None:
-        dialog_element = sesh.find.path(paths["dialog_type_1"])
+        dialog_element = wds.find.element(locators["dialog_type_1"])
 
     assert dialog_element is not None
 
     try:
-        txt = sesh.read.textFromElement(dialog_element)
+        txt = wds.read.element_text(dialog_element)
     except StaleElementReferenceException:
         # for cases where the dialog element changes between me finding and reading it.
-        txt = getDialogText(sesh)
+        txt = getDialogText(wds)
 
     return txt
 
-
-def wait_dialog_load(sesh: WebDriverSession):
-    txt = getDialogText(sesh)
-    while "Get email notifications" not in txt:
-        txt = getDialogText(sesh)
-    return
-
-
-def passDialog1(sesh: WebDriverSession):
-    wait_dialog_load(sesh)
-    btns = sesh.filter.byText(sesh.find.all(paths["buttons"]), "Add")
-
-    assert len(btns) == 1
-    sesh.click.element(btns[0])
-
-
-def emailInputCountCheck(sesh: WebDriverSession):
-    input_elmnts = sesh.find.all(paths["email_input"])
+def emailInputCountCheck(wds: WebDriverSession):
+    input_elmnts = wds.find.all(locators["email_input"])
     return len(input_elmnts) > 2
 
 
-def canGetNotifications(sesh: WebDriverSession):
-    get_notif_btn = sesh.find.path(paths["get_email_notif"], wait=3)
-    if get_notif_btn is None:
-        return False
-    return True
-
-
-def check_for_error_msg(sesh: WebDriverSession):
-    error_modal_elm = sesh.find.path(paths['error_msg'])
-    return error_modal_elm.is_displayed()
-
-
-def canAddEmails(sesh: WebDriverSession):
-    dialog = sesh.find.path(paths["dialog_type_2"])  # will only check this in dialog 2
-    add_blocked = sesh.find.fromParent(dialog, paths["add_email_blocked"], wait=1)
+def canAddEmails(wds: WebDriverSession):
+    dialog = wds.find.element(locators["dialog_type_2"])  # will only check this in dialog 2
+    add_blocked = wds.find.element_in_parent(dialog, locators["add_email_blocked"], wait=1)
 
     # element exists = cannot add new emails
     return False if add_blocked else True
 
 
-def get_ok_button(sesh: WebDriverSession):
-    dialog = sesh.find.path(paths["dialog_type_1"])
+def get_ok_button(wds: WebDriverSession):
+    dialog = wds.find.element(locators["dialog_type_1"])
+    if (dialog):
+        ok_btn_lst = wds.find.buttons_within(dialog, filter="OK")
+        return ok_btn_lst[0]
+    return None
 
-    assert dialog is not None
-    ok_btn_lst = sesh.find.buttons_within(dialog, filter="OK")
+class DialogHandler:
+    def __init__(self, wds):
+        self.wds = wds
+        self.driver = wds.driver 
 
-    return ok_btn_lst[0]
+    def get_current_dialog_element(self):
+        dialog_element = None
+        if (self.wds.wait.element_located(locators["dialog_type_2"], wait=2)):
+            dialog_element = self.wds.find.element(locators["dialog_type_2"])
+        else:
+            dialog_element = self.wds.find.element(locators["dialog_type_1"])
+
+        return dialog_element
+
+
+    def get_text(self):
+        txt = ''
+        dialog_element = self.get_current_dialog_element()
+ 
+        if (dialog_element):
+            txt = self.wds.read.element_text(dialog_element)
+
+        return txt
+        
+
+class StateCheck:
+    def __init__(self, wds):
+        self.wds = wds 
+        self.driver = wds.driver 
+        self.dialog = DialogHandler(wds)
+
+    def full_block(self):
+        full_block_modal = self.wds.find.element(locators['error_msg'])
+        if (full_block_modal):
+            if full_block_modal.is_displayed():
+                error_box = self.wds.find.element(locators['error_msg'])
+                okay_button = self.wds.find.buttons_within(error_box, filter="OK")[0]
+                self.wds.click.element(okay_button)
+                sleep(2)
+            
+                if self.wds.find.element(locators['error_msg']):
+                    return 0
+        return 1
+
+    def can_get_notifications(self):
+        return self.wds.wait.element_located(locators["get_email_notif"], wait = 3)
+
+    def dialog_is_loaded(self):
+        return "Get email notifications" in self.dialog.get_text()
+
+    def is_delivered(self):
+        # WIP
+        return 0
+
+    def max_emails_reached(self):
+        if "reached the maximum" in self.dialog.get_text():
+            return 1 
+        return 0
+    
+    def add_emails_dialog(self):
+        if "You can add or removed email addresses" in self.dialog.get_text():
+            return 1
+        return 0
+
+    def add_emails_button_blocked(self):
+        dialog = self.dialog.get_current_dialog_element()
+        blocked = self.wds.find.element_in_parent(dialog, locators["add_email_blocked"], wait=1)
+
+        return 1 if blocked else 0
