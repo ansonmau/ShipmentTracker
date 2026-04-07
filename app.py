@@ -43,12 +43,12 @@ logger = getLogger(__name__)
 init_pass = True
 
 def run(worker):
+    from main import VERSION
+    logger.info("Shipment Tracker v{}".format(VERSION))
+
     Worker().set_worker(worker)
     initialize.run()
     cleanup.clearDLFolder()
-
-    from main import VERSION
-    logger.info("Shipment Tracker v{}".format(VERSION))
 
     if not init_pass:
         logger.critical("Initialization failed. Please review.")
