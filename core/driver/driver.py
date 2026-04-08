@@ -1,3 +1,4 @@
+import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import SessionNotCreatedException
@@ -27,16 +28,16 @@ class WebDriverSession:
         self.default_wait_time = 10
         self.undetected = False 
 
-        self.nav = Nav(self)
-        self.find = Find(self)
-        self.click = Click(self)
-        self.wait = Wait(self)
-        self.input = Input(self)
-        self.filter = Filter(self)
-        self.read = Read(self)
-        self.tabControl = TabControl(self)
-        self.select = Select(self)
-        self.misc = Misc(self)
+        self.nav = None
+        self.find = None
+        self.click = None
+        self.wait = None
+        self.input = None
+        self.filter = None
+        self.read = None
+        self.tabControl = None
+        self.select = None
+        self.misc = None
          
     def __del__(self):
         self.driver.quit()
@@ -59,10 +60,23 @@ class WebDriverSession:
         except SessionNotCreatedException as e:
             if e.msg:
                 if "this version of chromedriver only supports" in e.msg.lower():
-                    logger.critical("Chrome outdated. Please update.")
+                    current_version, expected_version = self.__get_versions_from_error_msg(e.msg)
+
+                    logger.critical("Chrome outdated.\nYour version: {}\nRequired version: {}".format(current_version, expected_version))
                 else:
-                    logger.critical("Unknwon webdriver error:\n{}".format(e.msg))
+                    logger.critical("Unknown webdriver error:\n{}".format(e.msg))
                 return False
+
+        self.nav = Nav(self)
+        self.find = Find(self)
+        self.click = Click(self)
+        self.wait = Wait(self)
+        self.input = Input(self)
+        self.filter = Filter(self)
+        self.read = Read(self)
+        self.tabControl = TabControl(self)
+        self.select = Select(self)
+        self.misc = Misc(self)
 
         return True
 
@@ -86,3 +100,23 @@ class WebDriverSession:
 
         return options
 
+    def __get_versions_from_error_msg(self, msg):
+        """
+        returns tuple (current_version, expected_version)
+        """
+
+        current_version = "0.0.0.0"
+        expected_version = "000"
+
+        current_version_pattern = r"Current browser version is (\d+\.\d+\.\d+\.\d+);"
+        expected_version_pattern = r"This version of ChromeDriver only supports Chrome version (\d+)\n"
+
+        m = re.search(current_version_pattern, e.msg)
+        if (m):
+            current_version = m.group(1)
+
+        m = re.search(expected_version_pattern, e.msg)
+        if (m):
+            expected_version = m.group(1)
+
+        return (current_version, expected_version)
