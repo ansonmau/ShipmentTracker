@@ -34,10 +34,11 @@ def scrape(wds: WebDriverSession):
         "Fedex": [],
     }
     
-    login(wds)
+    if (not login(wds)):
+        logger.error("Failed to log in to EMS")
+        return data;
 
-    shipment_page_url = "https://emarketplaceservices.com/shipments"
-    wds.nav.get(shipment_page_url)
+    wds.nav.get("https://emarketplaceservices.com/shipments")
 
     s_from_date, s_today = get_filter_dates(settings.settings["day_diff"])
     from_date_input, to_date_input = get_filter_inputs(wds)
@@ -50,7 +51,7 @@ def scrape(wds: WebDriverSession):
     wds.select.by_value(table_length_selector, '100')
 
     logger.info("Waiting for table to update...")    
-    sleep(3) # takes a second to update    
+    sleep(5) # takes a second to update    
     logger.info("Reading table...")
 
     next_page = True
@@ -69,11 +70,18 @@ def scrape(wds: WebDriverSession):
 def login(wds: WebDriverSession):
     login_url = "https://emarketplaceservices.com/login"
     wds.nav.get(login_url)
-    
-    wds.input.by_locator(Paths.login["username"], getenv("EMS_USER"))
-    wds.input.by_locator(Paths.login["password"], getenv("EMS_PW"))
 
-    wds.click.by_locator(Paths.login["login_btn"])
+    username_field = wds.find.element(Paths.login["username"])
+    password_field = wds.find.element(Paths.login["password"])
+    login_btn = wds.find.element(Paths.login["login_btn"])
+
+    if ((not username_field) or (not password_field)):
+        return 0
+    
+    wds.input.element(username_field, getenv("EMS_USER"))
+    wds.input.element(password_field, getenv("EMS_PW"))
+    wds.click.element(login_btn)
+    return 1
     
 def get_filter_dates(day_diff=3):
     date_format = "%m/%d/%Y"
