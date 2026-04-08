@@ -12,9 +12,9 @@ class Locator:
         self.element_locator = element_locator
 
     def get_type(self):
-        return 
+        return self.element_type
 
     def get_locator(self):
-        return 
+        return  self.element_locator
 
 
