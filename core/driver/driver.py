@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 import undetected_chromedriver as uc
 
 from core.log import getLogger
-from core.utils import PROJ_FOLDER
+from core.utils import ROOT
 
 from core.driver.nav import Nav
 from core.driver.find import Find
@@ -81,7 +81,7 @@ class WebDriverSession:
         return True
 
     def _getOptions(self):
-        downloadPath = str((PROJ_FOLDER / 'data' / 'dls').resolve())
+        downloadPath = str((ROOT / 'data' / 'dls').resolve())
 
         # set options for downloading
         prefs = {

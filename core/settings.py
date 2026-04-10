@@ -30,8 +30,9 @@ class Settings:
 
     @staticmethod
     def load_from_file() -> None:
-        with open(Settings.file_path, 'r') as f:
-            Settings.settings.update(json.load(f))
+        if (Settings.file_exists()):
+            with open(Settings.file_path, 'r') as f:
+                Settings.settings.update(json.load(f))
 
     @staticmethod
     def file_exists() -> bool:

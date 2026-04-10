@@ -4,15 +4,13 @@ from PySide6.QtWidgets import (
     QCheckBox, QGroupBox, QHBoxLayout
 )
 
-import core.settings as settings
+from core.settings import Settings
 
 class SettingsWidget(QWidget):
     def __init__(self):
         super().__init__()
-        if settings.check_settings_exists():
-            settings.load_settings()
-
-        self.settings = settings.settings
+        if Settings.file_exists():
+            Settings.load_from_file()
 
         overall_layout = QVBoxLayout()
 
@@ -109,44 +107,41 @@ class SettingsWidget(QWidget):
             self.cb_debug.setChecked(val)
 
     def load_settings_to_ui(self):
-        if settings.check_settings_exists():
-            self.cb_eshipper.setChecked(self.settings['scrape']['eshipper'])
-            self.cb_ems.setChecked(self.settings['scrape']['ems'])
-            self.cb_freightcom.setChecked(self.settings['scrape']['freightcom'])
+        if Settings.file_exists():
+            self.cb_eshipper.setChecked(Settings.get_settings()['scrape']['eshipper'])
+            self.cb_ems.setChecked(Settings.get_settings()['scrape']['ems'])
+            self.cb_freightcom.setChecked(Settings.get_settings()['scrape']['freightcom'])
 
-            self.cb_canadapost.setChecked(self.settings['track']['canada post'])
-            self.cb_purolator.setChecked(self.settings['track']['purolator'])
-            self.cb_ups.setChecked(self.settings['track']['ups'])
-            self.cb_canpar.setChecked(self.settings['track']['canpar'])
-            self.cb_fedex.setChecked(self.settings['track']['fedex'])
+            self.cb_canadapost.setChecked(Settings.get_settings()['track']['canada post'])
+            self.cb_purolator.setChecked(Settings.get_settings()['track']['purolator'])
+            self.cb_ups.setChecked(Settings.get_settings()['track']['ups'])
+            self.cb_canpar.setChecked(Settings.get_settings()['track']['canpar'])
+            self.cb_fedex.setChecked(Settings.get_settings()['track']['fedex'])
 
-            self.cb_reuse_data.setChecked(self.settings['reuse_data'])
-            self.cb_ignore_old.setChecked(self.settings['ignore_old'])
-            self.sb_day_diff.setValue(self.settings['day_diff'])
-            self.cb_debug.setChecked(self.settings['debug'])
+            self.cb_reuse_data.setChecked(Settings.get_settings()['reuse_data'])
+            self.cb_ignore_old.setChecked(Settings.get_settings()['ignore_old'])
+            self.sb_day_diff.setValue(Settings.get_settings()['day_diff'])
+            self.cb_debug.setChecked(Settings.get_settings()['debug'])
         else:
             self.set_normal_settings_to(False, all=True)
 
     def save_settings_to_file(self):
-        self.settings['scrape']['eshipper'] = self.cb_eshipper.isChecked()
-        self.settings['scrape']['ems'] = self.cb_ems.isChecked()
-        self.settings['scrape']['freightcom'] = self.cb_freightcom.isChecked()  
+        Settings.get_settings()['scrape']['eshipper'] = self.cb_eshipper.isChecked()
+        Settings.get_settings()['scrape']['ems'] = self.cb_ems.isChecked()
+        Settings.get_settings()['scrape']['freightcom'] = self.cb_freightcom.isChecked()  
 
-        self.settings['track']['canada post'] = self.cb_canadapost.isChecked()
-        self.settings['track']['purolator'] = self.cb_purolator.isChecked()   
-        self.settings['track']['ups'] = self.cb_ups.isChecked() 
-        self.settings['track']['canpar'] = self.cb_canpar.isChecked()
-        self.settings['track']['fedex'] = self.cb_fedex.isChecked()
+        Settings.get_settings()['track']['canada post'] = self.cb_canadapost.isChecked()
+        Settings.get_settings()['track']['purolator'] = self.cb_purolator.isChecked()   
+        Settings.get_settings()['track']['ups'] = self.cb_ups.isChecked() 
+        Settings.get_settings()['track']['canpar'] = self.cb_canpar.isChecked()
+        Settings.get_settings()['track']['fedex'] = self.cb_fedex.isChecked()
 
-        self.settings['reuse_data'] = self.cb_reuse_data.isChecked()
-        self.settings['ignore_old'] = self.cb_ignore_old.isChecked()
-        self.settings['debug'] = self.cb_debug.isChecked()
-        self.settings['day_diff'] = self.sb_day_diff.value()
+        Settings.get_settings()['reuse_data'] = self.cb_reuse_data.isChecked()
+        Settings.get_settings()['ignore_old'] = self.cb_ignore_old.isChecked()
+        Settings.get_settings()['debug'] = self.cb_debug.isChecked()
+        Settings.get_settings()['day_diff'] = self.sb_day_diff.value()
 
-        if not settings.check_settings_exists():
-            settings.create_settings_file()
-
-        settings.write_to_settings(self.settings)
+        Settings.write_to_file()
 
     def reset_btn_clicked(self):
         self.set_normal_settings_to(False)
