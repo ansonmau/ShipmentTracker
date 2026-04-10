@@ -1,14 +1,13 @@
 import sys
 import logging
-from typing import Optional
 from PySide6.QtCore import Qt, Slot, Signal, QObject
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QApplication, QGroupBox, QMainWindow, QPushButton, QStatusBar, QVBoxLayout, QWidget, QPlainTextEdit, QHBoxLayout, QDialog,
     QLabel,
      )
-import core.settings as settings
 
+from core.settings import Settings
 from ui.settings import SettingsWidget
 from ui.run import RunWidget
 
@@ -75,7 +74,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def add_terminal_to_window(self):
-        log_level = logging.DEBUG if settings.settings['debug'] else logging.INFO
+        log_level = logging.DEBUG if Settings.get_settings()['debug'] else logging.INFO
 
         if self.has_console:
             self.log_redirector.set_level(log_level)

@@ -18,6 +18,6 @@ class Click:
 
 
     def by_locator(self, locator):
-        element = self.wds.find.path(locator)
+        element = self.wds.find.element(locator)
         self._click_element(element)
 

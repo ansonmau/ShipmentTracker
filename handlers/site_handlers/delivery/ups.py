@@ -58,7 +58,7 @@ def executeScript(wds, tracking_num):
     return r
  
 def remove_cookies_popup(wds):
-    elm_popup = wds.find.path(Locs.cookies_popup)
+    elm_popup = wds.find.element(Locs.cookies_popup)
     wds.remove_element(elm_popup)
 
 def get_options(wds):
