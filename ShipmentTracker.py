@@ -2,6 +2,7 @@ import core.driver.driver as driver
 from core.tracking.track import track
 from core.tracking.report import Report
 from core.tracking.result import Result
+from core.tracking.trackingDataHandler import TrackingDataHandler
 from core.utils import ROOT, save_tracking_data, merge_dict_lists, read_tracking_data
 from core.settings import Settings
 from core.init import Initializer
@@ -31,15 +32,8 @@ def run(worker):
 
     cleanup.empty_dl_dir()
 
-    data = {
-        'Canada Post': [],
-        'Canpar': [],
-        'Fedex': [],
-        'Purolator': [],
-        'UPS': []   
-    }
-
     report = Report()
+    tdh = TrackingDataHandler()
 
     logger.info('starting web driver...')
     wds = driver.WebDriverSession()
@@ -54,32 +48,34 @@ def run(worker):
 
     if settings['reuse_data']:
         logger.info('Importing previous data')
-        merge_dict_lists(data, read_tracking_data())
+        tdh.read_from_file()
     
     if settings['scrape']['freightcom']:
         logger.info('Searching through Freightcom for shipment information...')
-        freightcom_data = freightcom.scrape(wds, worker)
-
-        logger.debug('parsed data: {}'.format(freightcom_data))
-        merge_dict_lists(data, freightcom_data)
+        freightcom_shipments = freightcom.scrape(wds, worker)
+        logger.debug('parsed data: {}'.format(freightcom_shipments))
+        
+        for shipment in freightcom_shipments:
+            tdh.add_shipment(shipment[0], shipment[1])
 
     if settings['scrape']['ems']:
         logger.info('Searching through EMS for shipment information...')
-        ems_data = ems.scrape(wds)
+        ems_shipments = ems.scrape(wds)
+        logger.debug('parsed data: {}'.format(ems_shipments))
 
-        logger.debug('parsed data: {}'.format(ems_data))
-        merge_dict_lists(data, ems_data)
+        for shipment in ems_shipments:
+            tdh.add_shipment(shipment[0], shipment[1])
 
     if settings['scrape']['eshipper']:
         logger.info('Searching through EShipper for shipment information...')
-        eshipper.scrape(wds)
+        eshipper.download_csv(wds)
+        eshipper_shipments = eshipper_fh.parse()
+        logger.debug('parsed data: {}'.format(eshipper_shipments))
 
-        eshipper_data = eshipper_fh.parse()
+        for shipment in eshipper_shipments:
+            tdh.add_shipment(shipment[0], shipment[1])
 
-        logger.debug('parsed data: {}'.format(eshipper_data))
-        merge_dict_lists(data, eshipper_data)
-
-    if settings['ignore_old']:
+    if settings['ignore_already_tracked']:
         duplicates_found = 0
         logger.info('Searching for previously tracked shipments')
 
@@ -89,44 +85,43 @@ def run(worker):
         for result in old_reports.get_all():
             if (result.get_result() == Result.SUCCESS or "DNR" in result.get_reason()):
                 t_num = result.get_tracking_number()
-                carr = result.get_carrer()
-                if (t_num in data[carr]):
-                    logger.debug('duplicate found: {} {}'.format(carr, t_num))
+                carr = result.get_carrier()
+                if tdh.check_shipment_exists(carr, t_num):
                     duplicates_found += 1
-                    data[carr].remove(t_num)
-
+                    logger.debug('duplicate found: {} {}'.format(carr, t_num))
+                    tdh.remove_shipment(carr, t_num)
         logger.info('{} tracking numbers removed.'.format(duplicates_found))
 
     logger.info('Storing scraped data...')
-    save_tracking_data(data)
+    tdh.save_to_file()
 
     if settings['track']['canada post']:
         logger.info('Starting tracking for Canada Post shipments')
-        logger.debug('Canada Post orders: {}'.format(data['Canada Post']))
-        track(wds, 'Canada Post', data['Canada Post'], canpost.executeScript, report)
+        logger.debug('Canada Post shipments: {}'.format(tdh.get_tracking_numbers('Canada Post')))
+        track(wds, 'Canada Post', tdh.get_tracking_numbers('Canada Post'), canpost.executeScript, report)
 
     if settings['track']['ups']:
         logger.info('Starting tracking for UPS shipments')
-        logger.debug('UPS orders: {}'.format(data['UPS']))
-        track(wds, 'UPS', data['UPS'], ups.executeScript, report)
+        logger.debug('UPS shipments: {}'.format(tdh.get_tracking_numbers('UPS')))
+        track(wds, 'UPS', tdh.get_tracking_numbers('UPS'), ups.executeScript, report)
 
     if settings['track']['canpar']:
         logger.info('Starting tracking for Canpar shipments')
-        logger.debug('Canpar orders: {}'.format(data['Canpar']))
-        track(wds, 'Canpar', data['Canpar'], canpar.executeScript, report)
+        logger.debug('Canpar shipments: {}'.format(tdh.get_tracking_numbers('Canpar')))
+        track(wds, 'Canpar', tdh.get_tracking_numbers('Canpar'), canpar.executeScript, report)
 
     if settings['track']['purolator']:
         logger.info('Starting tracking for Purolator shipments')
-        logger.debug('Purolator orders: {}'.format(data['Purolator']))
-        track(wds, 'Purolator', data['Purolator'], puro.executeScript, report)
+        logger.debug('Purolator shipments: {}'.format(tdh.get_tracking_numbers('Purolator')))
+        track(wds, 'Purolator', tdh.get_tracking_numbers('Purolator'), puro.executeScript, report)
 
     if settings['track']['fedex']:
         logger.info('Starting tracking for Fedex shipments')
-        logger.debug('Fedex orders: {}'.format(data['Fedex']))
-        track(wds, 'Fedex', data['Fedex'], fdx.executeScript, report)
+        logger.debug('Fedex shipments: {}'.format(tdh.get_tracking_numbers('Fedex')))
+        track(wds, 'Fedex', tdh.get_tracking_numbers('Fedex'), fdx.executeScript, report)
 
     logger.info('Tracking complete. Saving results.')
-    report_handler.write_report(report)
+    report.save_to_file()
 
     logger.info('Successes: {}'.format(len(report.get_successes())))
     logger.info('Fails: {}'.format(len(report.get_fails())))

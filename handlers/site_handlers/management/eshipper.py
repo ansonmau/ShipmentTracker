@@ -34,7 +34,7 @@ def login(sesh):
     sesh.wait.element_located(paths["usernameText"])
 
 
-def scrape(sesh):
+def download_csv(sesh):
     login(sesh)
 
     sesh.nav.get("https://ww2.eshipper.com/customer/tracking")

@@ -1,5 +1,5 @@
 from core.driver.locator import Locator, ElementTypes
-import core.settings as settings
+from core.settings import Settings
 from core.log import getLogger
 
 from os import getenv
@@ -25,21 +25,15 @@ class Paths:
 
 
 def scrape(wds):
-    data = {
-        "UPS": [],
-        "Canpar": [],
-        "Purolator": [],
-        "Canada Post": [],
-        "Fedex": [],
-    }
-    
+    results = []
+
     if (not login(wds)):
         logger.error("Failed to log in to EMS")
-        return data
+        return results
 
     wds.nav.get("https://emarketplaceservices.com/shipments")
 
-    s_from_date, s_today = get_filter_dates(settings.settings["day_diff"])
+    s_from_date, s_today = get_filter_dates(Settings.get_settings()["day_diff"])
     from_date_input, to_date_input = get_filter_inputs(wds)
 
     wds.input.element(from_date_input, s_from_date)
@@ -60,11 +54,10 @@ def scrape(wds):
             carrier, tracking_num, status = parse_table_entry(wds, entry)
             logger.debug(f"Entry found: {carrier} | {tracking_num} | {status}")
             if carrier and tracking_num and status:
-                data[carrier].append(tracking_num)
-
+                results.append((carrier, tracking_num))
         next_page = go_next_shipment_page(wds)
 
-    return data
+    return results
 
 def login(wds):
     login_url = "https://emarketplaceservices.com/login"

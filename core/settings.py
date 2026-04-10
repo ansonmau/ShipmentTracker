@@ -5,7 +5,7 @@ class Settings:
     file_path = ROOT / 'settings.json'
 
     settings = {
-        "ignore_old": True,
+        "ignore_already_tracked": True,
         "day_diff": 3,
         "default_wait_time": 5,
         "clear_downloads": False,

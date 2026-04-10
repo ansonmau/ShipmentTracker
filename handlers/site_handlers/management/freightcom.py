@@ -39,20 +39,13 @@ def login(wds, worker):
     wds.input.by_locator(Paths.login["user_input"], getenv("FREIGHTCOM_USER"))
     wds.input.by_locator(Paths.login["pw_input"], getenv("FREIGHTCOM_PW"))
 
+    # user must do captcha so stop here and wait for them to confirm
     worker.pause_signal.emit()
     worker.pause_event.wait()
     worker.pause_event.clear()
 
 
 def scrape(wds, worker):
-    data = {
-        "UPS": [],
-        "Canpar": [],
-        "Purolator": [],
-        "Canada Post": [],
-        "Fedex": [],
-    }
-        
     login(wds, worker)
 
     wds.click.by_locator(Paths.homepage["tracking_dropdown"])
@@ -62,9 +55,8 @@ def scrape(wds, worker):
     discard_btn = get_popup_discard_btn(wds)
     wds.click.element(discard_btn)
 
-    table = TableHandler(wds, output_dict = data)
-    table.parse_table_to_dict()
-    return data
+    table = TableHandler(wds)
+    return table.parse_table()
 
 
 def get_trackingpage_btn(wds):
@@ -102,12 +94,12 @@ class TableHandler:
         "status": 7,
     }
 
-    def __init__(self, wds, output_dict):
+    def __init__(self, wds):
         self.wds = wds
         self.driver = wds.driver
-        self.output_dict = output_dict
 
-    def parse_table_to_dict(self):
+    def parse_table(self):
+        results = []
         table = self.wds.find.element(Paths.tracking_page["shipment_table"])
         entries = self.wds.find.all_in_parent(table, Paths.tracking_page["table_entry"])
 
@@ -117,22 +109,22 @@ class TableHandler:
 
             carrier, tracking_num, date, status = self._parse_row(row)
 
+            logger.info(f"Entry found: {carrier} | {tracking_num} | {date} | {status}")
+
             if not within_date_range(date):
+                logger.warning(f"entry {tracking_num} not within date range")
                 # break here since it's ordered by date.
                 break 
 
             status = status.lower()
             if ((not "ready for shipping" in status) and (not "in transit" in status)):
-                logger.debug(f"entry {tracking_num} not ready for shipping / in transit")
+                logger.warning(f"entry {tracking_num} not ready for shipping / in transit")
                 continue
 
-            logger.debug(f"Entry found: {carrier} | {tracking_num} | {date} | {status}")
-            
-            if (carrier not in self.output_dict):
-                logger.error("Failed to find matching carrier name for '{}'".format(carrier))
+            results.append((carrier, tracking_num))
 
-            self.output_dict[carrier].append(tracking_num)
-    
+        return results
+
     def _is_valid_row(self, row_element):
         if "Watched Shipment" in self.wds.read.element_text(row_element):
             return False

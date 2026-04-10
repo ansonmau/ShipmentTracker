@@ -2,25 +2,18 @@ import csv
 from datetime import datetime, timedelta
 import time
 from core.log import getLogger
-import core.settings as settings
+from core.settings import Settings
 from core.utils import ROOT
 
 logger = getLogger(__name__)
 
 def parse(file_search_time=30):
-    data = {
-        "UPS": [],
-        "Canpar": [],
-        "Purolator": [],
-        "Canada Post": [],
-        "Fedex": [],
-    }
-    
+    results = []
     file = get_downloaded_file(file_search_time)
 
     if file == None:
         logger.info("Failed to find eshipper file")
-        return data
+        return results
 
     logger.info("Eshipper file found")
     # should only be one file
@@ -29,8 +22,8 @@ def parse(file_search_time=30):
         file_dict = csv.DictReader(file)
 
         date_format = "%m/%d/%Y"
-        min_date = calc_oldest_day(settings.settings['day_diff'])
-        logger.debug("Searching from date: {}".format(min_date))
+        min_date = calc_oldest_day(Settings.get_settings()['day_diff'])
+        logger.info("Searching from date: {}".format(min_date))
 
         for entry in file_dict:
             entry_date = datetime.strptime(entry["Ship Date"], date_format)
@@ -44,9 +37,9 @@ def parse(file_search_time=30):
             tracking_num = entry["Tracking#"]
             carrier = standardize_carrier_name(entry["Carrier"])
 
-            data[carrier].append(tracking_num)
+            results.append((carrier, tracking_num))
 
-    return data
+    return results
 
 
 def calc_oldest_day(day_diff):

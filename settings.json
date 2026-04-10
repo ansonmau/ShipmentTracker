@@ -1,13 +1,13 @@
 {
-    "reuse_data": false,
-    "ignore_old": true,
+    "ignore_already_tracked": false,
     "day_diff": 5,
+    "default_wait_time": 5,
     "clear_downloads": false,
     "debug": false,
     "scrape": {
-        "eshipper": false,
-        "ems": false,
-        "freightcom": false
+        "eshipper": true,
+        "ems": true,
+        "freightcom": true
     },
     "track": {
         "canada post": false,
@@ -15,5 +15,6 @@
         "fedex": false,
         "purolator": false,
         "ups": false
-    }
+    },
+    "reuse_data": false
 }

@@ -47,7 +47,7 @@ class SettingsWidget(QWidget):
         extras_area = QGroupBox("Extras")
         extras_layout = QVBoxLayout()
 
-        self.cb_ignore_old = QCheckBox("Ignore previously tracked shipments")
+        self.cb_ignore_already_tracked = QCheckBox("Ignore already tracked shipments")
         self.cb_reuse_data = QCheckBox("Reuse previous data")
         self.cb_debug = QCheckBox("Debug Mode")
         self.label_day_diff = QLabel("Day difference:")
@@ -55,7 +55,7 @@ class SettingsWidget(QWidget):
         self.sb_day_diff.setMinimum(0)
         self.sb_day_diff.setMaximum(1000)
 
-        extras_layout.addWidget(self.cb_ignore_old)
+        extras_layout.addWidget(self.cb_ignore_already_tracked)
         extras_layout.addWidget(self.cb_reuse_data)
         extras_layout.addWidget(self.cb_debug)
         extras_layout.addWidget(self.label_day_diff)
@@ -102,7 +102,7 @@ class SettingsWidget(QWidget):
 
         if all:
             self.cb_reuse_data.setChecked(val)
-            self.cb_ignore_old.setChecked(val)
+            self.cb_ignore_already_tracked.setChecked(val)
             self.sb_day_diff.setValue(3)
             self.cb_debug.setChecked(val)
 
@@ -119,7 +119,7 @@ class SettingsWidget(QWidget):
             self.cb_fedex.setChecked(Settings.get_settings()['track']['fedex'])
 
             self.cb_reuse_data.setChecked(Settings.get_settings()['reuse_data'])
-            self.cb_ignore_old.setChecked(Settings.get_settings()['ignore_old'])
+            self.cb_ignore_already_tracked.setChecked(Settings.get_settings()['ignore_already_tracked'])
             self.sb_day_diff.setValue(Settings.get_settings()['day_diff'])
             self.cb_debug.setChecked(Settings.get_settings()['debug'])
         else:
@@ -137,7 +137,7 @@ class SettingsWidget(QWidget):
         Settings.get_settings()['track']['fedex'] = self.cb_fedex.isChecked()
 
         Settings.get_settings()['reuse_data'] = self.cb_reuse_data.isChecked()
-        Settings.get_settings()['ignore_old'] = self.cb_ignore_old.isChecked()
+        Settings.get_settings()['ignore_already_tracked'] = self.cb_ignore_already_tracked.isChecked()
         Settings.get_settings()['debug'] = self.cb_debug.isChecked()
         Settings.get_settings()['day_diff'] = self.sb_day_diff.value()
 
