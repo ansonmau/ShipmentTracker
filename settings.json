@@ -1,5 +1,5 @@
 {
-    "reuse_data": true,
+    "reuse_data": false,
     "ignore_old": true,
     "day_diff": 5,
     "clear_downloads": false,
@@ -13,7 +13,7 @@
         "canada post": false,
         "canpar": false,
         "fedex": false,
-        "purolator": true,
+        "purolator": false,
         "ups": false
     }
 }
