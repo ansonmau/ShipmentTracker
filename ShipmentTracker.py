@@ -3,7 +3,7 @@ from core.tracking.track import track
 from core.tracking.report import Report
 from core.tracking.result import Result
 from core.tracking.trackingDataHandler import TrackingDataHandler
-from core.utils import ROOT, save_tracking_data, merge_dict_lists, read_tracking_data
+from core.utils import ROOT
 from core.settings import Settings
 from core.init import Initializer
 from core.log import getLogger
