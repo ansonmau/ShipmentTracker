@@ -1,8 +1,6 @@
-from core.track import result
-from core.driver.driver import WebDriverSession
+from core.tracking.result import Result
 from core.driver.locator import Locator, ElementTypes
 from core.log import getLogger
-from core.track import result
 
 from selenium.common.exceptions import StaleElementReferenceException
 from os import getenv
@@ -22,8 +20,8 @@ locators = {
     "error_msg": Locator(ElementTypes.id, "errorModal"),
 }
 
-def executeScript(wds: WebDriverSession, tracking_num):
-    r = result(result.FAIL, carrier="Canada Post", tracking_number=tracking_num)
+def executeScript(wds, tracking_num):
+    r = Result(Result.FAIL, carrier="Canada Post", tracking_number=tracking_num)
     check = StateCheck(wds)
     dialog = DialogHandler(wds)
     link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(
@@ -81,11 +79,11 @@ def executeScript(wds: WebDriverSession, tracking_num):
     ok_button = wds.find.buttons_within(dialog.get_current_dialog_element(), filter="Okay")[0]
     wds.click.element(ok_button)
     
-    r.set_result(result.SUCCESS)
+    r.set_result(Result.SUCCESS)
     return r
 
 
-def getDialogText(wds: WebDriverSession):
+def getDialogText(wds):
     dialog_element = wds.find.element(locators["dialog_type_2"], wait=1)
     if dialog_element is None:
         dialog_element = wds.find.element(locators["dialog_type_1"])
@@ -100,12 +98,12 @@ def getDialogText(wds: WebDriverSession):
 
     return txt
 
-def emailInputCountCheck(wds: WebDriverSession):
+def emailInputCountCheck(wds):
     input_elmnts = wds.find.all(locators["email_input"])
     return len(input_elmnts) > 2
 
 
-def canAddEmails(wds: WebDriverSession):
+def canAddEmails(wds):
     dialog = wds.find.element(locators["dialog_type_2"])  # will only check this in dialog 2
     add_blocked = wds.find.element_in_parent(dialog, locators["add_email_blocked"], wait=1)
 
@@ -113,7 +111,7 @@ def canAddEmails(wds: WebDriverSession):
     return False if add_blocked else True
 
 
-def get_ok_button(wds: WebDriverSession):
+def get_ok_button(wds):
     dialog = wds.find.element(locators["dialog_type_1"])
     if (dialog):
         ok_btn_lst = wds.find.buttons_within(dialog, filter="OK")

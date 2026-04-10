@@ -1,10 +1,9 @@
 import time
 from os import getenv
 
-from core.driver.driver import WebDriverSession
 from core.driver.locator import Locator, ElementTypes
 from core.log import getLogger
-from core.track import result
+from core.tracking.result import Result
 
 logger = getLogger(__name__)
 
@@ -22,8 +21,8 @@ class Paths:
             "confirm_close_btn": Locator(ElementTypes.id, 'confirm-end-chat'),
     }
 
-def executeScript(wds: WebDriverSession, tracking_num):
-    r = result(result.FAIL, carrier="Purolator", tracking_number=tracking_num)
+def executeScript(wds, tracking_num):
+    r = Result(Result.FAIL, carrier="Purolator", tracking_number=tracking_num)
     wds.nav.get(
         "https://www.purolator.com/en/shipping/tracker?pin={}".format(tracking_num)
     )
@@ -47,7 +46,7 @@ def executeScript(wds: WebDriverSession, tracking_num):
 
     if "I can sign you up for email notifications" not in chat_handler.get_text():
         chat_handler.exit_chat()
-        r.set_result(result.RETRY)
+        r.set_result(Result.RETRY)
         return r
 
     chat_btn_name_buffer = []
@@ -96,19 +95,19 @@ def executeScript(wds: WebDriverSession, tracking_num):
 
     chat_handler.exit_chat()
     
-    r.set_result(result.SUCCESS)
+    r.set_result(Result.SUCCESS)
     return r
 
-def removeCookiesBanner(wds: WebDriverSession):
+def removeCookiesBanner(wds):
     script = (
         "document.querySelector('[aria-label=\"Cookie Consent Banner\"]')?.remove();"
     )
     wds.misc.injectJS(script)
 
-def check_is_exception(wds: WebDriverSession) -> bool:
+def check_is_exception(wds) -> bool:
     return "Exceptions" in wds.read.text(Paths.page['tracking_info'])
 
-def check_if_delivered(wds: WebDriverSession):
+def check_if_delivered(wds):
     # progress labels -> class = "active" -> text
     progress_labels = wds.find.element(Paths.page['progress_labels'])
     active_class = wds.find.element_in_parent(progress_labels, Paths.page['active_classes'])
@@ -118,7 +117,7 @@ def check_if_delivered(wds: WebDriverSession):
     return txt == "Delivered"
 
 class Chat_Handler:
-    def __init__(self, wds: WebDriverSession) -> None:
+    def __init__(self, wds) -> None:
         self.wds = wds
         self.el_chat = self.get_chat_element()
 

@@ -3,7 +3,7 @@ from core.driver.locator import Locator, ElementTypes
 
 from os import getenv
 from core.log import getLogger
-from core.track import result
+from core.tracking.result import Result
 import time
 
 logger = getLogger(__name__)
@@ -31,41 +31,41 @@ class Locs:
         "update_option_5": Locator(ElementTypes.id, "stApp_pkgUpdatesReadyPickuplbl"),
         }
 
-def executeScript(sesh: WebDriverSession, tracking_num):
-    r = result(result.FAIL, carrier="UPS", tracking_number=tracking_num)
-    sesh.nav.get("https://www.ups.com/track?trackingNumber={}".format(tracking_num))
+def executeScript(wds, tracking_num):
+    r = Result(Result.FAIL, carrier="UPS", tracking_number=tracking_num)
+    wds.nav.get("https://www.ups.com/track?trackingNumber={}".format(tracking_num))
     
-    remove_cookies_popup(sesh)
+    remove_cookies_popup(wds)
 
-    notify_btn = sesh.find.element(Locs.homepage["notify_me_btn"])
-    sesh.misc.scrollToElement(notify_btn, centered=True)
+    notify_btn = wds.find.element(Locs.homepage["notify_me_btn"])
+    wds.misc.scrollToElement(notify_btn, centered=True)
     time.sleep(1)
-    sesh.click.element(notify_btn)
+    wds.click.element(notify_btn)
 
-    sesh.click.by_locator(Locs.popup["continue_btn"])
+    wds.click.by_locator(Locs.popup["continue_btn"])
 
-    elms_options = get_options(sesh)
+    elms_options = get_options(wds)
     for elm in elms_options:
-        sesh.click.element(elm)
+        wds.click.element(elm)
 
-    sesh.input.by_locator(Locs.popup["email_input_1"], getenv("UPS_EMAIL1"))
-    sesh.input.by_locator(Locs.popup["email_input_2"], getenv("UPS_EMAIL2"))
+    wds.input.by_locator(Locs.popup["email_input_1"], getenv("UPS_EMAIL1"))
+    wds.input.by_locator(Locs.popup["email_input_2"], getenv("UPS_EMAIL2"))
 
-    sesh.click.by_locator(Locs.popup["done_btn"])
-    sesh.click.by_locator(Locs.popup["close_btn"])
+    wds.click.by_locator(Locs.popup["done_btn"])
+    wds.click.by_locator(Locs.popup["close_btn"])
 
-    r.set_result(result.SUCCESS)
+    r.set_result(Result.SUCCESS)
     return r
  
-def remove_cookies_popup(sesh):
-    elm_popup = sesh.find.path(Locs.cookies_popup)
-    sesh.remove_element(elm_popup)
+def remove_cookies_popup(wds):
+    elm_popup = wds.find.path(Locs.cookies_popup)
+    wds.remove_element(elm_popup)
 
-def get_options(sesh:WebDriverSession):
+def get_options(wds):
     opt_elm_list = []
     
     for opt_locs in Locs.popup_options.values():
-        elm_opt = sesh.find.element(opt_locs, wait=2)
+        elm_opt = wds.find.element(opt_locs, wait=2)
         if elm_opt:
             opt_elm_list.append(elm_opt)
 

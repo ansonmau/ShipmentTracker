@@ -1,52 +1,46 @@
 import json
-from core.utils import PROJ_FOLDER
+from core.utils import ROOT
 
-settings = {
-    "ignore_old": True,
-    "day_diff": 3,
-    "clear_downloads": False,
-    "debug": False,
-    "scrape": {
-            "eshipper": True,
-            "ems": True,
-            "freightcom": True,
-    },
-    "track": {
-            "canada post": True,
-            "canpar": True,
-            "fedex": True,
-            "purolator": True,
-            "ups": True,
-    },
-}
+class Settings:
+    file_path = ROOT / 'settings.json'
 
-def load_settings() -> None:
-    global settings
-    with open(PROJ_FOLDER / "settings.json", 'r') as f:
-        settings = json.load(f)
+    settings = {
+        "ignore_old": True,
+        "day_diff": 3,
+        "default_wait_time": 5,
+        "clear_downloads": False,
+        "debug": False,
+        "scrape": {
+                "eshipper": True,
+                "ems": True,
+                "freightcom": True,
+        },
+        "track": {
+                "canada post": True,
+                "canpar": True,
+                "fedex": True,
+                "purolator": True,
+                "ups": True,
+        },
+    }
 
-def check_settings_exists() -> bool:
-    from os.path import exists as file_exists
-    return file_exists(PROJ_FOLDER / "settings.json")
+    @staticmethod
+    def get_settings():
+        return Settings.settings
 
-def create_settings_file() -> None:
-    with open(PROJ_FOLDER / "settings.json", 'w') as f:
-        json.dump(settings, f, indent=4)
+    @staticmethod
+    def load_from_file() -> None:
+        with open(Settings.file_path, 'r') as f:
+            Settings.settings.update(json.load(f))
 
-def write_to_settings(d: dict):
-    assert _check_dict(d)
+    @staticmethod
+    def file_exists() -> bool:
+        from os.path import exists as file_exists
+        return file_exists(Settings.file_path)
 
-    with open(PROJ_FOLDER / "settings.json", 'w') as f:
-        json.dump(d, f, indent=4)
-
-def _check_dict(d: dict) -> bool:
-    with open(PROJ_FOLDER / "settings.json", 'r') as f:
-        settings = json.load(f)
-    
-    for key in settings:
-        if key not in d:
-            return False
-    
-    return True
+    @staticmethod
+    def write_to_file():
+        with open(Settings.file_path, 'w') as f:
+            json.dump(Settings.settings, f, indent=4)
 
 

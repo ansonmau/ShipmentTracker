@@ -1,6 +1,5 @@
-from core.driver.driver import WebDriverSession
 from core.driver.locator import Locator, ElementTypes
-from core.track import result
+from core.tracking.result import Result
 from core.log import getLogger
 
 from os import getenv
@@ -24,8 +23,8 @@ class Locs:
             "deny_btn": Locator(ElementTypes.id, "deny"),
         }
 
-def executeScript(wds: WebDriverSession, tracking_num):
-    r = result(result.FAIL, carrier="Fedex", tracking_number=tracking_num)
+def executeScript(wds, tracking_num):
+    r = Result(Result.FAIL, carrier="Fedex", tracking_number=tracking_num)
     link = "https://www.fedex.com/fedextrack/?trknbr={}".format(tracking_num)
     wds.nav.get(link)
 
@@ -38,10 +37,10 @@ def executeScript(wds: WebDriverSession, tracking_num):
         r.set_reason("Confirm dialog missing")
         return r
 
-    r.set_result(result.SUCCESS)
+    r.set_result(Result.SUCCESS)
     return r
 
-def waitForConfirm(wds: WebDriverSession, wait=0):
+def waitForConfirm(wds, wait=0):
     if (not wait):
         wait = wds.default_wait_time
     confirm_text = "Notification sent!"
@@ -55,7 +54,7 @@ def waitForConfirm(wds: WebDriverSession, wait=0):
     return False
 
 
-def removeCookiesBanner(wds: WebDriverSession):
+def removeCookiesBanner(wds):
     global denied_cookies
 
     if denied_cookies:

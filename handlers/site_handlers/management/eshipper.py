@@ -1,4 +1,3 @@
-from core.driver.driver import WebDriverSession
 from core.driver.locator import Locator, ElementTypes
 from core.log import getLogger
 
@@ -20,7 +19,7 @@ paths = {
 }
 
 
-def login(sesh: WebDriverSession):
+def login(sesh):
     sesh.nav.get("https://www.eshipper.com/")
 
     sesh.click.by_locator(paths["go_login_page_btn"])
@@ -35,7 +34,7 @@ def login(sesh: WebDriverSession):
     sesh.wait.element_located(paths["usernameText"])
 
 
-def scrape(sesh: WebDriverSession):
+def scrape(sesh):
     login(sesh)
 
     sesh.nav.get("https://ww2.eshipper.com/customer/tracking")

@@ -1,4 +1,3 @@
-from core.driver.driver import WebDriverSession
 from core.driver.locator import Locator, ElementTypes
 import core.settings as settings
 from core.log import getLogger
@@ -25,7 +24,7 @@ class Paths:
             }
 
 
-def scrape(wds: WebDriverSession):
+def scrape(wds):
     data = {
         "UPS": [],
         "Canpar": [],
@@ -36,7 +35,7 @@ def scrape(wds: WebDriverSession):
     
     if (not login(wds)):
         logger.error("Failed to log in to EMS")
-        return data;
+        return data
 
     wds.nav.get("https://emarketplaceservices.com/shipments")
 
@@ -67,7 +66,7 @@ def scrape(wds: WebDriverSession):
 
     return data
 
-def login(wds: WebDriverSession):
+def login(wds):
     login_url = "https://emarketplaceservices.com/login"
     wds.nav.get(login_url)
 
@@ -92,7 +91,7 @@ def get_filter_dates(day_diff=3):
 
     return s_from_date, s_today
 
-def get_filter_inputs(wds: WebDriverSession):
+def get_filter_inputs(wds):
     filter_div = wds.find.element(Paths.shipment_page['date_filter_div'])
     
     # find inputs within filter_div -> return individually
@@ -101,7 +100,7 @@ def get_filter_inputs(wds: WebDriverSession):
     assert len(inputs) == 2
     return inputs[0], inputs[1]
 
-def get_shipment_table_entries(wds: WebDriverSession):
+def get_shipment_table_entries(wds):
     table_entry_loc = (ElementTypes.tag, 'tr')
 
     table_elm = wds.find.element(Paths.shipment_page['shipment_table'])
@@ -109,7 +108,7 @@ def get_shipment_table_entries(wds: WebDriverSession):
 
     return table_entries
 
-def parse_table_entry(wds: WebDriverSession, entry_elm):
+def parse_table_entry(wds, entry_elm):
     index = {
             "tracking_number": 5,
             "status": 8,
@@ -133,7 +132,7 @@ def parse_table_entry(wds: WebDriverSession, entry_elm):
 
     return carrier, tracking_num, status
 
-def go_next_shipment_page(wds:WebDriverSession) -> bool:
+def go_next_shipment_page(wds) -> bool:
     next_btn = wds.find.element(Paths.shipment_page['table_next_btn'])
     
     if 'disabled' in wds.read.element_attribute(next_btn, 'class'):
@@ -143,7 +142,7 @@ def go_next_shipment_page(wds:WebDriverSession) -> bool:
     sleep(3)
     return True
 
-def _get_carrier(wds: WebDriverSession, entry_part):
+def _get_carrier(wds, entry_part):
         carriers = {
             'purolator':'Purolator',
             'ups':'UPS',

@@ -1,11 +1,9 @@
-import glob
 import csv
-import pathlib
 from datetime import datetime, timedelta
 import time
 from core.log import getLogger
 import core.settings as settings
-from core.utils import PROJ_FOLDER
+from core.utils import ROOT
 
 logger = getLogger(__name__)
 
@@ -72,9 +70,8 @@ def get_downloaded_file(search_time=30):
 
 
 def check_downloads():
-    dl_folder = PROJ_FOLDER / "dls"
+    dl_folder = ROOT / "dls"
     files = dl_folder.glob("Track*.csv")  # returns generator
-
     return list(files)
 
 def standardize_carrier_name(carrier_name):

@@ -1,7 +1,6 @@
-from core.driver.driver import WebDriverSession
 from core.driver.locator import Locator, ElementTypes
 from core.log import getLogger
-from core.track import result
+from core.tracking.result import Result
 
 import time
 from os import getenv
@@ -22,8 +21,8 @@ locators = {
     "notification_section": Locator(ElementTypes.id, "notifyContent"),
 }
 
-def executeScript(wds: WebDriverSession, tracking_num):
-    r = result(result.FAIL, carrier="Canpar", tracking_number=tracking_num)
+def executeScript(wds, tracking_num):
+    r = Result(Result.FAIL, carrier="Canpar", tracking_number=tracking_num)
 
     wds.nav.get(
         "https://www.canpar.com/en/tracking/delivery_options.htm?barcode={}".format(
@@ -45,7 +44,7 @@ def executeScript(wds: WebDriverSession, tracking_num):
         r.set_reason("Confirmation dialog failed to appear")
         return r
 
-    r.set_result(result.SUCCESS)
+    r.set_result(Result.SUCCESS)
     return r
 
 

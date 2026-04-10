@@ -1,8 +1,7 @@
-from core.driver.driver import WebDriverSession
 from core.driver.locator import Locator, ElementTypes
 
 from os import getenv
-from core.settings import settings
+from core.settings import Settings
 from core.log import getLogger
 from datetime import datetime, timedelta
 
@@ -33,10 +32,6 @@ class Paths:
 
     div = Locator(ElementTypes.tag, "div")
     img = Locator(ElementTypes.tag, "img")
-
-
-
-
 
 def login(wds, worker):
     wds.nav.get("https://www.freightcom.com")
@@ -87,7 +82,7 @@ def get_popup_discard_btn(wds):
 def within_date_range(date):
     site_date_format = "%b %d, %Y"
     check_date = datetime.strptime(date, site_date_format)
-    lower_bound = datetime.now() - timedelta(days=settings['day_diff'])
+    lower_bound = datetime.now() - timedelta(days=Settings.get_settings()['day_diff'])
 
     return check_date >= lower_bound
 
