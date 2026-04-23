@@ -4,7 +4,7 @@ from datetime import datetime
 from core.utils import ROOT
 
 class Report:
-    save_path = ROOT / "reports" / f"report.{datetime.now().strftime("%m-%d_%H-%M")}.txt"
+    save_path = ROOT / "reports" / f"{datetime.now().strftime("%m-%d_%H-%M")}.txt"
 
     def __init__(self):
         self.report = {
@@ -16,9 +16,9 @@ class Report:
     def add_result(self, result):
         if (result.result == Result.SUCCESS):
             self.report["successes"].append(result)
-        if (result.result == Result.FAIL):
+        elif (result.result == Result.FAIL):
             self.report["fails"].append(result)
-        if (result.result == Result.CRASH):
+        elif (result.result == Result.CRASH):
             self.report["crashes"].append(result)
 
     def get_report(self):
@@ -40,14 +40,14 @@ class Report:
         return all_results
         
     def save_to_file(self):
-        # file handle
         fh = open(str(Report.save_path), 'w')
         for result in self.get_all():
-            fh.write(result.to_csv())
+            line = "".join([result.to_csv(), '\n'])
+            fh.write(line)
         fh.close()
 
-    def  import_previous_reports(self):
-        for report_file in self._get_report_files():
+    def import_previous_reports(self):
+        for report_file in self._get_files():
             with open(report_file, 'r') as fh:
                 for line in fh:
                     r = Result.from_csv(line)
@@ -55,7 +55,7 @@ class Report:
                         continue
                     self.add_result(r)
 
-    def _get_report_files(self) -> list:
+    def _get_files(self) -> list:
         report_dir = ROOT / 'reports'
         report_files = [f for f in report_dir.iterdir() if f.is_file()]
 
