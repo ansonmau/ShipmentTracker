@@ -1,7 +1,7 @@
 {
-    "reuse_data": true,
-    "ignore_old": true,
+    "ignore_already_tracked": false,
     "day_diff": 5,
+    "default_wait_time": 5,
     "clear_downloads": false,
     "debug": false,
     "scrape": {
@@ -13,7 +13,8 @@
         "canada post": false,
         "canpar": false,
         "fedex": false,
-        "purolator": true,
+        "purolator": false,
         "ups": false
-    }
+    },
+    "reuse_data": false
 }

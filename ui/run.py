@@ -1,13 +1,11 @@
 import threading
 from PySide6.QtCore import QObject, Signal, Slot, QThread
-from PySide6.QtGui import QTextCursor
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QPlainTextEdit, QSizePolicy, QSpinBox, QWidget,
-    QVBoxLayout, QPushButton, QLabel, QStatusBar,
-    QCheckBox, QGroupBox, QHBoxLayout
+    QSizePolicy, QWidget,
+    QVBoxLayout, QPushButton
 )
 
-from app import run as run_main_app
+from ShipmentTracker import run as run_main_app
 
 class RunWidget(QWidget):
     def __init__(self):
@@ -51,10 +49,11 @@ class RunWidget(QWidget):
         
 
 class Worker(QObject):
-    progress = Signal(int)
     finished = Signal()
     pause_signal = Signal()
     stop_signal = Signal()
+    status_update = Signal(str, str, int, int)  # phase, item, current, total
+    result_update = Signal(int, int, int)        # success, fail, crash
 
     def __init__(self, pause_event):
         super().__init__()

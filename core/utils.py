@@ -9,7 +9,7 @@ def _get_proj_folder():
     
     return pathlib.Path(pathlib.Path(__file__).resolve().parent.parent)
 
-PROJ_FOLDER = _get_proj_folder()
+ROOT = _get_proj_folder()
 
 def merge_dict_lists(dict_1, dict_2):
     for key in dict_2:
@@ -20,12 +20,12 @@ def merge_dict_lists(dict_1, dict_2):
                 dict_1[key].append(val)
 
 def save_tracking_data(data: dict, file_name="tracking_data") -> None:
-    file_path = PROJ_FOLDER / "data" / f"{file_name}.json"
+    file_path = ROOT / "data" / f"{file_name}.json"
     with open(file_path, 'w') as f:
         json.dump(data, f, indent=4)
 
 def read_tracking_data(file_name="tracking_data") -> dict:
-    file_path = PROJ_FOLDER / "data" / f"{file_name}.json"
+    file_path = ROOT / "data" / f"{file_name}.json"
     with open(file_path, 'r') as f:
         data = json.load(f)
     return data
@@ -46,7 +46,7 @@ def generate_tracking_link(carrier, tracking_num) -> str:
 
 def create_folder(name):
     from os import makedirs
-    folder = PROJ_FOLDER / name
+    folder = ROOT / name
     makedirs(folder, exist_ok=True)
 
 def create_file(dir: pathlib.Path | str, name: str | None = None):
@@ -54,4 +54,8 @@ def create_file(dir: pathlib.Path | str, name: str | None = None):
 
     full_path = dir if name is None else dir / name
     full_path.touch()
+
+def empty_folder(folder_path) -> None:
+    for file in folder_path.iterdir():
+        file.unlink()
 

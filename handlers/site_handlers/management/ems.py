@@ -1,78 +1,79 @@
-from core.driver import WebDriverSession, ELEMENT_TYPES
-from os import getenv
+from core.driver.locator import Locator, ElementTypes
+from core.settings import Settings
 from core.log import getLogger
-from time import sleep
-import core.settings as settings
 
+from os import getenv
+from time import sleep
 from datetime import datetime, timedelta
 
 logger = getLogger(__name__)
 
 class Paths:
     login = {
-            "username": (ELEMENT_TYPES['id'], 'email'),
-            "password": (ELEMENT_TYPES['css'], '[name="password"]'),
-            "login_btn": (ELEMENT_TYPES['id'], 'doSubmit'),
+            "username": Locator(ElementTypes.id, 'email'),
+            "password": Locator(ElementTypes.css, '[name="password"]'),
+            "login_btn": Locator(ElementTypes.id, 'doSubmit'),
             }
 
     shipment_page = {
-            "shipment_table": (ELEMENT_TYPES['id'], 'shipmentTable'),
-            "date_filter_div": (ELEMENT_TYPES['css'], '.input-daterange'),
-            "filter_search": (ELEMENT_TYPES['id'], 'm_search'),
-            "table_length_selector": (ELEMENT_TYPES['css'], '[name="shipmentTable_length"]'),
-            "table_next_btn": (ELEMENT_TYPES['id'], 'shipmentTable_next')
+            "shipment_table": Locator(ElementTypes.id, 'shipmentTable'),
+            "date_filter_div": Locator(ElementTypes.css, '.input-daterange'),
+            "filter_search": Locator(ElementTypes.id, 'm_search'),
+            "table_length_selector": Locator(ElementTypes.css, '[name="shipmentTable_length"]'),
+            "table_next_btn": Locator(ElementTypes.id, 'shipmentTable_next')
             }
 
 
-def scrape(sesh: WebDriverSession):
-    data = {
-        "UPS": [],
-        "Canpar": [],
-        "Purolator": [],
-        "Canada Post": [],
-        "Fedex": [],
-    }
-    
-    login(sesh)
+def scrape(wds):
+    results = []
 
-    shipment_page_url = "https://emarketplaceservices.com/shipments"
-    sesh.get(shipment_page_url)
+    if (not login(wds)):
+        logger.error("Failed to log in to EMS")
+        return results
 
-    s_from_date, s_today = get_filter_dates(settings.settings["day_diff"])
-    from_date_input, to_date_input = get_filter_inputs(sesh)
+    wds.nav.get("https://emarketplaceservices.com/shipments")
 
-    sesh.input.element(from_date_input, s_from_date)
-    sesh.input.element(to_date_input, s_today)
-    sesh.click.path(Paths.shipment_page['filter_search'])
+    s_from_date, s_today = get_filter_dates(Settings.get_settings()["day_diff"])
+    from_date_input, to_date_input = get_filter_inputs(wds)
 
-    table_length_selector = sesh.find.select_list(Paths.shipment_page['table_length_selector'])
-    sesh.select.by_value(table_length_selector, '100')
+    wds.input.element(from_date_input, s_from_date)
+    wds.input.element(to_date_input, s_today)
+    wds.click.by_locator(Paths.shipment_page['filter_search'])
+
+    table_length_selector = wds.find.select_list(Paths.shipment_page['table_length_selector'])
+    wds.select.by_value(table_length_selector, '100')
 
     logger.info("Waiting for table to update...")    
-    sleep(3) # takes a second to update    
+    sleep(5) # takes a second to update    
     logger.info("Reading table...")
 
     next_page = True
     while next_page:
-        table_entries = get_shipment_table_entries(sesh)
+        table_entries = get_shipment_table_entries(wds)
         for entry in table_entries:
-            carrier, tracking_num, status = parse_table_entry(sesh, entry)
+            carrier, tracking_num, status = parse_table_entry(wds, entry)
             logger.debug(f"Entry found: {carrier} | {tracking_num} | {status}")
             if carrier and tracking_num and status:
-                data[carrier].append(tracking_num)
+                results.append((carrier, tracking_num))
+        next_page = go_next_shipment_page(wds)
 
-        next_page = go_next_shipment_page(sesh)
+    return results
 
-    return data
-
-def login(sesh: WebDriverSession):
+def login(wds):
     login_url = "https://emarketplaceservices.com/login"
-    sesh.get(login_url)
-    
-    sesh.input.path(Paths.login["username"], getenv("EMS_USER"))
-    sesh.input.path(Paths.login["password"], getenv("EMS_PW"))
+    wds.nav.get(login_url)
 
-    sesh.click.path(Paths.login["login_btn"])
+    username_field = wds.find.element(Paths.login["username"])
+    password_field = wds.find.element(Paths.login["password"])
+    login_btn = wds.find.element(Paths.login["login_btn"])
+
+    if ((not username_field) or (not password_field)):
+        return 0
+    
+    wds.input.element(username_field, getenv("EMS_USER"))
+    wds.input.element(password_field, getenv("EMS_PW"))
+    wds.click.element(login_btn)
+    return 1
     
 def get_filter_dates(day_diff=3):
     date_format = "%m/%d/%Y"
@@ -83,24 +84,24 @@ def get_filter_dates(day_diff=3):
 
     return s_from_date, s_today
 
-def get_filter_inputs(sesh: WebDriverSession):
-    filter_div = sesh.find.path(Paths.shipment_page['date_filter_div'])
+def get_filter_inputs(wds):
+    filter_div = wds.find.element(Paths.shipment_page['date_filter_div'])
     
     # find inputs within filter_div -> return individually
-    inputs = sesh.find.inputs_within(filter_div)
+    inputs = wds.find.inputs_within(filter_div)
     
     assert len(inputs) == 2
     return inputs[0], inputs[1]
 
-def get_shipment_table_entries(sesh: WebDriverSession):
-    table_entry_loc = (ELEMENT_TYPES['tag'], 'tr')
+def get_shipment_table_entries(wds):
+    table_entry_loc = (ElementTypes.tag, 'tr')
 
-    table_elm = sesh.find.path(Paths.shipment_page['shipment_table'])
-    table_entries = sesh.find.allFromParent(table_elm, table_entry_loc)
+    table_elm = wds.find.element(Paths.shipment_page['shipment_table'])
+    table_entries = wds.find.all_in_parent(table_elm, table_entry_loc)
 
     return table_entries
 
-def parse_table_entry(sesh: WebDriverSession, entry_elm):
+def parse_table_entry(wds, entry_elm):
     index = {
             "tracking_number": 5,
             "status": 8,
@@ -110,31 +111,31 @@ def parse_table_entry(sesh: WebDriverSession, entry_elm):
     carrier = ''
     status = ''
 
-    entry_part_loc = (ELEMENT_TYPES['tag'], 'td')
-    entry_parts = sesh.find.allFromParent(entry_elm, entry_part_loc)
+    entry_part_loc = (ElementTypes.tag, 'td')
+    entry_parts = wds.find.all_in_parent(entry_elm, entry_part_loc)
 
     if entry_parts:
-        tracking_num = sesh.read.textFromElement(entry_parts[index['tracking_number']])
+        tracking_num = wds.read.element_text(entry_parts[index['tracking_number']])
         # get text up until first \n (rest is customer info)
         tracking_num = tracking_num.split('\n')[0]
         
-        carrier = _get_carrier(sesh, entry_parts[index['tracking_number']])
+        carrier = _get_carrier(wds, entry_parts[index['tracking_number']])
 
-        status = sesh.read.textFromElement(entry_parts[index['status']])
+        status = wds.read.element_text(entry_parts[index['status']])
 
     return carrier, tracking_num, status
 
-def go_next_shipment_page(sesh:WebDriverSession) -> bool:
-    next_btn = sesh.find.path(Paths.shipment_page['table_next_btn'])
+def go_next_shipment_page(wds) -> bool:
+    next_btn = wds.find.element(Paths.shipment_page['table_next_btn'])
     
-    if 'disabled' in sesh.read.attributeFromElement(next_btn, 'class'):
+    if 'disabled' in wds.read.element_attribute(next_btn, 'class'):
         return False
     
-    sesh.click.element(next_btn)
+    wds.click.element(next_btn)
     sleep(3)
     return True
 
-def _get_carrier(sesh: WebDriverSession, entry_part):
+def _get_carrier(wds, entry_part):
         carriers = {
             'purolator':'Purolator',
             'ups':'UPS',
@@ -143,8 +144,8 @@ def _get_carrier(sesh: WebDriverSession, entry_part):
             'canpar':'Canpar',
         }
 
-        carrier_link_elm = sesh.find.links_within(entry_part)[0]
-        carrier_link = sesh.read.attributeFromElement(carrier_link_elm, 'href')
+        carrier_link_elm = wds.find.links_within(entry_part)[0]
+        carrier_link = wds.read.element_attribute(carrier_link_elm, 'href')
         for c in carriers:
             if c in carrier_link:
                 return carriers[c]

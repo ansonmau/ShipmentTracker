@@ -1,22 +1,23 @@
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QSpinBox, QWidget,
-    QVBoxLayout, QPushButton, QLabel, QStatusBar,
+    QSpinBox, QWidget,
+    QVBoxLayout, QPushButton, QLabel,
     QCheckBox, QGroupBox, QHBoxLayout
 )
 
-import core.settings as settings
+from core.settings import Settings
 
 class SettingsWidget(QWidget):
+    checkboxes = {}
+    labels = {}
+
     def __init__(self):
         super().__init__()
-        if settings.check_settings_exists():
-            settings.load_settings()
-
-        self.settings = settings.settings
+        if Settings.file_exists():
+            Settings.load_from_file()
 
         overall_layout = QVBoxLayout()
 
-        scrape_area = QGroupBox("Sources")
+        scrape_container = QGroupBox("Sources")
         scrape_layout = QVBoxLayout()
 
         self.cb_eshipper = QCheckBox("Eshipper")
@@ -27,9 +28,9 @@ class SettingsWidget(QWidget):
         scrape_layout.addWidget(self.cb_ems)
         scrape_layout.addWidget(self.cb_freightcom)
 
-        scrape_area.setLayout(scrape_layout)
+        scrape_container.setLayout(scrape_layout)
 
-        carrier_area = QGroupBox("Carriers")
+        carrier_container = QGroupBox("Carriers")
         carrier_layout = QVBoxLayout()
 
         self.cb_canadapost = QCheckBox("Canada Post")
@@ -44,12 +45,12 @@ class SettingsWidget(QWidget):
         carrier_layout.addWidget(self.cb_canpar)
         carrier_layout.addWidget(self.cb_fedex)
 
-        carrier_area.setLayout(carrier_layout)
+        carrier_container.setLayout(carrier_layout)
 
-        extras_area = QGroupBox("Extras")
+        extras_container = QGroupBox("Extras")
         extras_layout = QVBoxLayout()
 
-        self.cb_ignore_old = QCheckBox("Ignore previously tracked shipments")
+        self.cb_ignore_already_tracked = QCheckBox("Ignore already tracked shipments")
         self.cb_reuse_data = QCheckBox("Reuse previous data")
         self.cb_debug = QCheckBox("Debug Mode")
         self.label_day_diff = QLabel("Day difference:")
@@ -57,23 +58,23 @@ class SettingsWidget(QWidget):
         self.sb_day_diff.setMinimum(0)
         self.sb_day_diff.setMaximum(1000)
 
-        extras_layout.addWidget(self.cb_ignore_old)
+        extras_layout.addWidget(self.cb_ignore_already_tracked)
         extras_layout.addWidget(self.cb_reuse_data)
         extras_layout.addWidget(self.cb_debug)
         extras_layout.addWidget(self.label_day_diff)
         extras_layout.addWidget(self.sb_day_diff)
 
-        extras_area.setLayout(extras_layout)
+        extras_container.setLayout(extras_layout)
 
-        overall_layout.addWidget(scrape_area)
-        overall_layout.addWidget(carrier_area)
-        overall_layout.addWidget(self._get_button_area())
-        overall_layout.addWidget(extras_area)
+        overall_layout.addWidget(scrape_container)
+        overall_layout.addWidget(carrier_container)
+        overall_layout.addWidget(self._get_button_container())
+        overall_layout.addWidget(extras_container)
 
         self.setLayout(overall_layout)
         self.load_settings_to_ui()
 
-    def _get_button_area(self):
+    def _get_button_container(self):
         btn_group = QWidget()
         btn_layout = QHBoxLayout()
 
@@ -104,49 +105,48 @@ class SettingsWidget(QWidget):
 
         if all:
             self.cb_reuse_data.setChecked(val)
-            self.cb_ignore_old.setChecked(val)
+            self.cb_ignore_already_tracked.setChecked(val)
             self.sb_day_diff.setValue(3)
             self.cb_debug.setChecked(val)
 
     def load_settings_to_ui(self):
-        if settings.check_settings_exists():
-            self.cb_eshipper.setChecked(self.settings['scrape']['eshipper'])
-            self.cb_ems.setChecked(self.settings['scrape']['ems'])
-            self.cb_freightcom.setChecked(self.settings['scrape']['freightcom'])
+        if Settings.file_exists():
+            self.cb_eshipper.setChecked(Settings.get_settings()['scrape']['eshipper'])
+            self.cb_ems.setChecked(Settings.get_settings()['scrape']['ems'])
+            self.cb_freightcom.setChecked(Settings.get_settings()['scrape']['freightcom'])
 
-            self.cb_canadapost.setChecked(self.settings['track']['canada post'])
-            self.cb_purolator.setChecked(self.settings['track']['purolator'])
-            self.cb_ups.setChecked(self.settings['track']['ups'])
-            self.cb_canpar.setChecked(self.settings['track']['canpar'])
-            self.cb_fedex.setChecked(self.settings['track']['fedex'])
+            self.cb_canadapost.setChecked(Settings.get_settings()['track']['canada post'])
+            self.cb_purolator.setChecked(Settings.get_settings()['track']['purolator'])
+            self.cb_ups.setChecked(Settings.get_settings()['track']['ups'])
+            self.cb_canpar.setChecked(Settings.get_settings()['track']['canpar'])
+            self.cb_fedex.setChecked(Settings.get_settings()['track']['fedex'])
 
-            self.cb_reuse_data.setChecked(self.settings['reuse_data'])
-            self.cb_ignore_old.setChecked(self.settings['ignore_old'])
-            self.sb_day_diff.setValue(self.settings['day_diff'])
-            self.cb_debug.setChecked(self.settings['debug'])
+            self.cb_reuse_data.setChecked(Settings.get_settings()['reuse_data'])
+            self.cb_ignore_already_tracked.setChecked(Settings.get_settings()['ignore_already_tracked'])
+            self.sb_day_diff.setValue(Settings.get_settings()['day_diff'])
+            self.cb_debug.setChecked(Settings.get_settings()['debug'])
         else:
             self.set_normal_settings_to(False, all=True)
 
     def save_settings_to_file(self):
-        self.settings['scrape']['eshipper'] = self.cb_eshipper.isChecked()
-        self.settings['scrape']['ems'] = self.cb_ems.isChecked()
-        self.settings['scrape']['freightcom'] = self.cb_freightcom.isChecked()  
+        s = Settings.get_settings()
 
-        self.settings['track']['canada post'] = self.cb_canadapost.isChecked()
-        self.settings['track']['purolator'] = self.cb_purolator.isChecked()   
-        self.settings['track']['ups'] = self.cb_ups.isChecked() 
-        self.settings['track']['canpar'] = self.cb_canpar.isChecked()
-        self.settings['track']['fedex'] = self.cb_fedex.isChecked()
+        s['scrape']['eshipper'] = self.cb_eshipper.isChecked()
+        s['scrape']['ems'] = self.cb_ems.isChecked()
+        s['scrape']['freightcom'] = self.cb_freightcom.isChecked()  
 
-        self.settings['reuse_data'] = self.cb_reuse_data.isChecked()
-        self.settings['ignore_old'] = self.cb_ignore_old.isChecked()
-        self.settings['debug'] = self.cb_debug.isChecked()
-        self.settings['day_diff'] = self.sb_day_diff.value()
+        s['track']['canada post'] = self.cb_canadapost.isChecked()
+        s['track']['purolator'] = self.cb_purolator.isChecked()   
+        s['track']['ups'] = self.cb_ups.isChecked() 
+        s['track']['canpar'] = self.cb_canpar.isChecked()
+        s['track']['fedex'] = self.cb_fedex.isChecked()
 
-        if not settings.check_settings_exists():
-            settings.create_settings_file()
+        s['reuse_data'] = self.cb_reuse_data.isChecked()
+        s['ignore_already_tracked'] = self.cb_ignore_already_tracked.isChecked()
+        s['debug'] = self.cb_debug.isChecked()
+        s['day_diff'] = self.sb_day_diff.value()
 
-        settings.write_to_settings(self.settings)
+        Settings.write_to_file()
 
     def reset_btn_clicked(self):
         self.set_normal_settings_to(False)

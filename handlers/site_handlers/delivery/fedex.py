@@ -1,67 +1,68 @@
-from core.driver import WebDriverSession, ELEMENT_TYPES
-from selenium.common.exceptions import StaleElementReferenceException
-from os import getenv
+from core.driver.locator import Locator, ElementTypes
+from core.tracking.result import Result
 from core.log import getLogger
+
+from os import getenv
 from time import time
-from core.track import result
 
 logger = getLogger(__name__)
 
 denied_cookies = False
 
-class Paths:
+class Locs:
         page = {
-            "email_input": (ELEMENT_TYPES["id"], "sender_email"),
-            "submit_btn": (ELEMENT_TYPES["id"], "submitButton"),
-            "confirmation_dialog": (
-                ELEMENT_TYPES["tag"],
+            "submit_btn": Locator(ElementTypes.id, "submitButton"),
+            "confirmation_dialog": Locator(
+                ElementTypes.tag,
                 "trk-shared-get-status-updates-inline",
             ),
         }
 
         cookies = {
-            "shadow_parent": (ELEMENT_TYPES["id"], "usercentrics-cmp-ui"),
-            "deny_btn": (ELEMENT_TYPES["id"], "deny"),
+            "shadow_parent": Locator(ElementTypes.id, "usercentrics-cmp-ui"),
+            "deny_btn": Locator(ElementTypes.id, "deny"),
         }
 
-def executeScript(sesh: WebDriverSession, tracking_num):
-    r = result(result.FAIL, carrier="Fedex", tracking_number=tracking_num)
+def executeScript(wds, tracking_num):
+    r = Result(Result.FAIL, carrier="Fedex", tracking_number=tracking_num)
     link = "https://www.fedex.com/fedextrack/?trknbr={}".format(tracking_num)
-    sesh.get(link)
+    wds.nav.get(link)
 
-    removeCookiesBanner(sesh)
+    removeCookiesBanner(wds)
 
-    sesh.input.path(Paths.page["email_input"], getenv("FEDEX_EMAIL"))
-    sesh.click.path(Paths.page["submit_btn"])
+    wds.input.by_locator(Locs.page["email_input"], getenv("FEDEX_EMAIL"))
+    wds.click.by_locator(Locs.page["submit_btn"])
 
-    if not waitForConfirm(sesh):
-        r.set_reason("Confirm button missing")
+    if not waitForConfirm(wds):
+        r.set_reason("Confirm dialog missing")
         return r
 
-    r.set_result(result.SUCCESS)
+    r.set_result(Result.SUCCESS)
     return r
 
-def waitForConfirm(sesh: WebDriverSession, cd=3):
-    end_time = time() + cd
+def waitForConfirm(wds, wait=0):
+    if (not wait):
+        wait = wds.default_wait_time
     confirm_text = "Notification sent!"
 
+    end_time = time() + wait
     while time() < end_time:
-        dialog = sesh.read.text(Paths.page["confirmation_dialog"])
+        dialog = wds.read.text(Locs.page["confirmation_dialog"])
         if confirm_text in dialog:
             return True
 
     return False
 
 
-def removeCookiesBanner(sesh: WebDriverSession):
+def removeCookiesBanner(wds):
     global denied_cookies
 
     if denied_cookies:
         return
 
-    shadow_parent = sesh.find.path(Paths.cookies["shadow_parent"])
-    shadow_root = sesh.getShadowRoot(shadow_parent)
+    shadow_parent = wds.find.element(Locs.cookies["shadow_parent"])
+    shadow_root = wds.misc.getShadowRoot(shadow_parent)
 
-    sesh.click.fromParent(shadow_root, Paths.cookies["deny_btn"])
+    wds.click.element_in_parent(shadow_root, Locs.cookies["deny_btn"])
 
     denied_cookies = True
