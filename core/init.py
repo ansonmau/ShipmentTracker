@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 from core.log import MyLogger, getLogger
-from core.utils import create_folder, create_file, ROOT
+from core.utils import empty_folder, create_folder, create_file, ROOT
 from core.settings import Settings 
 
 class Initializer:
@@ -42,6 +42,7 @@ class Initializer:
         create_folder(ROOT / 'data' / 'dls')
         create_file(ROOT / 'data' / 'delivery_data.json')
         create_file(ROOT / 'data' / 'keys.env')
+        empty_folder(ROOT / 'data' / 'dls')
 
     def init_reports(self):
         create_folder(ROOT / 'reports')

@@ -20,20 +20,21 @@ import handlers.site_handlers.delivery.purolator as puro
 
 logger = getLogger(__name__)
 
+VERSION = "2.0.0"
+
 def run(worker):
-    from main import VERSION
     logger.info('Shipment Tracker version: {}'.format(VERSION))
 
-    init = Initializer()
-    if (not init.run()):
+    init =      Initializer()
+    report =    Report()
+    tdh =       TrackingDataHandler()
+
+    init_result = init.run()
+    if (not init_result):
         logger.critical(f'Initialization failed. Please review. Error code:\n{init.err_code}')
         return 0
-    logger.info('Initialization successful')
-
-    cleanup.empty_dl_dir()
-
-    report = Report()
-    tdh = TrackingDataHandler()
+    else:
+        logger.info('Initialization successful')
 
     logger.info('starting web driver...')
     wds = driver.WebDriverSession()

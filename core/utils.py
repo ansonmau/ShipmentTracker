@@ -55,3 +55,7 @@ def create_file(dir: pathlib.Path | str, name: str | None = None):
     full_path = dir if name is None else dir / name
     full_path.touch()
 
+def empty_folder(folder_path) -> None:
+    for file in folder_path.iterdir():
+        file.unlink()
+
