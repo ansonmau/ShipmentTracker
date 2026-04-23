@@ -129,19 +129,6 @@ def run(worker):
     logger.info('Crashes: {}'.format(len(report.get_crashes())))
 
     logger.info('Starting clean up...')
-    cleanup.run()
     logger.info('Clean up complete')
 
     return
-
-
-class cleanup:
-    @staticmethod
-    def run():
-        logger.info('Clearing downloads folder')
-        cleanup.empty_dl_dir()
-
-    @staticmethod
-    def empty_dl_dir():
-        for file in (ROOT / 'data' / 'dls').iterdir():
-            file.unlink()
