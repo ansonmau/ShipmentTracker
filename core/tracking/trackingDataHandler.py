@@ -43,7 +43,7 @@ class TrackingDataHandler:
         TrackingDataHandler.canpar.extend(d["canpar"])
 
     def save_to_file(self):
-        with open(TrackingDataHandler.file_path, 'r') as fh:
+        with open(TrackingDataHandler.file_path, 'w') as fh:
             json.dump(TrackingDataHandler.d, fh, indent=4)
 
     def get_dict(self):
