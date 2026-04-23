@@ -7,8 +7,11 @@ from time import sleep
 logger = getLogger(__name__)
 
 def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript, report):
-    total_shipment_count = len(tracking_nums)
-    current_shipment_count = 0
+    wait_between_attempts_s =   2
+    wait_between_shipments_s =  3
+
+    total_shipment_count =      len(tracking_nums)
+    current_shipment_count =    0
 
     for tracking_num in tracking_nums:
         current_shipment_count += 1
@@ -30,10 +33,10 @@ def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript, report)
 
             if curr_result.result != Result.RETRY:
                 break
-            sleep(2)
+            sleep(wait_between_attempts_s)
         if (curr_result.result == Result.RETRY):
             curr_result.set_result(Result.FAIL)
             curr_result.set_reason("Failed after 3 attempts")
         logger.info(str(curr_result))
         report.add_result(curr_result)
-        sleep(3)
+        sleep(wait_between_shipments_s)
