@@ -5,9 +5,9 @@
     "clear_downloads": false,
     "debug": false,
     "scrape": {
-        "eshipper": true,
-        "ems": true,
-        "freightcom": true
+        "eshipper": false,
+        "ems": false,
+        "freightcom": false
     },
     "track": {
         "canada post": false,

@@ -3,7 +3,6 @@ from core.tracking.track import track
 from core.tracking.report import Report
 from core.tracking.result import Result
 from core.tracking.trackingDataHandler import TrackingDataHandler
-from core.utils import ROOT
 from core.settings import Settings
 from core.init import Initializer
 from core.log import getLogger
@@ -31,12 +30,12 @@ def run(worker):
 
     init_result = init.run()
     if (not init_result):
-        logger.critical(f'Initialization failed. Please review. Error code:\n{init.err_code}')
+        logger.critical(f'Initialization failed. Please review.\nError code:\n{init.err_code}')
         return 0
     else:
         logger.info('Initialization successful')
 
-    logger.info('starting web driver...')
+    logger.info('Attempting to start web driver...')
     wds = driver.WebDriverSession()
     wds.setUndetected(1)
     if (not wds.start()):
@@ -44,7 +43,7 @@ def run(worker):
     else:
         logger.info('Webdriver successfully started')
 
-    logger.info('Reading settings')
+    logger.info('Fetching settings...')
     settings = Settings.get_settings()
 
     if settings['reuse_data']:
@@ -128,7 +127,4 @@ def run(worker):
     logger.info('Fails: {}'.format(len(report.get_fails())))
     logger.info('Crashes: {}'.format(len(report.get_crashes())))
 
-    logger.info('Starting clean up...')
-    logger.info('Clean up complete')
-
-    return
+    return 0
