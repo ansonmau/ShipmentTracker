@@ -21,3 +21,6 @@ class Misc:
         self.driver.execute_script(
                 "arguments[0].remove();", element
         )
+
+    def maximize_window(self):
+        self.driver.maximize_window()

@@ -1,6 +1,5 @@
 import re
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.common.exceptions import SessionNotCreatedException
 from selenium.webdriver.chrome.options import Options
 
@@ -40,63 +39,67 @@ class WebDriverSession:
         self.misc = None
          
     def __del__(self):
-        self.driver.quit()
+        if (self.driver):
+            self.driver.quit()
 
     def is_alive(self):
-        return (self.driver != None)
+        return (not(self.driver == None))
 
     def setUndetected(self, b):
         self.undetected = b
 
     def start(self):
+        result = False
+
         options = self._getOptions()
-
-        try:
-            if self.undetected:
-                self.driver = uc.Chrome(options=options)
-            else:
-                self.driver = webdriver.Chrome(options=options)
-            self.driver.maximize_window()
-        except SessionNotCreatedException as e:
-            if e.msg:
-                if "this version of chromedriver only supports" in e.msg.lower():
-                    current_version, expected_version = self.__get_versions_from_error_msg(e.msg)
-
-                    logger.critical("Chrome outdated.\nYour version: {}\nRequired version: {}".format(current_version, expected_version))
+        if (options):
+            try:
+                if self.undetected:
+                    self.driver = uc.Chrome(options=options)
                 else:
-                    logger.critical("Unknown webdriver error:\n{}".format(e.msg))
-                return False
+                    self.driver = webdriver.Chrome(options=options)
+                self.nav = Nav(self)
+                self.find = Find(self)
+                self.click = Click(self)
+                self.wait = Wait(self)
+                self.input = Input(self)
+                self.filter = Filter(self)
+                self.read = Read(self)
+                self.tabControl = TabControl(self)
+                self.select = Select(self)
+                self.misc = Misc(self)
+                result = True
+            except SessionNotCreatedException as e:
+                if e.msg:
+                    logger.debug("WebDriver creation error:\n{}".format(e.msg))
+                    if "this version of chromedriver only supports" in e.msg.lower(): # is it a version error?
+                        current_version, expected_version = self.__get_versions_from_error_msg(e.msg)
+                        logger.critical("Chrome outdated.\nYour version: {}\nRequired version: {}".format(current_version, expected_version))
 
-        self.nav = Nav(self)
-        self.find = Find(self)
-        self.click = Click(self)
-        self.wait = Wait(self)
-        self.input = Input(self)
-        self.filter = Filter(self)
-        self.read = Read(self)
-        self.tabControl = TabControl(self)
-        self.select = Select(self)
-        self.misc = Misc(self)
-
-        return True
+        return result
 
     def _getOptions(self):
-        downloadPath = str((ROOT / 'data' / 'dls').resolve())
-
-        # set options for downloading
-        prefs = {
-            "download.default_directory": downloadPath,
-            "download.prompt_for_download": False,
-            "download.directory_upgrade": True,
-            "safebrowsing.enabled": True,
-        }
-
         options = uc.ChromeOptions() if self.undetected else Options()
+        if (options):
+            downloadPath = str((ROOT / 'data' / 'dls').resolve())
 
-        options.add_experimental_option("prefs", prefs)
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
+            # set options for downloading
+            prefs = {
+                "download.default_directory": downloadPath,
+                "download.prompt_for_download": False,
+                "download.directory_upgrade": True,
+                "safebrowsing.enabled": False,
+                "profile.default_content_setting_values.automatic_downloads": 1,
+                "profile.default_zoom_level_value": 2.0,  # very zoomed in
+            }
+
+            options.add_experimental_option("prefs", prefs)
+            options.add_argument("--disable-blink-features=AutomationControlled")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+        else:
+            logger.critical("Failed to load chrome options")
+            options = None
 
         return options
 
@@ -111,11 +114,11 @@ class WebDriverSession:
         current_version_pattern = r"Current browser version is (\d+\.\d+\.\d+\.\d+);"
         expected_version_pattern = r"This version of ChromeDriver only supports Chrome version (\d+)\n"
 
-        m = re.search(current_version_pattern, e.msg)
+        m = re.search(current_version_pattern, msg)
         if (m):
             current_version = m.group(1)
 
-        m = re.search(expected_version_pattern, e.msg)
+        m = re.search(expected_version_pattern, msg)
         if (m):
             expected_version = m.group(1)
 

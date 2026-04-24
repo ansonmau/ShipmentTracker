@@ -3,11 +3,11 @@
     "day_diff": 5,
     "default_wait_time": 5,
     "clear_downloads": false,
-    "debug": false,
+    "debug": true,
     "scrape": {
         "eshipper": false,
-        "ems": false,
-        "freightcom": false
+        "ems": true,
+        "freightcom": true
     },
     "track": {
         "canada post": false,

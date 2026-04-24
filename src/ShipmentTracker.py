@@ -2,78 +2,52 @@ import core.driver.driver as driver
 from core.tracking.track import track
 from core.tracking.report import Report
 from core.tracking.result import Result
-from core.tracking.trackingDataHandler import TrackingDataHandler
 from core.settings import Settings
 from core.init import Initializer
 from core.log import getLogger
+from core.tracking.dataHandler import Handler as TrackingDataHandler
+from core.scraper.handler import Handler as ScraperHandler
 
-import handlers.file_handlers.eshipper as eshipper_fh
-import handlers.site_handlers.management.eshipper as eshipper
-import handlers.site_handlers.management.freightcom as freightcom
-import handlers.site_handlers.management.ems as ems
 import handlers.site_handlers.delivery.canadapost as canpost
 import handlers.site_handlers.delivery.ups as ups
 import handlers.site_handlers.delivery.canpar as canpar
 import handlers.site_handlers.delivery.fedex as fdx
 import handlers.site_handlers.delivery.purolator as puro
 
-logger = getLogger(__name__)
-
-VERSION = "2.0.0"
+logger = getLogger("shipment tracker")
 
 def run(worker):
-    logger.info('Shipment Tracker version: {}'.format(VERSION))
+    init            =   Initializer()
+    report          =   Report()
+    tdh             =   TrackingDataHandler()
 
-    init =      Initializer()
-    report =    Report()
-    tdh =       TrackingDataHandler()
 
     init_result = init.run()
     if (not init_result):
         logger.critical(f'Initialization failed. Please review.\nError code:\n{init.err_code}')
-        return 0
+        return 1
     else:
         logger.info('Initialization successful')
 
     logger.info('Attempting to start web driver...')
     wds = driver.WebDriverSession()
-    wds.setUndetected(1)
-    if (not wds.start()):
-        return
+    wds.setUndetected(True)
+    session_start = wds.start()
+    if (not(session_start)):
+        return 1
     else:
         logger.info('Webdriver successfully started')
+        wds.misc.maximize_window()
 
-    logger.info('Fetching settings...')
     settings = Settings.get_settings()
 
     if settings['reuse_data']:
         logger.info('Importing previous data')
         tdh.read_from_file()
-    
-    if settings['scrape']['freightcom']:
-        logger.info('Searching through Freightcom for shipment information...')
-        freightcom_shipments = freightcom.scrape(wds, worker)
-        logger.debug('parsed data: {}'.format(freightcom_shipments))
-        
-        for shipment in freightcom_shipments:
-            tdh.add_shipment(shipment[0], shipment[1])
 
-    if settings['scrape']['ems']:
-        logger.info('Searching through EMS for shipment information...')
-        ems_shipments = ems.scrape(wds)
-        logger.debug('parsed data: {}'.format(ems_shipments))
-
-        for shipment in ems_shipments:
-            tdh.add_shipment(shipment[0], shipment[1])
-
-    if settings['scrape']['eshipper']:
-        logger.info('Searching through EShipper for shipment information...')
-        eshipper.download_csv(wds)
-        eshipper_shipments = eshipper_fh.parse()
-        logger.debug('parsed data: {}'.format(eshipper_shipments))
-
-        for shipment in eshipper_shipments:
-            tdh.add_shipment(shipment[0], shipment[1])
+    scraper = ScraperHandler(wds, tdh)
+    scraper.set_worker(worker)
+    scraper.run()
 
     if settings['ignore_already_tracked']:
         duplicates_found = 0

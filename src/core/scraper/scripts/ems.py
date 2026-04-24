@@ -24,7 +24,7 @@ class Paths:
             }
 
 
-def scrape(wds):
+def scrape(wds, worker):
     results = []
 
     if (not login(wds)):
@@ -94,7 +94,7 @@ def get_filter_inputs(wds):
     return inputs[0], inputs[1]
 
 def get_shipment_table_entries(wds):
-    table_entry_loc = (ElementTypes.tag, 'tr')
+    table_entry_loc = Locator(ElementTypes.tag, 'tr')
 
     table_elm = wds.find.element(Paths.shipment_page['shipment_table'])
     table_entries = wds.find.all_in_parent(table_elm, table_entry_loc)
@@ -111,7 +111,7 @@ def parse_table_entry(wds, entry_elm):
     carrier = ''
     status = ''
 
-    entry_part_loc = (ElementTypes.tag, 'td')
+    entry_part_loc = Locator(ElementTypes.tag, 'td')
     entry_parts = wds.find.all_in_parent(entry_elm, entry_part_loc)
 
     if entry_parts:

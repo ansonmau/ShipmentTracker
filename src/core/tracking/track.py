@@ -1,22 +1,20 @@
 from core.driver.driver import WebDriverSession
 from core.tracking.result import Result
-from core.tracking.report import Report
 from core.log import getLogger
 from time import sleep
 
 logger = getLogger(__name__)
 
 def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript, report):
-    wait_between_attempts_s =   2
-    wait_between_shipments_s =  3
-
-    total_shipment_count =      len(tracking_nums)
-    current_shipment_count =    0
+    wait_between_attempts_s     =   2
+    wait_between_shipments_s    =   3
+    total_shipment_count        =   len(tracking_nums)
+    current_shipment_count      =   0
 
     for tracking_num in tracking_nums:
+        attempt_count   =   0 
+        curr_result     =   Result()
         current_shipment_count += 1
-        attempt_count = 0 
-        curr_result = Result()
         while attempt_count < 3:
             attempt_count += 1
             logger.info(

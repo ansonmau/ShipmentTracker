@@ -7,7 +7,7 @@ class Input:
             self.wds.click.element(target_element)
             for key in keys:
                 target_element.send_keys(key)
-                self.wds.wait.random()
+                self.wds.wait.random(0.09, 0.15) # based on 100WPM 5 letter words on average (60 / 100*5 = 0.12 average) delta = 0.3
 
     def element(self, element, txt):
         self._sendKeys(element, txt)

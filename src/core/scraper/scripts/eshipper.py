@@ -1,6 +1,8 @@
 from core.driver.locator import Locator, ElementTypes
 from core.log import getLogger
 
+import core.scraper.scripts.eshipperFileHandler as eshipper_file_handler
+
 from os import getenv
 
 logger = getLogger(__name__)
@@ -33,6 +35,21 @@ def login(sesh):
 
     sesh.wait.element_located(paths["usernameText"])
 
+def scrape(sesh, worker):
+    results = []
+    logger.info("Downloading shipment information")
+    download_csv(sesh)
+
+    file_handler = eshipper_file_handler.Handler()
+    logger.info("Waiting for download to complete")
+    bFile = file_handler.wait_for_file_download()
+    if (bFile):
+        logger.info("Success")
+        results = file_handler.parse()
+    else:
+        logger.info("Failed to find eshipper downloaded file. skipping.")
+
+    return results
 
 def download_csv(sesh):
     login(sesh)

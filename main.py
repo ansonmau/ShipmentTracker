@@ -1,5 +1,9 @@
 import sys
+import os
 import logging
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src'))
+
+
 from PySide6.QtCore import Qt, Slot, Signal, QObject
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
@@ -22,12 +26,20 @@ class LogRedirector(logging.Handler):
     def __init__(self, emitter: LogEmitter):
         super().__init__()
         self.emitter = emitter
-        self.log_level = logging.DEBUG
-        self.setLevel(self.log_level)
+        self.log_level = logging.DEBUG # default value; use setter at runtime
 
     def emit(self, record):
-        self.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+        # format the msg
+        formatter = None 
+        if (self.log_level == logging.DEBUG):
+            formatter = logging.Formatter("[%(levelname)s] %(message)s")
+        else:
+            formatter = logging.Formatter("=> %(message)s")
+
+        self.setFormatter(formatter)
         record = self.format(record)
+
+        # emit it
         self.emitter.log_stream.emit(record)
 
     def set_level(self, level):

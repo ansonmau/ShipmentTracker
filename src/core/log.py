@@ -10,7 +10,7 @@ logging.basicConfig(
 
 class MyLogger:
     time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    log_file_path = os.path.join("./logs", "log_{}.log".format(time))
+    log_file_path = os.path.join("./logs", "{}.log".format(time))
     level = logging.INFO
     loggers = []
 

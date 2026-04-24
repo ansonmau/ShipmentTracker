@@ -1,5 +1,4 @@
 import pathlib
-from datetime import datetime
 import json
 import sys
 
@@ -7,7 +6,7 @@ def _get_proj_folder():
     if getattr(sys, "frozen", False):
         return pathlib.Path(sys.executable).parent
     
-    return pathlib.Path(pathlib.Path(__file__).resolve().parent.parent)
+    return pathlib.Path(pathlib.Path(__file__).resolve().parent.parent.parent)
 
 ROOT = _get_proj_folder()
 

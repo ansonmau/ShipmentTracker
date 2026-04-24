@@ -1,21 +1,24 @@
 import json
 from core.utils import ROOT
 
-class TrackingDataHandler:
+class Handler:
     file_path = ROOT / 'data' / 'tracking_data.json'
-    canada_post = []
-    purolator = []
-    ups = []
-    fedex = []
-    canpar = []
 
-    d = {
-        'canada post': canada_post,
-        'canpar': canpar,
-        'fedex': fedex,
-        'purolator': purolator,
-        'ups': ups   
-    }
+    def __init__(self):
+        self.canada_post = []
+        self.purolator = []
+        self.ups = []
+        self.fedex = []
+        self.canpar = []
+
+        self.d = {
+            'canada post': self.canada_post,
+            'canpar': self.canpar,
+            'fedex': self.fedex,
+            'purolator': self.purolator,
+            'ups': self.ups   
+        }
+
 
     def add_shipment(self, carrier_name, tracking_number):
         shipment_list = self.d[carrier_name.lower()]
@@ -33,18 +36,18 @@ class TrackingDataHandler:
         return self.d[carrier_name.lower()]
 
     def read_from_file(self):
-        with open(TrackingDataHandler.file_path, 'r') as fh:
+        with open(Handler.file_path, 'r') as fh:
             d = json.load(fh)
 
-        TrackingDataHandler.canada_post.extend(d["canada_post"])
-        TrackingDataHandler.purolator.extend(d["purolator"])
-        TrackingDataHandler.ups.extend(d["ups"])
-        TrackingDataHandler.fedex.extend(d["fedex"])
-        TrackingDataHandler.canpar.extend(d["canpar"])
+        self.canada_post.extend(d["canada_post"])
+        self.purolator.extend(d["purolator"])
+        self.ups.extend(d["ups"])
+        self.fedex.extend(d["fedex"])
+        self.canpar.extend(d["canpar"])
 
     def save_to_file(self):
-        with open(TrackingDataHandler.file_path, 'w') as fh:
-            json.dump(TrackingDataHandler.d, fh, indent=4)
+        with open(Handler.file_path, 'w') as fh:
+            json.dump(self.d, fh, indent=4)
 
     def get_dict(self):
         return self.d
