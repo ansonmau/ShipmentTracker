@@ -34,7 +34,7 @@ class LogRedirector(logging.Handler):
         if (self.log_level == logging.DEBUG):
             formatter = logging.Formatter("[%(levelname)s] %(message)s")
         else:
-            formatter = logging.Formatter("=> %(message)s")
+            formatter = logging.Formatter(":> %(message)s")
 
         self.setFormatter(formatter)
         record = self.format(record)
@@ -96,7 +96,7 @@ class MainWindow(QMainWindow):
         self.console.setStyleSheet("font-size: 15pt;")
 
         self.main_layout.addWidget(self.console, stretch=7)
-        self.resize(self.width() + 500, self.height())
+        self.resize(self.width() + 750, self.height())
 
         self.log_emitter = LogEmitter()
         self.log_redirector = LogRedirector(self.log_emitter)
