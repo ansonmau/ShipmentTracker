@@ -4,6 +4,7 @@ from os import getenv
 from core.settings import Settings
 from core.log import getLogger
 from datetime import datetime, timedelta
+from time import sleep
 
 logger = getLogger(__name__)
 
@@ -28,6 +29,7 @@ class Paths:
         "shipment_table": Locator(ElementTypes.css, ".shipments-table"),
         "table_entry": Locator(ElementTypes.tag, "tr"),
         "table_data": Locator(ElementTypes.tag, "td"),
+        "page_controls": Locator(ElementTypes.css, '.page-link')
     }
 
     div = Locator(ElementTypes.tag, "div")
@@ -46,6 +48,8 @@ def login(wds, worker):
 
 
 def scrape(wds, worker):
+    results = []
+
     login(wds, worker)
 
     wds.click.by_locator(Paths.homepage["tracking_dropdown"])
@@ -55,8 +59,22 @@ def scrape(wds, worker):
     discard_btn = get_popup_discard_btn(wds)
     wds.click.element(discard_btn)
 
+
     table = TableHandler(wds)
-    return table.parse_table()
+    results.extend(table.parse_table())
+
+    next_page_button = wds.filter.by_attribute(
+            wds.find.all(Paths.tracking_page["page_controls"]),
+            "title",
+            "next")[0]
+
+    # repeat until the last shipment looked at is before the user's date setting
+    while (is_within_date_range(table.last_found_date)):
+        wds.click.element(next_page_button)
+        sleep(1) # wait for page load
+        results.extend(table.parse_table())
+
+    return results
 
 
 def get_trackingpage_btn(wds):
@@ -71,7 +89,7 @@ def get_popup_discard_btn(wds):
     assert len(discard_btn) == 1
     return discard_btn[0]
 
-def within_date_range(date):
+def is_within_date_range(date):
     site_date_format = "%b %d, %Y"
     check_date = datetime.strptime(date, site_date_format)
     lower_bound = datetime.now() - timedelta(days=Settings.get_settings()['day_diff'])
@@ -97,9 +115,11 @@ class TableHandler:
     def __init__(self, wds):
         self.wds = wds
         self.driver = wds.driver
+        self.last_found_date = 0
 
     def parse_table(self):
         results = []
+
         table = self.wds.find.element(Paths.tracking_page["shipment_table"])
         entries = self.wds.find.all_in_parent(table, Paths.tracking_page["table_entry"])
 
@@ -108,17 +128,18 @@ class TableHandler:
                 continue
 
             carrier, tracking_num, date, status = self._parse_row(row)
+            self.last_found_date = date # table is newest shipments first
 
-            logger.info(f"Entry found: {carrier} | {tracking_num} | {date} | {status}")
+            logger.debug(f"Potential entry found: {carrier} | {tracking_num} | {date} | {status}")
 
-            if not within_date_range(date):
-                logger.warning(f"entry {tracking_num} not within date range")
+            if not is_within_date_range(date):
+                logger.debug(f"entry {tracking_num} not within date range")
                 # break here since it's ordered by date.
                 break 
 
             status = status.lower()
             if ((not "ready for shipping" in status) and (not "in transit" in status)):
-                logger.warning(f"entry {tracking_num} not ready for shipping / in transit")
+                logger.debug(f"entry {tracking_num} not ready for shipping / in transit")
                 continue
 
             results.append((carrier, tracking_num))
@@ -150,7 +171,7 @@ class TableHandler:
         carrier_name = self.wds.read.element_attribute(img_child, "alt")
 
         if (carrier_name not in self.carrier_name_converter):
-            logger.warning(f"Carrier not found: {carrier_name}")
+            logger.debug(f"Carrier not found: {carrier_name}")
             return ""
 
         return self.carrier_name_converter[carrier_name]

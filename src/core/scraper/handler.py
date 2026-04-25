@@ -1,9 +1,11 @@
 from core.settings import Settings
+from core.log import getLogger
 
 import core.scraper.scripts.ems as ems
 import core.scraper.scripts.eshipper as eshipper
 import core.scraper.scripts.freightcom as freightcom
 
+logger = getLogger("Data Handler")
 
 class Handler:
     site_scrapers = {
@@ -33,7 +35,9 @@ class Handler:
         scrape_list = [x for x in self.settings.keys() if self.settings[x] == True]
         
         for site in scrape_list:
+            logger.info(f"Beginning scrape process for {site.upper()}")
             scrape_results = self.site_scrapers[site](self.wds, self.worker)
+            logger.info(f"{len(scrape_results)} valid results found")
             for carrier, tracking_number in scrape_results:
-                print("out list <- {} {}".format(carrier, tracking_number))
                 self.dh_out.add_shipment(carrier, tracking_number)
+            self.dh_out.save_to_file()

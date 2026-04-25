@@ -21,7 +21,11 @@ locators = {
 }
 
 def executeScript(wds, tracking_num):
-    r = Result(Result.FAIL, carrier="Canada Post", tracking_number=tracking_num)
+    result = Result()
+    result.set_carrier("Canada Post")
+    result.set_tracking_number(tracking_num)
+    result.set_result(result.FAIL)
+
     check = StateCheck(wds)
     dialog = DialogHandler(wds)
     link = "https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor={}".format(
@@ -31,25 +35,25 @@ def executeScript(wds, tracking_num):
     wds.nav.get(link)
 
     if (check.full_block()):
-        r.set_reason("Error message (likely bot detection)")
-        return r
+        result.set_reason("Error message (likely bot detection)")
+        return result
 
     if (check.is_delivered()):
-        r.set_reason("Package already delivered")
-        return r
+        result.set_reason("Package already delivered")
+        return result
     
     if (not check.can_get_notifications()):
-        r.set_reason("Notification button not found")
-        return r
+        result.set_reason("Notification button not found")
+        return result
 
-    wds.click.element(locators["get_email_notif"])
+    wds.click.by_locator(locators["get_email_notif"])
 
     while (not check.dialog_is_loaded()):
         sleep(0.5)
 
     if (check.max_emails_reached()):
-        r.set_reason("Maximum emails reached [DNR]")
-        return r
+        result.set_reason("Maximum emails reached [DNR]")
+        return result
 
     if (check.add_emails_dialog()):
         add_button = wds.find.buttons_within(dialog.get_current_dialog_element(), filter="Add")[0]
@@ -58,29 +62,30 @@ def executeScript(wds, tracking_num):
             sleep(0.5)
 
     if (check.add_emails_button_blocked()):
-        r.set_reason("3 or more emails already added [DNR]")
-        return r
+        result.set_reason("3 or more emails already added [DNR]")
+        return result
 
-    wds.click.element(locators["add_email_btn"])
+    wds.click.by_locator(locators["add_email_btn"])
 
     email_inputs = wds.find.all(locators["email_input"])
     if wds.read.element_text(email_inputs[0]) != "":
-        r.set_reason("Email field already filled [DNR]")
-        return r
+        result.set_reason("Email field already filled [DNR]")
+        return result
 
     wds.input.element(email_inputs[0], getenv("CANADAPOST_EMAIL1"))
     wds.input.element(email_inputs[1], getenv("CANADAPOST_EMAIL2"))
 
-    wds.click.element(locators["submit_btn"])
+    wds.click.by_locator(locators["submit_btn"])
 
     while (not check.dialog_is_loaded()):
         sleep(0.5)
 
-    ok_button = wds.find.buttons_within(dialog.get_current_dialog_element(), filter="Okay")[0]
+    sleep(1) # needs time for button to load...? does not work without this pause
+    ok_button = wds.find.buttons_within(dialog.get_current_dialog_element(), filter="OK")[0]
     wds.click.element(ok_button)
     
-    r.set_result(Result.SUCCESS)
-    return r
+    result.set_result(Result.SUCCESS)
+    return result
 
 
 def getDialogText(wds):
@@ -125,10 +130,13 @@ class DialogHandler:
 
     def get_current_dialog_element(self):
         dialog_element = None
-        if (self.wds.wait.element_located(locators["dialog_type_2"], wait=2)):
-            dialog_element = self.wds.find.element(locators["dialog_type_2"])
-        else:
-            dialog_element = self.wds.find.element(locators["dialog_type_1"])
+        bFlip = False
+        while (not(dialog_element)):
+            bFlip = not bFlip
+            if (bFlip):
+                dialog_element = self.wds.find.element(locators["dialog_type_2"], wait=1)
+            else:
+                dialog_element = self.wds.find.element(locators["dialog_type_1"], wait=1)
 
         return dialog_element
 
@@ -159,8 +167,8 @@ class StateCheck:
                 sleep(2)
             
                 if self.wds.find.element(locators['error_msg']):
-                    return 0
-        return 1
+                    return 1
+        return 0
 
     def can_get_notifications(self):
         return self.wds.wait.element_located(locators["get_email_notif"], wait = 3)
@@ -178,7 +186,7 @@ class StateCheck:
         return 0
     
     def add_emails_dialog(self):
-        if "You can add or removed email addresses" in self.dialog.get_text():
+        if "You can add or remove email addresses" in self.dialog.get_text():
             return 1
         return 0
 

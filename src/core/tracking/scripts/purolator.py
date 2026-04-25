@@ -1,5 +1,5 @@
 import time
-from os import getenv
+from os import getenv, name
 
 from core.driver.locator import Locator, ElementTypes
 from core.log import getLogger
@@ -44,7 +44,8 @@ def executeScript(wds, tracking_num):
     chat_handler = Chat_Handler(wds)
     time.sleep(2)
 
-    if "I can sign you up for email notifications" not in chat_handler.get_text():
+    # check if bugged out and one is already in progress
+    if "Please give me a moment while I retrieve the package status" in chat_handler.get_text():
         chat_handler.exit_chat()
         r.set_result(Result.RETRY)
         return r
@@ -122,7 +123,7 @@ class Chat_Handler:
         self.el_chat = self.get_chat_element()
 
     def get_chat_element(self):
-        shadow_parent_loc = (ElementTypes.css, '.shadow-dom')
+        shadow_parent_loc = Locator(ElementTypes.css, '.shadow-dom')
         el_shadow_parent = self.wds.find.element(shadow_parent_loc)
         el_shadow_root = self.wds.misc.getShadowRoot(el_shadow_parent) 
 
@@ -140,7 +141,8 @@ class Chat_Handler:
         return search_results[0]
 
     def get_input(self, input_name):
-        input_locator = (ElementTypes.tag, 'input')
+        result = None
+        input_locator = Locator(ElementTypes.tag, 'input')
 
         search_results = []
         end_time = time.time() + 5
@@ -151,9 +153,11 @@ class Chat_Handler:
             raise Exception("Failed to find input")
 
         filtered_results = self.wds.filter.by_attribute(search_results, "label", input_name)
+        
+        if (filtered_results):
+            result = filtered_results[0]
 
-        assert len(filtered_results) > 0
-        return filtered_results[0]
+        return result 
 
     def get_text(self):
         return self.wds.read.element_text(self.el_chat)

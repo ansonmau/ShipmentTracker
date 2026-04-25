@@ -24,9 +24,9 @@ class Locs:
         }
 
     popup_options = {
-        "update_option_1": Locator(ElementTypes.id, "stApp_pkgUpdatesDelaylbl"),
+        "update_option_1": Locator(ElementTypes.id, "stApp_pkgUpdatesCurStatusLbl"),
         "update_option_2": Locator(ElementTypes.id, "stApp_pkgUpdatesDeliveredlbl"),
-        "update_option_3": Locator(ElementTypes.id, "stApp_pkgUpdatesCurStatusLbl"),
+        "update_option_3": Locator(ElementTypes.id, "stApp_pkgUpdatesDelaylbl"),
         "update_option_4": Locator(ElementTypes.id, "stApp_pkgUpdatesNotifyProblemLbl"),
         "update_option_5": Locator(ElementTypes.id, "stApp_pkgUpdatesReadyPickuplbl"),
         }
@@ -59,7 +59,7 @@ def executeScript(wds, tracking_num):
  
 def remove_cookies_popup(wds):
     elm_popup = wds.find.element(Locs.cookies_popup)
-    wds.remove_element(elm_popup)
+    wds.misc.remove_element(elm_popup)
 
 def get_options(wds):
     opt_elm_list = []

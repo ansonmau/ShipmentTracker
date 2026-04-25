@@ -33,7 +33,7 @@ class Find:
         if (not wait):
             wait = self.wds.default_wait_time
 
-        if (parent_element != None):
+        if (parent_element):
             try:
                 element = WebDriverWait(self.driver, wait).until(
                     lambda d: parent_element.find_element(locator.get_type(), locator.get_locator())
@@ -91,7 +91,7 @@ class Find:
         elements = self.all_in_parent(parent_element, links)
 
         if filter:
-            elements = [el for el in elements if filter in self.wds.read.textFromElement(el)]
+            elements = [el for el in elements if filter in self.wds.read.element_text(el)]
 
         return elements
 
@@ -108,7 +108,7 @@ class Find:
         elements = self.all_in_parent(parent_element, button_locator)
 
         if filter:
-            elements = [el for el in elements if filter in self.wds.read.textFromElement(el)]
+            elements = [el for el in elements if filter in self.wds.read.element_text(el)]
 
         return elements
 
@@ -125,7 +125,7 @@ class Find:
         elements = self.all_in_parent(parent_element, input_locator)
 
         if filter:
-            elements = [el for el in elements if filter in self.wds.read.textFromElement(el)]
+            elements = [el for el in elements if filter in self.wds.read.element_text(el)]
 
         return elements
 

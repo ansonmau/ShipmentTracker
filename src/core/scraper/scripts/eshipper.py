@@ -37,14 +37,14 @@ def login(sesh):
 
 def scrape(sesh, worker):
     results = []
-    logger.info("Downloading shipment information")
+    logger.info("Attempting to download eshipper CSV")
     download_csv(sesh)
 
     file_handler = eshipper_file_handler.Handler()
-    logger.info("Waiting for download to complete")
+    logger.info("Waiting for download to complete...")
     bFile = file_handler.wait_for_file_download()
     if (bFile):
-        logger.info("Success")
+        logger.info("File found")
         results = file_handler.parse()
     else:
         logger.info("Failed to find eshipper downloaded file. skipping.")

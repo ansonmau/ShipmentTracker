@@ -8,7 +8,7 @@ class Filter:
     def by_text(self, element_list, txt):
         elmnts = []
         for elmnt in element_list:
-            if self.wds.read.textFromElement(elmnt) == txt:
+            if self.wds.read.element_text(elmnt) == txt:
                 elmnts.append(elmnt)
         return elmnts
 

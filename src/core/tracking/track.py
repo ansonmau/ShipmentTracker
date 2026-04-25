@@ -1,40 +1,71 @@
-from core.driver.driver import WebDriverSession
 from core.tracking.result import Result
 from core.log import getLogger
 from time import sleep
+from core.settings import Settings
 
-logger = getLogger(__name__)
+import core.tracking.scripts.canadapost as cp
+import core.tracking.scripts.ups as ups
+import core.tracking.scripts.fedex as fdx
+import core.tracking.scripts.canpar as cpr
+import core.tracking.scripts.purolator as pur
 
-def track(sesh: WebDriverSession, carrier, tracking_nums, executeScript, report):
-    wait_between_attempts_s     =   2
-    wait_between_shipments_s    =   3
-    total_shipment_count        =   len(tracking_nums)
-    current_shipment_count      =   0
+logger = getLogger("tracker")
 
-    for tracking_num in tracking_nums:
-        attempt_count   =   0 
-        curr_result     =   Result()
-        current_shipment_count += 1
-        while attempt_count < 3:
-            attempt_count += 1
-            logger.info(
-                f"Starting tracking for shipment {carrier} #{tracking_num} | {current_shipment_count}/{total_shipment_count} | attempt {attempt_count}/3"
-            )
-            try:
-                curr_result = executeScript(sesh, tracking_num)
-            except Exception as e:
-                if (attempt_count == 3):
-                    curr_result = Result(Result.CRASH, carrier=carrier, reason="Unknown error occured", tracking_number=tracking_num)
-                    logger.debug("(#{}) Unknown error: {}".format(tracking_num, e))
-                else:
-                    curr_result = Result(Result.RETRY)
+class Handler:
+    def __init__(self, wds, data_handler, report) -> None:
+        self.wds        =   wds
+        self.driver     =   self.wds.driver
+        self.dh         =   data_handler 
+        self.report     =   report
 
-            if curr_result.result != Result.RETRY:
-                break
-            sleep(wait_between_attempts_s)
-        if (curr_result.result == Result.RETRY):
-            curr_result.set_result(Result.FAIL)
-            curr_result.set_reason("Failed after 3 attempts")
-        logger.info(str(curr_result))
-        report.add_result(curr_result)
-        sleep(wait_between_shipments_s)
+        self.wait_between_attempts_s     =   2
+        self.wait_between_shipments_s    =   3
+
+        self.scripts = {
+                "canada post": cp.executeScript,
+                "ups": ups.executeScript,
+                "fedex": fdx.executeScript,
+                "canpar": cpr.executeScript,
+                "purolator": pur.executeScript,
+                }
+
+    def run(self):
+        active_carriers = [x for x in self.dh.get_dict() if (self.dh.get_dict()[x] and Settings.get_settings()["track"][x])]
+        logger.info(f"Active carriers: {','.join(active_carriers)}")
+        for carrier in active_carriers:
+            self.track(carrier)
+
+    def track(self, carrier):
+        tracking_nums               =   self.dh.get_dict()[carrier]
+        total_shipment_count        =   len(tracking_nums)
+        comp_shipment_count         =   0 # completed shipments
+
+        for tracking_num in tracking_nums:
+            attempt_count   =   0 
+            curr_result     =   None
+
+            while attempt_count < 3:
+                attempt_count += 1
+                logger.info(
+                    f"{carrier}\t#{tracking_num}\tattempt {attempt_count}/3\t{int((comp_shipment_count / total_shipment_count)*100)}%"
+                )
+                try:
+                    curr_result = self.scripts[carrier](self.wds, tracking_num)
+                except Exception as e:
+                    if (attempt_count == 3):
+                        curr_result = Result(Result.CRASH, carrier=carrier, reason="Unknown error occured", tracking_number=tracking_num)
+                        logger.debug("(#{}) Unknown error: {}".format(tracking_num, e))
+                    else:
+                        curr_result = Result(Result.RETRY)
+                if curr_result.result != Result.RETRY:
+                    break
+                sleep(self.wait_between_attempts_s)
+
+            if (curr_result and curr_result.result == Result.RETRY):
+                curr_result.set_result(Result.FAIL)
+                curr_result.set_reason("Failed after 3 attempts")
+
+            logger.info(str(curr_result))
+            self.report.add_result(curr_result)
+            comp_shipment_count += 1
+            sleep(self.wait_between_shipments_s)

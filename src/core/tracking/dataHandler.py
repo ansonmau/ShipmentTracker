@@ -39,7 +39,7 @@ class Handler:
         with open(Handler.file_path, 'r') as fh:
             d = json.load(fh)
 
-        self.canada_post.extend(d["canada_post"])
+        self.canada_post.extend(d["canada post"])
         self.purolator.extend(d["purolator"])
         self.ups.extend(d["ups"])
         self.fedex.extend(d["fedex"])

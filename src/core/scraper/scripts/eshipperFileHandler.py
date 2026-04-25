@@ -24,13 +24,10 @@ class Handler:
         """
         download_in_progress    =   True
         end_time                =   time.time() + self.wait_time
-        time_elapsed            =   1
         while ((time.time() < end_time) and (download_in_progress)):
             download_in_progress = False
             file_sfxs = [x.suffix for x in self._get_files()]
             if (not(file_sfxs)) or (".crdownload" in file_sfxs):
-                time_elapsed += 1
-                logger.ol(f"...({time_elapsed}/{self.wait_time})")
                 download_in_progress = True
                 time.sleep(1)
                 continue 
@@ -54,7 +51,6 @@ class Handler:
             file_dict = csv.DictReader(file)
             date_format = "%m/%d/%Y"
             min_date = calc_oldest_day(Settings.get_settings()['day_diff'])
-            logger.info("Searching from date: {}".format(min_date))
 
             for entry in file_dict:
                 entry_date = datetime.strptime(entry["Ship Date"], date_format)

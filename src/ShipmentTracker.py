@@ -1,5 +1,5 @@
 import core.driver.driver as driver
-from core.tracking.track import track
+from core.tracking.track import Handler as TrackingHandler
 from core.tracking.report import Report
 from core.tracking.result import Result
 from core.settings import Settings
@@ -7,12 +7,6 @@ from core.init import Initializer
 from core.log import getLogger
 from core.tracking.dataHandler import Handler as TrackingDataHandler
 from core.scraper.handler import Handler as ScraperHandler
-
-import handlers.site_handlers.delivery.canadapost as canpost
-import handlers.site_handlers.delivery.ups as ups
-import handlers.site_handlers.delivery.canpar as canpar
-import handlers.site_handlers.delivery.fedex as fdx
-import handlers.site_handlers.delivery.purolator as puro
 
 logger = getLogger("shipment tracker")
 
@@ -69,30 +63,8 @@ def run(worker):
     logger.info('Storing scraped data...')
     tdh.save_to_file()
 
-    if settings['track']['canada post']:
-        logger.info('Starting tracking for Canada Post shipments')
-        logger.debug('Canada Post shipments: {}'.format(tdh.get_tracking_numbers('Canada Post')))
-        track(wds, 'Canada Post', tdh.get_tracking_numbers('Canada Post'), canpost.executeScript, report)
-
-    if settings['track']['ups']:
-        logger.info('Starting tracking for UPS shipments')
-        logger.debug('UPS shipments: {}'.format(tdh.get_tracking_numbers('UPS')))
-        track(wds, 'UPS', tdh.get_tracking_numbers('UPS'), ups.executeScript, report)
-
-    if settings['track']['canpar']:
-        logger.info('Starting tracking for Canpar shipments')
-        logger.debug('Canpar shipments: {}'.format(tdh.get_tracking_numbers('Canpar')))
-        track(wds, 'Canpar', tdh.get_tracking_numbers('Canpar'), canpar.executeScript, report)
-
-    if settings['track']['purolator']:
-        logger.info('Starting tracking for Purolator shipments')
-        logger.debug('Purolator shipments: {}'.format(tdh.get_tracking_numbers('Purolator')))
-        track(wds, 'Purolator', tdh.get_tracking_numbers('Purolator'), puro.executeScript, report)
-
-    if settings['track']['fedex']:
-        logger.info('Starting tracking for Fedex shipments')
-        logger.debug('Fedex shipments: {}'.format(tdh.get_tracking_numbers('Fedex')))
-        track(wds, 'Fedex', tdh.get_tracking_numbers('Fedex'), fdx.executeScript, report)
+    tracker = TrackingHandler(wds, tdh, report)
+    tracker.run()
 
     logger.info('Tracking complete. Saving results.')
     report.save_to_file()

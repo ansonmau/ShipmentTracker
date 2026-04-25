@@ -34,11 +34,11 @@ def executeScript(wds, tracking_num):
     wds.click.element(notify_me)
     wds.misc.scrollToElement(notify_me)
     time.sleep(1)
-    wds.click.element(locators["notify_exception_toggle"])
+    wds.click.by_locator(locators["notify_exception_toggle"])
     
     email_input_txt = "{}\n{}".format(getenv("CANPAR_EMAIL1"), getenv("CANPAR_EMAIL2")) 
-    wds.input.element(locators["email_input"], email_input_txt)
-    wds.click.element(locators["add_notification_btn"])
+    wds.input.by_locator(locators["email_input"], email_input_txt)
+    wds.click.by_locator(locators["add_notification_btn"])
 
     if (not waitForConfirm(wds)):
         r.set_reason("Confirmation dialog failed to appear")

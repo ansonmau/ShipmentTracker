@@ -1,12 +1,12 @@
 {
-    "ignore_already_tracked": false,
+    "ignore_already_tracked": true,
     "day_diff": 5,
     "default_wait_time": 5,
     "clear_downloads": false,
     "debug": true,
     "scrape": {
         "eshipper": false,
-        "ems": true,
+        "ems": false,
         "freightcom": true
     },
     "track": {
@@ -16,5 +16,5 @@
         "purolator": false,
         "ups": false
     },
-    "reuse_data": false
+    "reuse_data": true
 }
