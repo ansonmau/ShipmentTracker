@@ -43,6 +43,8 @@ def run(worker):
     scraper.set_worker(worker)
     scraper.run()
 
+    logger.info("Total results found: {}".format(tdh.get_count()))
+
     if settings['ignore_already_tracked']:
         duplicates_found = 0
         logger.info('Searching for previously tracked shipments')

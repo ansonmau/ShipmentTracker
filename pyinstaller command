@@ -1,3 +1,0 @@
-pyinstaller "E:/dev/ShipmentTracker/main.py" --name "Shipment Tracker" --onefile --windowed --icon="E:/dev/ShipmentTracker/icons/deliverytruck_106577.ico" --distpath="E:/dev/ShipmentTracker/bin" --add-data "E:/dev/ShipmentTracker/core/*;." --add-data "E:/dev/ShipmentTracker/handlers/*;." --add-data "E:/dev/ShipmentTracker/ui/*;." --add-data "E:/dev/ShipmentTracker/app.py;." --log-level INFO
-
-option: --clean

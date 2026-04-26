@@ -49,6 +49,15 @@ class Handler:
         with open(Handler.file_path, 'w') as fh:
             json.dump(self.d, fh, indent=4)
 
+    def get_count(self, carrier=None):
+        count = 0
+        if (carrier):
+            count += len(self.d[carrier])
+        else:
+            for c in self.d:
+                count += len(self.d[c])
+        return count
+
     def get_dict(self):
         return self.d
 
