@@ -1,3 +1,5 @@
+pyinstaller*
+Dockerfile
 .claude/
 .vs/
 settings.json
