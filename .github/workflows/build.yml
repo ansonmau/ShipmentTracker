@@ -22,13 +22,13 @@ jobs:
 
     - name: Build executable
       run: |
-        pyinstaller "main.py" ^
-        --name "ShipmentTracker" ^
-        --onefile ^
-        --windowed ^
-        --icon="icons/rbt.ico" ^
-        --distpath="bin/" ^
-        --add-data "src/core/*;." ^
+        pyinstaller "main.py" `
+        --name "ShipmentTracker" `
+        --onefile `
+        --windowed `
+        --icon="icons/rbt.ico" `
+        --distpath="bin/" `
+        --add-data "src/core/*;." `
         --log-level INFO
 
     - name: Upload artifact
