@@ -50,7 +50,7 @@ class Handler:
         with open(file_path, "r") as file:
             file_dict = csv.DictReader(file)
             date_format = "%m/%d/%Y"
-            min_date = calc_oldest_day(Settings.get_settings()['day_diff'])
+            min_date = calc_oldest_day(Settings.get_settings()['extras']['day_diff'])
 
             for entry in file_dict:
                 entry_date = datetime.strptime(entry["Ship Date"], date_format)

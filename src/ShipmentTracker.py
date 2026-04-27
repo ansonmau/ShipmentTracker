@@ -14,6 +14,7 @@ def run(worker):
     init            =   Initializer()
     report          =   Report()
     tdh             =   TrackingDataHandler()
+    settings        =   Settings.get_settings()
 
 
     init_result = init.run()
@@ -26,6 +27,7 @@ def run(worker):
     logger.info('Attempting to start web driver...')
     wds = driver.WebDriverSession()
     wds.setUndetected(True)
+    wds.set_default_wait_time(settings['extras']['default_wait_time'])
     session_start = wds.start()
     if (not(session_start)):
         return 1
@@ -33,9 +35,8 @@ def run(worker):
         logger.info('Webdriver successfully started')
         wds.misc.maximize_window()
 
-    settings = Settings.get_settings()
 
-    if settings['reuse_data']:
+    if settings['extras']['reuse_data']:
         logger.info('Importing previous data')
         tdh.read_from_file()
 
@@ -45,7 +46,7 @@ def run(worker):
 
     logger.info("Total results found: {}".format(tdh.get_count()))
 
-    if settings['ignore_already_tracked']:
+    if settings['extras']['ignore_already_tracked']:
         duplicates_found = 0
         logger.info('Searching for previously tracked shipments')
 

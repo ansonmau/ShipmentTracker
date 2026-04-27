@@ -19,7 +19,7 @@ from core.driver.tabs import TabControl
 from core.driver.wait import Wait
 from core.driver.click import Click
 
-logger = getLogger(__name__)
+logger = getLogger("WebDriver")
 
 class WebDriverSession:
     def __init__(self):
@@ -77,6 +77,10 @@ class WebDriverSession:
                         logger.critical("Chrome outdated.\nYour version: {}\nRequired version: {}".format(current_version, expected_version))
 
         return result
+
+    def set_default_wait_time(self, wait_time):
+        self.default_wait_time = wait_time
+        logger.debug(f"default wait time set to {wait_time}")
 
     def _getOptions(self):
         options = uc.ChromeOptions() if self.undetected else Options()

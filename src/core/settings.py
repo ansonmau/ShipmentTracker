@@ -5,24 +5,28 @@ class Settings:
     file_path = ROOT / 'settings.json'
 
     settings = {
-        "ignore_already_tracked": True,
-        "day_diff": 3,
-        "default_wait_time": 5,
-        "clear_downloads": False,
-        "debug": False,
         "scrape": {
-                "eshipper": True,
-                "ems": True,
-                "freightcom": True,
+            "eshipper": False,
+            "ems": False,
+            "freightcom": False
         },
         "track": {
-                "canada post": True,
-                "canpar": True,
-                "fedex": True,
-                "purolator": True,
-                "ups": True,
+            "canada post": False,
+            "canpar": False,
+            "fedex": False,
+            "purolator": False,
+            "ups": False
         },
+        "extras": {
+            "day_diff": 5,
+            "default_wait_time": 5,
+            "ignore_already_tracked" : False, 
+            "debug_mode": False,
+            "reuse_data": False
+        }
     }
+
+    
 
     @staticmethod
     def get_settings():

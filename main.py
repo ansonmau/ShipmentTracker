@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def add_terminal_to_window(self):
-        log_level = logging.DEBUG if Settings.get_settings()['debug'] else logging.INFO
+        log_level = logging.DEBUG if Settings.get_settings()['extras']['debug_mode'] else logging.INFO
 
         if self.has_console:
             self.log_redirector.set_level(log_level)
