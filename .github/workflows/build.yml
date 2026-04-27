@@ -1,0 +1,38 @@
+name: Build Executable
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller
+        pip install -r requirements.txt
+
+    - name: Build executable
+      run: |
+        pyinstaller "main.py" ^
+        --name "ShipmentTracker" ^
+        --onefile ^
+        --windowed ^
+        --icon="icons/rbt.ico" ^
+        --distpath="bin/" ^
+        --add-data "src/core/*;." ^
+        --log-level INFO
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ShipmentTracker.exe
+        path: dist/ShipmentTracker.exe
