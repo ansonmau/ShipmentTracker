@@ -26,9 +26,9 @@ jobs:
         --name "ShipmentTracker" `
         --onefile `
         --windowed `
-        --icon="icons/rbt.ico" `
-        --distpath="bin/" `
-        --add-data "src/core/*;." `
+        --icon="./data/icons/rbt.ico" `
+        --distpath="./bin" `
+        --add-data "./src/*;." `
         --log-level INFO
 
     - name: Upload artifact
