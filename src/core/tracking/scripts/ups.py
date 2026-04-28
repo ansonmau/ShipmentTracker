@@ -13,6 +13,7 @@ class Locs:
 
     homepage = {
         "notify_me_btn": Locator(ElementTypes.id, "stApp_btnSendMeUpdate"),
+        "title_card": Locator(ElementTypes.id, "stApp_nameKey")
         }
 
     popup = {
@@ -36,6 +37,10 @@ def executeScript(wds, tracking_num):
     wds.nav.get("https://www.ups.com/track?trackingNumber={}".format(tracking_num))
     
     remove_cookies_popup(wds)
+
+    if (check_already_delivered(wds)):
+        r.set_reason("Already delivered [DNR]")
+        return r
 
     notify_btn = wds.find.element(Locs.homepage["notify_me_btn"])
     wds.misc.scrollToElement(notify_btn, centered=True)
@@ -70,6 +75,9 @@ def get_options(wds):
             opt_elm_list.append(elm_opt)
 
     return opt_elm_list
+
+def check_already_delivered(wds):
+    return "Delivered" in wds.read.text(Locs.homepage["title_card"])
 
             
 
