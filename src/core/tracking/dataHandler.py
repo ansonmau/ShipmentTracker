@@ -1,5 +1,5 @@
 import json
-from core.utils import ROOT
+from src.core.utils import ROOT
 
 class Handler:
     file_path = ROOT / 'data' / 'tracking_data.json'

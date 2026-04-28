@@ -1,8 +1,8 @@
-from core.driver.locator import Locator, ElementTypes
+from src.core.driver.locator import Locator, ElementTypes
 
 from os import getenv
-from core.settings import Settings
-from core.log import getLogger
+from src.core.settings import Settings
+from src.core.log import getLogger
 from datetime import datetime, timedelta
 from time import sleep
 
@@ -92,7 +92,7 @@ def get_popup_discard_btn(wds):
 def is_within_date_range(date):
     site_date_format = "%b %d, %Y"
     check_date = datetime.strptime(date, site_date_format)
-    lower_bound = datetime.now() - timedelta(days=Settings.get_settings()['day_diff'])
+    lower_bound = datetime.now() - timedelta(days=Settings.get_settings()['extras']['day_diff'])
 
     return check_date >= lower_bound
 

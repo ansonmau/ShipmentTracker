@@ -1,4 +1,4 @@
-from core.driver.locator import Locator, ElementTypes
+from src.core.driver.locator import Locator, ElementTypes
 
 class Click:
     def __init__(self, wds):

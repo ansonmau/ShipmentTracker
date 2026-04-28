@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
 from pathlib import Path
 
-from core.log import MyLogger, getLogger
-from core.utils import empty_folder, create_folder, create_file, ROOT
-from core.settings import Settings 
+from src.core.log import MyLogger, getLogger
+from src.core.utils import empty_folder, create_folder, create_file, ROOT
+from src.core.settings import Settings 
 
 class Initializer:
     def __init__(self):

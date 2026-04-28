@@ -1,5 +1,5 @@
 import json
-from core.utils import ROOT
+from src.core.utils import ROOT
 
 class Settings:
     file_path = ROOT / 'settings.json'

@@ -1,13 +1,13 @@
-from core.tracking.result import Result
-from core.log import getLogger
+from src.core.tracking.result import Result
+from src.core.log import getLogger
 from time import sleep
-from core.settings import Settings
+from src.core.settings import Settings
 
-import core.tracking.scripts.canadapost as cp
-import core.tracking.scripts.ups as ups
-import core.tracking.scripts.fedex as fdx
-import core.tracking.scripts.canpar as cpr
-import core.tracking.scripts.purolator as pur
+import src.core.tracking.scripts.canadapost as cp
+import src.core.tracking.scripts.ups as ups
+import src.core.tracking.scripts.fedex as fdx
+import src.core.tracking.scripts.canpar as cpr
+import src.core.tracking.scripts.purolator as pur
 
 logger = getLogger("tracker")
 
@@ -46,9 +46,14 @@ class Handler:
 
             while attempt_count < 3:
                 attempt_count += 1
-                logger.info(
-                    f"{carrier}\t#{tracking_num}\tattempt {attempt_count}/3\t{int((comp_shipment_count / total_shipment_count)*100)}%"
-                )
+
+                # log msg list that will be joined by \t and then info'd
+                # [n]carrier#tracking_number   n%  attempt n/3
+                log_msg_l = [f"{carrier}#{tracking_num}", f"{int((comp_shipment_count / total_shipment_count)*100)}%"]
+                if (attempt_count > 1):
+                    log_msg_l.append(f"attempt {attempt_count} / 3")
+                logger.info("  ---  ".join(log_msg_l))
+
                 try:
                     curr_result = self.scripts[carrier](self.wds, tracking_num)
                 except Exception as e:

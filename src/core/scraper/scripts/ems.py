@@ -1,6 +1,6 @@
-from core.driver.locator import Locator, ElementTypes
-from core.settings import Settings
-from core.log import getLogger
+from src.core.driver.locator import Locator, ElementTypes
+from src.core.settings import Settings
+from src.core.log import getLogger
 
 from os import getenv
 from time import sleep
@@ -33,7 +33,7 @@ def scrape(wds, worker):
 
     wds.nav.get("https://emarketplaceservices.com/shipments")
 
-    s_from_date, s_today = get_filter_dates(Settings.get_settings()["day_diff"])
+    s_from_date, s_today = get_filter_dates(Settings.get_settings()["extras"]["day_diff"])
     from_date_input, to_date_input = get_filter_inputs(wds)
 
     wds.input.element(from_date_input, s_from_date)

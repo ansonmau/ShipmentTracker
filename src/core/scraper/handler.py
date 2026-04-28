@@ -1,9 +1,9 @@
-from core.settings import Settings
-from core.log import getLogger
+from src.core.settings import Settings
+from src.core.log import getLogger
 
-import core.scraper.scripts.ems as ems
-import core.scraper.scripts.eshipper as eshipper
-import core.scraper.scripts.freightcom as freightcom
+import src.core.scraper.scripts.ems as ems
+import src.core.scraper.scripts.eshipper as eshipper
+import src.core.scraper.scripts.freightcom as freightcom
 
 logger = getLogger("Data Handler")
 

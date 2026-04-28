@@ -5,19 +5,19 @@ from selenium.webdriver.chrome.options import Options
 
 import undetected_chromedriver as uc
 
-from core.log import getLogger
-from core.utils import ROOT
+from src.core.log import getLogger
+from src.core.utils import ROOT
 
-from core.driver.nav import Nav
-from core.driver.find import Find
-from core.driver.read import Read
-from core.driver.filter import Filter
-from core.driver.input import Input
-from core.driver.misc import Misc
-from core.driver.select import Select
-from core.driver.tabs import TabControl
-from core.driver.wait import Wait
-from core.driver.click import Click
+from src.core.driver.nav import Nav
+from src.core.driver.find import Find
+from src.core.driver.read import Read
+from src.core.driver.filter import Filter
+from src.core.driver.input import Input
+from src.core.driver.misc import Misc
+from src.core.driver.select import Select
+from src.core.driver.tabs import TabControl
+from src.core.driver.wait import Wait
+from src.core.driver.click import Click
 
 logger = getLogger("WebDriver")
 

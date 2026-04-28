@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 import os
-from core.utils import create_file
+from src.core.utils import create_file
 
 logging.basicConfig(
     format="%(asctime)s %(name)s: [%(levelname)s] %(message)s",

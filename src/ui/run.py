@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QPushButton
 )
 
-from ShipmentTracker import run as run_main_app
+from src.ShipmentTracker import run as run_main_app
 
 class RunWidget(QWidget):
     def __init__(self):
@@ -28,6 +28,7 @@ class RunWidget(QWidget):
         self.window().save_settings()
         self.window().add_terminal_to_window()
         self.start_main_thread()
+
 
     def start_main_thread(self):
         self.worker = Worker(self.pause_event)

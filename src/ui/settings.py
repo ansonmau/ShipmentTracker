@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QCheckBox, QGroupBox, QHBoxLayout
 )
 
-from core.settings import Settings
+from src.core.settings import Settings
 class AppSetting:
     def __init__(self, id = None, widget = None, widget_type = None, corresponding_setting = None):
         self._id = id 
@@ -118,10 +118,10 @@ class SettingsWidget(QWidget):
         self.wdgts.append(AppSetting("extras.reuse_data", QCheckBox("Re-use data from previous run"), "checkbox"))
         self.wdgts.append(AppSetting("label.day_diff", QLabel("Day difference:"), "label"))
         self.wdgts.append(AppSetting("extras.day_diff", QSpinBox(), "spinbox"))
-        self.wdgts[-1].set_spinbox_range(0,1000)
+        self.wdgts[-1].set_spinbox_range(1,999)
         self.wdgts.append(AppSetting("label.waittime", QLabel("Wait time:"), "label"))
         self.wdgts.append(AppSetting("extras.default_wait_time", QSpinBox(), "spinbox"))
-        self.wdgts[-1].set_spinbox_range(0,1000)
+        self.wdgts[-1].set_spinbox_range(5,999)
         self.wdgts.append(AppSetting("extras.debug_mode", QCheckBox("Debug mode"), "checkbox"))
 
         for i in range(extras_start_index, len(self.wdgts)):
@@ -161,6 +161,7 @@ class SettingsWidget(QWidget):
 
     def load_settings_to_ui(self):
         if Settings.file_exists():
+            Settings.load_from_file()
             settings = Settings.get_settings()
 
             for s in self.wdgts:

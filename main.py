@@ -1,8 +1,5 @@
 import sys
-import os
 import logging
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src'))
-
 
 from PySide6.QtCore import Qt, Slot, Signal, QObject
 from PySide6.QtGui import QFont
@@ -11,9 +8,9 @@ from PySide6.QtWidgets import (
     QLabel,
      )
 
-from core.settings import Settings
-from ui.settings import SettingsWidget
-from ui.run import RunWidget
+from src.core.settings import Settings
+from src.ui.settings import SettingsWidget
+from src.ui.run import RunWidget
 
 
 class LogEmitter(QObject):

@@ -1,7 +1,7 @@
-from core.tracking.result import Result
+from src.core.tracking.result import Result
 from datetime import datetime
 
-from core.utils import ROOT
+from src.core.utils import ROOT
 
 class Report:
     save_path = ROOT / "reports" / f"{datetime.now().strftime("%m-%d_%H-%M")}.txt"

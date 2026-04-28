@@ -4,7 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 # Project imports
-from core.driver.locator import Locator, ElementTypes
+from src.core.driver.locator import Locator, ElementTypes
 
 class Find:
     def __init__(self, wds):

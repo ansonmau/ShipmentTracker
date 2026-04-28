@@ -1,6 +1,6 @@
-from core.driver.locator import Locator, ElementTypes
-from core.log import getLogger
-from core.tracking.result import Result
+from src.core.driver.locator import Locator, ElementTypes
+from src.core.log import getLogger
+from src.core.tracking.result import Result
 
 import time
 from os import getenv

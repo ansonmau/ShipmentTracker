@@ -1,16 +1,19 @@
-import core.driver.driver as driver
-from core.tracking.track import Handler as TrackingHandler
-from core.tracking.report import Report
-from core.tracking.result import Result
-from core.settings import Settings
-from core.init import Initializer
-from core.log import getLogger
-from core.tracking.dataHandler import Handler as TrackingDataHandler
-from core.scraper.handler import Handler as ScraperHandler
+import src.core.driver.driver as driver
+from src.core.tracking.track import Handler as TrackingHandler
+from src.core.tracking.report import Report
+from src.core.tracking.result import Result
+from src.core.settings import Settings
+from src.core.init import Initializer
+from src.core.log import getLogger
+from src.core.tracking.dataHandler import Handler as TrackingDataHandler
+from src.core.scraper.handler import Handler as ScraperHandler
 
 logger = getLogger("shipment tracker")
 
 def run(worker):
+    if (Settings.file_exists()):
+        Settings.load_from_file()
+
     init            =   Initializer()
     report          =   Report()
     tdh             =   TrackingDataHandler()

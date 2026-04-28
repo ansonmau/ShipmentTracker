@@ -1,9 +1,9 @@
-from core.driver.driver import WebDriverSession
-from core.driver.locator import Locator, ElementTypes
+from src.core.driver.driver import WebDriverSession
+from src.core.driver.locator import Locator, ElementTypes
 
 from os import getenv
-from core.log import getLogger
-from core.tracking.result import Result
+from src.core.log import getLogger
+from src.core.tracking.result import Result
 import time
 
 logger = getLogger(__name__)

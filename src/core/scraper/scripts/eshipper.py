@@ -1,7 +1,7 @@
-from core.driver.locator import Locator, ElementTypes
-from core.log import getLogger
+from src.core.driver.locator import Locator, ElementTypes
+from src.core.log import getLogger
 
-import core.scraper.scripts.eshipperFileHandler as eshipper_file_handler
+import src.core.scraper.scripts.eshipperFileHandler as eshipper_file_handler
 
 from os import getenv
 
