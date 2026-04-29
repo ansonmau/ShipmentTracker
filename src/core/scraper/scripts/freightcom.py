@@ -63,16 +63,19 @@ def scrape(wds, worker):
     table = TableHandler(wds)
     results.extend(table.parse_table())
 
-    next_page_button = wds.filter.by_attribute(
-            wds.find.all(Paths.tracking_page["page_controls"]),
-            "title",
-            "next")[0]
-
     # repeat until the last shipment looked at is before the user's date setting
     while (is_within_date_range(table.last_found_date)):
-        wds.click.element(next_page_button)
-        sleep(1) # wait for page load
-        results.extend(table.parse_table())
+        page_controls = wds.filter.by_attribute(
+                    wds.find.all(Paths.tracking_page["page_controls"]),
+                    "title",
+                    "next")
+        if (page_controls):
+            next_page_button = page_controls[0]
+            wds.click.element(next_page_button)
+            sleep(1) # wait for page load
+            results.extend(table.parse_table())
+        else:
+            break
 
     return results
 
