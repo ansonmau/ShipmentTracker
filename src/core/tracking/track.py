@@ -51,7 +51,7 @@ class Handler:
                 # [n]carrier#tracking_number   n%  attempt n/3
                 log_msg_l = [f"{carrier}#{tracking_num}", f"{int((comp_shipment_count / total_shipment_count)*100)}%"]
                 if (attempt_count > 1):
-                    log_msg_l.append(f"attempt {attempt_count} / 3")
+                    log_msg_l.append(f"attempt {attempt_count}")
                 logger.info("  ---  ".join(log_msg_l))
 
                 try:
