@@ -119,7 +119,7 @@ class SettingsWidget(QWidget):
         self.wdgts.append(AppSetting("label.day_diff", QLabel("Day difference:"), "label"))
         self.wdgts.append(AppSetting("extras.day_diff", QSpinBox(), "spinbox"))
         self.wdgts[-1].set_spinbox_range(1,999)
-        self.wdgts.append(AppSetting("label.waittime", QLabel("Wait time:"), "label"))
+        self.wdgts.append(AppSetting("label.waittime", QLabel("Wait time (seconds):"), "label"))
         self.wdgts.append(AppSetting("extras.default_wait_time", QSpinBox(), "spinbox"))
         self.wdgts[-1].set_spinbox_range(5,999)
         self.wdgts.append(AppSetting("extras.debug_mode", QCheckBox("Debug mode"), "checkbox"))
@@ -130,34 +130,51 @@ class SettingsWidget(QWidget):
         extras_container.setLayout(extras_layout)
 
         overall_layout.addWidget(scrape_container)
+        overall_layout.addWidget(self._gen_group_actions_container("scrape"))
         overall_layout.addWidget(carrier_container)
-        overall_layout.addWidget(self._get_button_container())
+        overall_layout.addWidget(self._gen_group_actions_container("track"))
         overall_layout.addWidget(extras_container)
 
         self.setLayout(overall_layout)
         self.load_settings_to_ui()
 
-    def _get_button_container(self):
-        btn_group = QWidget()
-        btn_layout = QHBoxLayout()
+    def _gen_group_actions_container(self, group_name:str)->QWidget:
+        small_button_stylesheet = """
+                              QPushButton {
+                                  padding: 4px 10px;
+                                  font-size: 11px;
+                                  margin: 0px;
+                                  }
+                              """ 
+        btn_all =   QPushButton("O")
+        btn_none =  QPushButton("/")
 
-        btn_save = QPushButton("Set all")
-        btn_reset = QPushButton("Set none")
+        btn_all.setStyleSheet(small_button_stylesheet)
+        btn_all.clicked.connect(lambda: self.all_btn_func(group_name))
+        btn_none.setStyleSheet(small_button_stylesheet)
+        btn_none.clicked.connect(lambda: self.none_btn_func(group_name))
 
-        btn_save.clicked.connect(self.set_btn_clicked)
-        btn_reset.clicked.connect(self.reset_btn_clicked)
-        btn_layout.addWidget(btn_save)
-        btn_layout.addWidget(btn_reset)
+        container = QWidget()
+        lyt = QHBoxLayout()
+        lyt.addWidget(btn_all)
+        lyt.addWidget(btn_none)
+        lyt.addStretch()
+        container.setLayout(lyt)
 
-        btn_group.setLayout(btn_layout)
-        return btn_group
+        return container
 
-    def set_btn_clicked(self):
-        self.set_normal_settings_to(True)
 
-    def set_normal_settings_to(self, val: bool):
-        for s in self.wdgts:
-            s.value = val
+    def all_btn_func(self, group_name:str):
+        self._set_group_value(group_name, True)
+
+    def none_btn_func(self, group_name:str):
+        self._set_group_value(group_name, False)
+
+    def _set_group_value(self, group_name:str, val):
+        for w in self.wdgts:
+            w_group = (w.id.split('.'))[0]
+            if (w_group.lower() == group_name.lower()):
+                w.value = val
 
     def load_settings_to_ui(self):
         if Settings.file_exists():
@@ -176,7 +193,7 @@ class SettingsWidget(QWidget):
                     val = settings[key[0]]
                 s.value = val
         else:
-            self.set_normal_settings_to(False)
+            self._set_group_value(".", False)
 
     def save_settings_to_file(self):
         settings = Settings.get_settings()
@@ -193,8 +210,6 @@ class SettingsWidget(QWidget):
 
         Settings.write_to_file()
 
-    def reset_btn_clicked(self):
-        self.set_normal_settings_to(False)
 
     def close_self(self):
         self.close()
