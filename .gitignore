@@ -4,6 +4,7 @@ Dockerfile
 .vs/
 settings.json
 .mynvim/
+docker/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
