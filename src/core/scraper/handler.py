@@ -34,8 +34,8 @@ class Handler:
     def run(self):
         scrape_list = [x for x in self.settings.keys() if self.settings[x] == True]
         
-        if "ems" in scrape_list:
-            i = scrape_list.index("ems")
+        if "freightcom" in scrape_list:
+            i = scrape_list.index("freightcom")
             scrape_list[0], scrape_list[i] = scrape_list[i], scrape_list[0]
         for site in scrape_list:
             logger.info(f"Beginning scrape process for {site.upper()}")

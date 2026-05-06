@@ -64,7 +64,6 @@ class MainWindow(QMainWindow):
 
         # status bar
         self.setStatusBar(QStatusBar(self))
-        self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
 
     def get_starting_widget(self):
         self.starting_group = QWidget()

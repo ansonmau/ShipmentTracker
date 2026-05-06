@@ -3,6 +3,7 @@ Dockerfile
 .claude/
 .vs/
 settings.json
+.mynvim/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
