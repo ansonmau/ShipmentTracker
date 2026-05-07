@@ -55,6 +55,8 @@ def run(worker):
 
         old_reports = Report()
         old_reports.import_previous_reports()
+        logger.info('Previous reports loaded')
+        logger.debug('Reports loaded: {}'.format(old_reports.get_all()))
 
         for result in old_reports.get_all():
             if (result.get_result() == Result.SUCCESS or "DNR" in result.get_reason()):

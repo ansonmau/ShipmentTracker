@@ -1,7 +1,10 @@
-from src.core.tracking.result import Result
 from datetime import datetime
 
-from src.core.utils import ROOT
+from src.core.tracking.result  import Result
+from src.core.utils            import ROOT
+from src.core.log              import getLogger
+
+logger = getLogger("Report-Handler")
 
 class Report:
     save_path = ROOT / "reports" / f"{datetime.now().strftime("%m-%d_%H-%M")}.txt"
@@ -47,7 +50,10 @@ class Report:
         fh.close()
 
     def import_previous_reports(self):
-        for report_file in self._get_files():
+        files = self._get_files()
+        if not files:
+            return 
+        for report_file in files:
             with open(report_file, 'r') as fh:
                 for line in fh:
                     r = Result.from_csv(line)
@@ -58,5 +64,7 @@ class Report:
     def _get_files(self) -> list:
         report_dir = ROOT / 'reports'
         report_files = [f for f in report_dir.iterdir() if f.is_file()]
+        logger.debug("Files found: {}".format(report_files))
 
         return report_files
+

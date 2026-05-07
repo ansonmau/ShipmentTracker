@@ -34,9 +34,11 @@ class Handler:
     def run(self):
         scrape_list = [x for x in self.settings.keys() if self.settings[x] == True]
         
+        # put freightcom first since it requires captcha 
         if "freightcom" in scrape_list:
             i = scrape_list.index("freightcom")
             scrape_list[0], scrape_list[i] = scrape_list[i], scrape_list[0]
+
         for site in scrape_list:
             logger.info(f"Beginning scrape process for {site.upper()}")
             scrape_results = self.site_scrapers[site](self.wds, self.worker)
