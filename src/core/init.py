@@ -40,7 +40,7 @@ class Initializer:
     def init_data(self):
         create_folder(ROOT / 'data')
         create_folder(ROOT / 'data' / 'dls')
-        create_file(ROOT / 'data' / 'delivery_data.json')
+        create_file(ROOT / 'data' / 'tracking_data.json')
         create_file(ROOT / 'data' / 'keys.env')
         # clear dls just in case
         empty_folder(ROOT / 'data' / 'dls') 
