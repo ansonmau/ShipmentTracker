@@ -14,12 +14,13 @@ def run(worker):
     if (Settings.file_exists()):
         Settings.load_from_file()
 
+# ───────────────────────────────── vars ─────────────────────────────────
     init            =   Initializer()
     report          =   Report()
     tdh             =   TrackingDataHandler()
     settings        =   Settings.get_settings()
 
-
+# ──────────────────────────── initialization ────────────────────────────
     init_result = init.run()
     if (not init_result):
         logger.critical(f'Initialization failed. Please review.\nError code:\n{init.err_code}')
@@ -27,6 +28,7 @@ def run(worker):
     else:
         logger.info('Initialization successful')
 
+# ─────────────────────────── start webdriver ─────────────────────────
     logger.info('Attempting to start web driver...')
     wds = driver.WebDriverSession()
     wds.setUndetected(True)
@@ -38,17 +40,21 @@ def run(worker):
         logger.info('Webdriver successfully started')
         wds.misc.maximize_window()
 
-
+# ───────────────────── import previously saved data ─────────────────────
     if settings['extras']['reuse_data']:
         logger.info('Importing previous data')
-        tdh.read_from_file()
+        result = tdh.read_from_file()
+        if (result == 1):
+            logger.info("Failed to load previous data.")
 
+# ─────────────────────────────── scraping ───────────────────────────────
     scraper = ScraperHandler(wds, tdh)
     scraper.set_worker(worker)
     scraper.run()
 
     logger.info("Total results found: {}".format(tdh.get_count()))
 
+# ──────────────────────── ignore already tracked ────────────────────────
     if settings['extras']['ignore_already_tracked']:
         duplicates_found = 0
         logger.info('Searching for previously tracked shipments')
@@ -68,12 +74,15 @@ def run(worker):
                     tdh.remove_shipment(carr, t_num)
         logger.info('{} tracking numbers removed.'.format(duplicates_found))
 
+# ───────────────────────────── save data ───────────────────────────
     logger.info('Storing scraped data...')
     tdh.save_to_file()
 
+# ─────────────────────────── handle tracking ─────────────────────────
     tracker = TrackingHandler(wds, tdh, report)
     tracker.run()
 
+# ─────────────────────────────── clean up ───────────────────────────────
     logger.info('Tracking complete. Saving results.')
     report.save_to_file()
 

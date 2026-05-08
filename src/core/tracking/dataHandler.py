@@ -1,5 +1,9 @@
 import json
-from src.core.utils import ROOT
+
+from src.core.utils  import ROOT
+from src.core.log import getLogger
+
+logger = getLogger("tracking-handler")
 
 class Handler:
     file_path = ROOT / 'data' / 'tracking_data.json'
@@ -36,6 +40,10 @@ class Handler:
         return self.d[carrier_name.lower()]
 
     def read_from_file(self):
+        if (not (self._file_path_exists())):
+            logger.debug("Path does not exist -> {}".format(Handler.file_path))
+            return 1
+
         with open(Handler.file_path, 'r') as fh:
             d = json.load(fh)
 
@@ -44,6 +52,8 @@ class Handler:
         self.ups.extend(d["ups"])
         self.fedex.extend(d["fedex"])
         self.canpar.extend(d["canpar"])
+
+        return 0
 
     def save_to_file(self):
         with open(Handler.file_path, 'w') as fh:
@@ -61,4 +71,6 @@ class Handler:
     def get_dict(self):
         return self.d
 
+    def _file_path_exists(self):
+        return Handler.file_path.exists()
 

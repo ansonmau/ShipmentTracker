@@ -42,7 +42,8 @@ class Initializer:
         create_folder(ROOT / 'data' / 'dls')
         create_file(ROOT / 'data' / 'delivery_data.json')
         create_file(ROOT / 'data' / 'keys.env')
-        empty_folder(ROOT / 'data' / 'dls') # just in case there's stuff in there. program requires it to be empty.
+        # clear dls just in case
+        empty_folder(ROOT / 'data' / 'dls') 
 
     def init_reports(self):
         create_folder(ROOT / 'reports')
