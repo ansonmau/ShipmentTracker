@@ -34,7 +34,6 @@ class Initializer:
     
     def init_logs(self):
         create_folder(ROOT / 'logs')
-        create_file(MyLogger.log_file_path)
         MyLogger.init_file_handler()
     
     def init_data(self):
