@@ -51,7 +51,7 @@ class MyLogger:
     def init_file_handler():
         create_file(MyLogger._log_file_path)
         for logger in MyLogger._loggers:
-            logger.logger.addHandler(logging.FileHandler(MyLogger._log_file_path))
+            logger._logger.addHandler(logging.FileHandler(MyLogger._log_file_path))
 
     @staticmethod
     def mute_noisy_libs():
