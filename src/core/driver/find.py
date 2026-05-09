@@ -101,6 +101,7 @@ class Find:
         if (parent_element == None):
             return elements
 
+
         if (not wait):
             wait = self.wds.default_wait_time
 
@@ -108,7 +109,8 @@ class Find:
         elements = self.all_in_parent(parent_element, button_locator)
 
         if filter:
-            elements = [el for el in elements if filter in self.wds.read.element_text(el)]
+            filter = filter.lower()
+            elements = [el for el in elements if filter in self.wds.read.element_text(el).lower()]
 
         return elements
 
