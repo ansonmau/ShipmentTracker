@@ -1,10 +1,14 @@
 from PySide6.QtWidgets import (
-    QSpinBox, QWidget,
+    QLineEdit, QSpinBox, QWidget,
     QVBoxLayout, QPushButton, QLabel,
     QCheckBox, QGroupBox, QHBoxLayout
 )
 
 from src.core.settings import Settings
+
+# ╭────────────────────────────────────────────────╮
+# │                Settings Wrapper                │
+# ╰────────────────────────────────────────────────╯
 class AppSetting:
     def __init__(self, id = None, widget = None, widget_type = None, corresponding_setting = None):
         self._id = id 
@@ -76,6 +80,10 @@ class AppSetting:
         self._widget.setMaximum(high)
 
 
+# ╭────────────────────────────────────────────────╮
+# │              Main Settings Widget              │
+# ╰────────────────────────────────────────────────╯
+
 class SettingsWidget(QWidget):
     wdgts = []
 
@@ -122,6 +130,8 @@ class SettingsWidget(QWidget):
         self.wdgts.append(AppSetting("label.waittime", QLabel("Wait time (seconds):"), "label"))
         self.wdgts.append(AppSetting("extras.default_wait_time", QSpinBox(), "spinbox"))
         self.wdgts[-1].set_spinbox_range(5,999)
+        self.wdgts.append(AppSetting("label.chrome_dir", QLabel("Custom chrome location: "), "label"))
+        self.wdgts.append(AppSetting("extras.chrome_dir", QLineEdit(), "lineedit"))
         self.wdgts.append(AppSetting("extras.debug_mode", QCheckBox("Debug mode"), "checkbox"))
 
         for i in range(extras_start_index, len(self.wdgts)):

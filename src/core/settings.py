@@ -6,23 +6,24 @@ class Settings:
 
     settings = {
         "scrape": {
-            "eshipper": False,
-            "ems": False,
+            "eshipper":   False,
+            "ems":        False,
             "freightcom": False
         },
         "track": {
             "canada post": False,
-            "canpar": False,
-            "fedex": False,
-            "purolator": False,
-            "ups": False
+            "canpar":      False,
+            "fedex":       False,
+            "purolator":   False,
+            "ups":         False
         },
         "extras": {
-            "day_diff": 5,
-            "default_wait_time": 5,
-            "ignore_already_tracked" : False, 
-            "debug_mode": False,
-            "reuse_data": False
+            "day_diff":               5,
+            "default_wait_time":      5,
+            "ignore_already_tracked": False,
+            "debug_mode":             False,
+            "reuse_data":             False,
+            "chrome_dir":             "",
         }
     }
 
