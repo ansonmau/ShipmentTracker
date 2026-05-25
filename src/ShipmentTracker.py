@@ -7,9 +7,9 @@ from src.core.init                 import Initializer
 from src.core.tracking.track       import Handler as TrackingHandler
 from src.core.tracking.dataHandler import Handler as TrackingDataHandler
 from src.core.scraper.handler      import Handler as ScraperHandler
-from src.core.log                  import getLogger
+from src.core.log                  import getLogger, MyLogger
 
-logger = getLogger("shipment tracker")
+logger = getLogger("ShipmentTracker-Main")
 
 def run(worker):
     if (Settings.file_exists()):
@@ -20,6 +20,12 @@ def run(worker):
     report    =  Report()
     tdh       =  TrackingDataHandler()
     settings  =  Settings.get_settings()
+
+    # ────────────────────────────< logger setup >────────────────────────────
+    if settings['extras']['debug_mode']:
+        MyLogger.set_global_level("debug")
+    else:
+        MyLogger.set_global_level("info")
 
     # ──────────────────────────── initialization ────────────────────────────
     init_result = init.run()

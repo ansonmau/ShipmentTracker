@@ -5,11 +5,14 @@ from PySide6.QtWidgets import (
 )
 
 from src.core.settings import Settings
+from src.core.log import getLogger
+
 
 # ╭────────────────────────────────────────────────╮
 # │                Settings Wrapper                │
 # ╰────────────────────────────────────────────────╯
 class AppSetting:
+    logger = getLogger("settings.AppSettings") 
     def __init__(self, id = None, widget = None, widget_type = None, corresponding_setting = None):
         self._id = id 
         self._widget_type = widget_type
@@ -35,16 +38,16 @@ class AppSetting:
 
     @property
     def value(self):
-        val = None
-        if (not(self._widget)):
-            return val
+        if (not(self._widget) or not(self._widget_type)):
+            return None
 
-        if self._widget_type == "checkbox":
-            val = self._widget.isChecked()
-        elif self._widget_type == "spinbox":
-            val = self._widget.value()
+        get_fnc = self._get_widget_get_function()
+        if (get_fnc):
+            return get_fnc()
+        else:
+            self.logger.debug(f"Cannot get value of unknown widget type: {self._widget_type}")
 
-        return val
+        return None
 
     @id.setter 
     def id(self, value):
@@ -64,13 +67,14 @@ class AppSetting:
 
     @value.setter
     def value(self, value):
-        if (not(self._widget)):
+        if (not(self._widget) or not(self._widget_type)):
             return 
 
-        if self._widget_type == "checkbox":
-            self._widget.setChecked(value)
-        elif self._widget_type == "spinbox":
-            self._widget.setValue(value)
+        set_fnc = self._get_widget_set_function()
+        if (set_fnc):
+            set_fnc(value)
+        else:
+            self.logger.debug("Cannot set value for unknown widget type: {}".format(self._widget_type))
 
     def set_spinbox_range(self, low, high):
         if (not(self._widget) or not(self._widget_type == "spinbox")):
@@ -79,6 +83,39 @@ class AppSetting:
         self._widget.setMinimum(low)
         self._widget.setMaximum(high)
 
+    def _get_widget_set_function(self):
+        if (not(self._widget) or not(self._widget_type)):
+            raise RuntimeError("Tried to get widget set function without assigning a widget first")
+
+        w = self._widget
+        wt = self._widget_type
+
+        if wt == "checkbox":
+            return w.setChecked
+        if wt == "spinbox":
+            return w.setValue
+        if wt == "lineedit":
+            return w.setText
+
+        self.logger.debug(f"Cannot find value setter function for undefined widget type: {wt}")
+        return None
+
+    def _get_widget_get_function(self):
+        if (not(self._widget) or not(self._widget_type)):
+            raise RuntimeError("Tried to get widget get function without assigning a widget first")
+
+        w = self._widget
+        wt = self._widget_type
+
+        if wt == "checkbox":
+            return w.isChecked
+        if wt == "spinbox":
+            return w.value
+        if wt == "lineedit":
+            return w.text
+
+        self.logger.debug(f"Cannot find value getter function for undefined widget type: {wt}")
+        return None
 
 # ╭────────────────────────────────────────────────╮
 # │              Main Settings Widget              │
@@ -209,9 +246,15 @@ class SettingsWidget(QWidget):
         settings = Settings.get_settings()
 
         for s in self.wdgts:
+            # ── ignore labels ─────────────────────────────────────────────────────
             if s.widget_type == "label":
                 continue 
 
+            # ── value fixing ──────────────────────────────────────────────────────
+            if (isinstance(s.value, str)):
+                s.value = s.value.strip()
+
+            # ── set values ────────────────────────────────────────────────────────
             key = s.id.split('.')
             if (len(key) == 2):
                 settings[key[0]][key[1]] = s.value

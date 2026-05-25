@@ -20,9 +20,7 @@ class MyLogger:
         self._logger.setLevel(MyLogger._level)
         MyLogger._loggers.append(self)
 
-# ╭──────────────────────────────────────────────────────────╮
-# │                           API                            │
-# ╰──────────────────────────────────────────────────────────╯
+    # ────────────────────────────────< API >──────────────────────────────
     def info(self, msg):
         self._logger.info(msg)
 
@@ -41,11 +39,16 @@ class MyLogger:
     def set_level(self, level):
         self._logger.setLevel(level)
 
-# ──────────────────────────── static methods ────────────────────────────
+    # ───────────────────────────< static methods >───────────────────────────
     @staticmethod
-    def set_global_level(level):
+    def set_global_level(level_name):
+        levels = {
+                "debug": logging.DEBUG,
+                "info":  logging.INFO,
+                }
+
         for logger in MyLogger._loggers:
-            logger.set_level(level)
+            logger.set_level(levels[level_name])
 
     @staticmethod
     def init_file_handler():
