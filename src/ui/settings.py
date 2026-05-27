@@ -261,7 +261,8 @@ class SettingsWidget(QWidget):
 
             # ── value fixing ──────────────────────────────────────────────────────
             if (isinstance(s.value, str)):
-                s.value = s.value.strip()
+                # remove leading/trailing quotes and spaces
+                s.value = s.value.strip().strip('"').strip()
 
             # ── set values ────────────────────────────────────────────────────────
             key = s.id.split('.')
