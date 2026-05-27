@@ -169,6 +169,8 @@ class SettingsWidget(QWidget):
         self.wdgts[-1].set_spinbox_range(5,999)
         self.wdgts.append(AppSetting("label.chrome_dir", QLabel("Custom chrome location: "), "label"))
         self.wdgts.append(AppSetting("extras.chrome_dir", QLineEdit(), "lineedit"))
+        self.wdgts.append(AppSetting("label.chrome_version", QLabel("Custom chrome version: "), "label"))
+        self.wdgts.append(AppSetting("extras.chrome_version", QLineEdit(), "lineedit"))
         self.wdgts.append(AppSetting("extras.debug_mode", QCheckBox("Debug mode"), "checkbox"))
 
         for i in range(extras_start_index, len(self.wdgts)):
@@ -235,9 +237,16 @@ class SettingsWidget(QWidget):
                 val = None
                 key = s.id.split('.')
                 if (len(key) == 2): 
-                    val = settings[key[0]][key[1]]
+                    val = settings.get(key[0])
+                    if val:
+                        val = val.get(key[1])
                 else:
-                    val = settings[key[0]]
+                    val = settings.get(key[0])
+
+                if not val or isinstance(val, dict):
+                    # may be dict if it gets stuck on the way to a value
+                    continue
+
                 s.value = val
         else:
             self._set_group_value(".", False)
@@ -262,7 +271,6 @@ class SettingsWidget(QWidget):
                 settings[key[0]] = s.value
 
         Settings.write_to_file()
-
 
     def close_self(self):
         self.close()

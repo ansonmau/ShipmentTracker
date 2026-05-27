@@ -6,7 +6,7 @@ from src.core.log import getLogger
 from datetime import datetime, timedelta
 from time import sleep
 
-logger = getLogger(__name__)
+logger = getLogger("freightcom")
 
 class Paths:
     startpage = {"login_btn": Locator(ElementTypes.css, ".menu-login")}

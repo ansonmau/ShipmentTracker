@@ -5,7 +5,7 @@ from src.core.log import getLogger
 from os import getenv
 from time import time
 
-logger = getLogger(__name__)
+logger = getLogger("fedex")
 
 denied_cookies = False
 

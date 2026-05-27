@@ -6,7 +6,7 @@ from os import getenv
 from time import sleep
 from datetime import datetime, timedelta
 
-logger = getLogger(__name__)
+logger = getLogger("ems")
 
 class Paths:
     login = {

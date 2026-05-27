@@ -5,7 +5,7 @@ import src.core.scraper.scripts.eshipperFileHandler as eshipper_file_handler
 
 from os import getenv
 
-logger = getLogger(__name__)
+logger = getLogger("eshipper")
 
 paths = {
     "go_login_page_btn": Locator(ElementTypes.id, "login"),

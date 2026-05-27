@@ -6,7 +6,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from os import getenv
 from time import sleep
 
-logger = getLogger(__name__)
+logger = getLogger("canada-post")
 
 locators = {
     "get_email_notif": Locator(ElementTypes.css, ".trackEmail"),

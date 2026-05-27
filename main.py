@@ -29,7 +29,7 @@ class LogRedirector(logging.Handler):
         # format the msg
         formatter = None 
         if (self.log_level == logging.DEBUG):
-            formatter = logging.Formatter("[%(levelname)s] %(message)s")
+            formatter = logging.Formatter("[%(name)s] >> [%(levelname)s] >> %(message)s")
         else:
             formatter = logging.Formatter(":> %(message)s")
 

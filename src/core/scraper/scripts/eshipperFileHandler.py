@@ -5,7 +5,7 @@ from src.core.log import getLogger
 from src.core.settings import Settings
 from src.core.utils import ROOT
 
-logger = getLogger("eshipper file handler")
+logger = getLogger("eship-file-handler")
 
 class Handler:
     def __init__(self):

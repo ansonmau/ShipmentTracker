@@ -5,7 +5,7 @@ from src.core.tracking.result import Result
 import time
 from os import getenv
 
-logger = getLogger(__name__)
+logger = getLogger("canpar")
 
 locators = {
     "notify_me_btn": Locator(

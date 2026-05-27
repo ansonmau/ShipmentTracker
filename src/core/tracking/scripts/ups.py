@@ -6,7 +6,7 @@ from src.core.log import getLogger
 from src.core.tracking.result import Result
 from time import sleep
 
-logger = getLogger(__name__)
+logger = getLogger("ups")
 
 # ╭──────────────────────────────────────────────────────────╮
 # │                        Locations                         │

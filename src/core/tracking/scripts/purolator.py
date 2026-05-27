@@ -1,11 +1,11 @@
 import time
-from os import getenv, name
+from os import getenv
 
 from src.core.driver.locator import Locator, ElementTypes
 from src.core.log import getLogger
 from src.core.tracking.result import Result
 
-logger = getLogger(__name__)
+logger = getLogger("purolator")
 
 class Paths:
 

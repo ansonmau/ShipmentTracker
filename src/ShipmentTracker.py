@@ -41,10 +41,16 @@ def run(worker):
     wds = driver.WebDriverSession()
 
     # driver settings
+    wds.setUndetected(True)
+    # chrome dir
     if (settings["extras"]["chrome_dir"]):
         wds.set_custom_dir(settings["extras"]["chrome_dir"])
-    wds.setUndetected(True)
-    wds.set_default_wait_time(settings['extras']['default_wait_time'])
+    # chrome version
+    if (settings["extras"]["chrome_version"]):
+        wds.set_custom_version(settings["extras"]["chrome_version"])
+    # wait time
+    if (settings["extras"]["default_wait_time"]):
+        wds.set_default_wait_time(settings["extras"]["default_wait_time"])
 
     # start driver
     err = wds.start()

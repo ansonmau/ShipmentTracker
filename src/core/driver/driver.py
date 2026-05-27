@@ -27,6 +27,7 @@ class WebDriverSession:
         self.default_wait_time = 10
         self.undetected        = False
         self._custom_dir       = None
+        self._custom_version   = None
 
         # ── sub controls ──────────────────────────────────────────────────────
         self.nav        = None
@@ -53,20 +54,31 @@ class WebDriverSession:
 
     def set_custom_dir(self, dir: str):
         p = None
+
+        # ── input checking ────────────────────────────────────────────────────
         try:
             p = Path(dir)
+            if not p.exists():
+                raise ValueError() # gets caught be the except
         except:
             logger.debug("Failed to convert to Path: {}".format(dir))
-            return 2
+            return 1
 
-        if p:
-            if p.exists():
-                self._custom_dir = dir
-                logger.debug(f"Successfully set custom chrome path to: {self._custom_dir}")
-                return 0 # success
-            else:
-                logger.debug("Path does not exist: {}".format(dir))
-                return 1
+        # ── set dir ───────────────────────────────────────────────────────────
+        self._custom_dir = dir
+        logger.debug(f"Successfully set custom chrome path to: {self._custom_dir}")
+        return 0 
+
+    def set_custom_version(self, version):
+        try:
+            version = int(version)
+        except:
+            logger.debug(f"Failed to convert to int: {version}")
+            return 1
+
+        self._custom_version = version
+        return 0
+
 
     def start(self):
         """
@@ -76,29 +88,40 @@ class WebDriverSession:
             error flag (0 = no error)
         """
         options = self._build_options()
+
+        if not options:
+            logger.debug("failed to build options for chrome")
+            return 1
+
         logger.debug(f"Attempting to start webdriver with options: {options}")
-        if (options):
-            try:
-                self.driver     = uc.Chrome(options=options) if self.undetected else webdriver.Chrome(options=options)
-                self.nav        = Nav(self)
-                self.find       = Find(self)
-                self.click      = Click(self)
-                self.wait       = Wait(self)
-                self.input      = Input(self)
-                self.filter     = Filter(self)
-                self.read       = Read(self)
-                self.tabControl = TabControl(self)
-                self.select     = Select(self)
-                self.misc       = Misc(self)
-            except SessionNotCreatedException as e:
-                if e.msg:
-                    if "this version of chromedriver only supports" in e.msg.lower(): # is it a version error?
-                        current_version, expected_version = self.__get_versions_from_error_msg(e.msg)
-                        logger.critical("Chrome outdated.\nYour version: {}\nRequired version: {}".format(current_version, expected_version))
-                    else:
-                        logger.debug("WebDriver creation error:\n{}".format(e.msg))
+        try:
+            if (self._custom_version):
+                self.driver = uc.Chrome(options=options, version_main=self._custom_version)
+                logger.debug(f"custom version set to {self._custom_version}")
+            else:
+                logger.debug("no custom version found, launching with default version")
+                self.driver = uc.Chrome(options=options)
+        except SessionNotCreatedException as e:
+            if e.msg:
+                if "this version of chromedriver only supports" in e.msg.lower(): # is it a version error?
+                    current_version, expected_version = self.__get_versions_from_error_msg(e.msg)
+                    logger.critical("Chrome outdated.\nYour version: {}\nRequired version: {}".format(current_version, expected_version))
                 else:
-                    logger.debug(f"Webdriver failed to start due to error: {e}")
+                    logger.debug("WebDriver creation error:\n{}".format(e.msg))
+            else:
+                logger.debug(f"Webdriver failed to start due to error: {e}")
+            return 1
+
+        self.nav        = Nav(self)
+        self.find       = Find(self)
+        self.click      = Click(self)
+        self.wait       = Wait(self)
+        self.input      = Input(self)
+        self.filter     = Filter(self)
+        self.read       = Read(self)
+        self.tabControl = TabControl(self)
+        self.select     = Select(self)
+        self.misc       = Misc(self)
 
         return 0
 
