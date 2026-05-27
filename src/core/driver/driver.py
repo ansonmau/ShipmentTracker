@@ -79,7 +79,7 @@ class WebDriverSession:
         logger.debug(f"Attempting to start webdriver with options: {options}")
         if (options):
             try:
-                self.driver     = uc.Chrome(options=options, version_main=148) if self.undetected else webdriver.Chrome(options=options)
+                self.driver     = uc.Chrome(options=options) if self.undetected else webdriver.Chrome(options=options)
                 self.nav        = Nav(self)
                 self.find       = Find(self)
                 self.click      = Click(self)
