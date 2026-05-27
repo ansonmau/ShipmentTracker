@@ -79,7 +79,7 @@ class WebDriverSession:
         logger.debug(f"Attempting to start webdriver with options: {options}")
         if (options):
             try:
-                self.driver     = uc.Chrome(options=options) if self.undetected else webdriver.Chrome(options=options)
+                self.driver     = uc.Chrome(options=options, version_main=148) if self.undetected else webdriver.Chrome(options=options)
                 self.nav        = Nav(self)
                 self.find       = Find(self)
                 self.click      = Click(self)
@@ -97,6 +97,8 @@ class WebDriverSession:
                         logger.critical("Chrome outdated.\nYour version: {}\nRequired version: {}".format(current_version, expected_version))
                     else:
                         logger.debug("WebDriver creation error:\n{}".format(e.msg))
+                else:
+                    logger.debug(f"Webdriver failed to start due to error: {e}")
 
         return 0
 

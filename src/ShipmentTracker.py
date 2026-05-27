@@ -47,8 +47,9 @@ def run(worker):
     wds.set_default_wait_time(settings['extras']['default_wait_time'])
 
     # start driver
-    session_start = wds.start()
-    if ( not session_start ):
+    err = wds.start()
+    if ( err ):
+        logger.info("Webdriver failed to start. Aborting.")
         return 1
     logger.info('Webdriver successfully started')
     wds.misc.maximize_window()
