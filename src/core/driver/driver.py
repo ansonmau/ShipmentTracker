@@ -92,18 +92,19 @@ class WebDriverSession:
         if not options:
             logger.debug("failed to build options for chrome")
             return 1
+        logger.debug("options built successfully")
 
-        logger.debug(f"Attempting to start webdriver with options: {options}")
         try:
             if (self._custom_version):
+                logger.debug(f"attempting to open chromedriver with version: {self._custom_version}")
                 self.driver = uc.Chrome(options=options, version_main=self._custom_version)
-                logger.debug(f"custom version set to {self._custom_version}")
             else:
-                logger.debug("no custom version found, launching with default version")
+                logger.debug("custom version not set")
                 self.driver = uc.Chrome(options=options)
         except SessionNotCreatedException as e:
             if e.msg:
-                if "this version of chromedriver only supports" in e.msg.lower(): # is it a version error?
+                # check for version error
+                if "this version of chromedriver only supports" in e.msg.lower(): 
                     current_version, expected_version = self.__get_versions_from_error_msg(e.msg)
                     logger.critical("Chrome outdated.\nYour version: {}\nRequired version: {}".format(current_version, expected_version))
                 else:
