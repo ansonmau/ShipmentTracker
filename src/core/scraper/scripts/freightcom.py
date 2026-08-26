@@ -12,9 +12,9 @@ class Paths:
     startpage = {"login_btn": Locator(ElementTypes.css, ".menu-login")}
 
     login = {
-        "user_input": Locator(ElementTypes.id, "j_username"),
-        "pw_input": Locator(ElementTypes.id, "j_password"),
-        "login_btn": Locator(ElementTypes.css, ".next-btn"),
+        "user_input": Locator(ElementTypes.id, "loginIDInput"),
+        "pw_input": Locator(ElementTypes.id, "passwordInput"),
+        "login_btn": Locator(ElementTypes.css, ".btn-primary"),
     }
 
     homepage = {
@@ -40,11 +40,12 @@ def login(wds, worker):
     wds.click.by_locator(Paths.startpage["login_btn"])
     wds.input.by_locator(Paths.login["user_input"], getenv("FREIGHTCOM_USER"))
     wds.input.by_locator(Paths.login["pw_input"], getenv("FREIGHTCOM_PW"))
+    wds.click.by_locator(Paths.login["login_btn"])
 
     # user must do captcha so stop here and wait for them to confirm
-    worker.pause_signal.emit()
-    worker.pause_event.wait()
-    worker.pause_event.clear()
+    # worker.pause_signal.emit()
+    # worker.pause_event.wait()
+    # worker.pause_event.clear()
 
 
 def scrape(wds, worker):
@@ -101,18 +102,18 @@ def is_within_date_range(date):
 
 class TableHandler:
     carrier_name_converter = {
-            "UPS": "UPS",
-            "Canpar": "Canpar",
-            "Purolator": "Purolator",
-            "Canada Post": "Canada Post",
-            "FedEx Courier": "Fedex",
-        }
+        "UPS":           "UPS",
+        "Canpar":        "Canpar",
+        "Purolator":     "Purolator",
+        "Canada Post":   "Canada Post",
+        "FedEx Courier": "Fedex",
+    }
 
     tracking_table_index = {
-        "carrier": 1,
-        "tracking_num": 3,
-        "date": 4,
-        "status": 7,
+        "carrier":           1,
+        "tracking_num":      3,
+        "date":              4,
+        "status":            7,
     }
 
     def __init__(self, wds):
