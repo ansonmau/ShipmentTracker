@@ -1,3 +1,4 @@
+from src.core.tracking import track
 from src.core.tracking.result import Result
 from src.core.driver.locator import Locator, ElementTypes
 from src.core.log import getLogger
@@ -9,15 +10,16 @@ from time import sleep
 logger = getLogger("canada-post")
 
 locators = {
-    "get_email_notif": Locator(ElementTypes.css, ".trackEmail"),
-    "buttons": Locator(ElementTypes.css, ".button"),
-    "email_input": Locator(ElementTypes.id, "emailAddressInput"),
-    "add_email_btn": Locator(ElementTypes.css, ".add"),
+    "get_email_notif":   Locator(ElementTypes.css, ".trackEmail"),
+    "buttons":           Locator(ElementTypes.css, ".button"),
+    "email_input":       Locator(ElementTypes.id, "emailAddressInput"),
+    "add_email_btn":     Locator(ElementTypes.css, ".add"),
     "add_email_blocked": Locator(ElementTypes.css, ".disabled"),
-    "submit_btn": Locator(ElementTypes.id, "submitButton"),
-    "dialog_type_1": Locator(ElementTypes.tag, "track-email-dialog"),
-    "dialog_type_2": Locator(ElementTypes.tag, "add-emails-dialog"),
-    "error_msg": Locator(ElementTypes.id, "errorModal"),
+    "submit_btn":        Locator(ElementTypes.id, "submitButton"),
+    "dialog_type_1":     Locator(ElementTypes.tag, "track-email-dialog"),
+    "dialog_type_2":     Locator(ElementTypes.tag, "add-emails-dialog"),
+    "error_msg":         Locator(ElementTypes.id, "errorModal"),
+    "tracking_status":   Locator(ElementTypes.tag, "track-expected-delivery"),
 }
 
 def executeScript(wds, tracking_num):
@@ -34,15 +36,15 @@ def executeScript(wds, tracking_num):
 
     wds.nav.get(link)
 
-    if (check.full_block()):
-        result.set_reason("Error message (likely bot detection)")
-        return result
-
     if (check.is_delivered()):
         result.set_reason("Package already delivered")
         return result
+
+    if (check.full_block()):
+        result.set_reason("Error message (likely bot detection)")
+        return result
     
-    if (not check.can_get_notifications()):
+    if (check.notif_btn_missing()):
         result.set_reason("Notification button not found")
         return result
 
@@ -159,26 +161,43 @@ class StateCheck:
 
     def full_block(self):
         full_block_modal = self.wds.find.element(locators['error_msg'])
-        if (full_block_modal):
-            if full_block_modal.is_displayed():
-                error_box = self.wds.find.element(locators['error_msg'])
-                okay_button = self.wds.find.buttons_within(error_box, filter="OK")[0]
-                self.wds.click.element(okay_button)
-                sleep(2)
-            
-                if self.wds.find.element(locators['error_msg']):
-                    return 1
-        return 0
 
-    def can_get_notifications(self):
-        return self.wds.wait.element_located(locators["get_email_notif"], wait = 3)
+        if not full_block_modal:
+            return False
+
+        try:
+            # attempt to click OK to get rid of it
+            if full_block_modal.is_displayed():
+                    error_box = self.wds.find.element(locators['error_msg'])
+                    okay_button = self.wds.find.buttons_within(error_box, filter="OK")[0]
+                    self.wds.click.element(okay_button)
+                    sleep(2)
+                
+                    if self.wds.find.element(locators['error_msg']):
+                        return True
+                    else:
+                        return False
+        except:
+            pass 
+
+        return True
+
+
+    def notif_btn_missing(self):
+        btn = self.wds.find.element(locators["get_email_notif"], wait = 3)
+        return False if btn else True
 
     def dialog_is_loaded(self):
         return "Get email notifications" in self.dialog.get_text()
 
     def is_delivered(self):
-        # WIP
-        return 0
+        w = self.wds
+        tracking_status = w.find.element(locators["tracking_status"])
+        if not tracking_status:
+            logger.info("Failed to read tracking status, continuing...")
+            return
+
+        return "delivered" in w.read.element_text( tracking_status ).lower()
 
     def max_emails_reached(self):
         if "reached the maximum" in self.dialog.get_text():
