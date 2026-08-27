@@ -24,7 +24,7 @@ class Result:
                 Result.RETRY: "Retry",
                 }
         result = text_converter[self.result]
-        return f"{result}: {self.reason}" if self.reason else f"{result}"
+        return f"({result}) {self.reason}" if self.reason else f"{result}"
 
     def __eq__(self, other):
         return self.result == other.result and self.tracking_number == other.tracking_number
