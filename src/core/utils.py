@@ -1,6 +1,8 @@
 import pathlib
 import json
 import sys
+import random
+import time
 
 def _get_proj_folder():
     if getattr(sys, "frozen", False):
@@ -58,3 +60,5 @@ def empty_folder(folder_path) -> None:
     for file in folder_path.iterdir():
         file.unlink()
 
+def rand_wait(low, high):
+    time.sleep(random.randrange(low,high))
