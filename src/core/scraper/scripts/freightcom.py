@@ -138,12 +138,11 @@ class TableHandler:
             carrier, tracking_num, date, status = self._parse_row(row)
             self.last_found_date = date # table is newest shipments first
 
-            logger.debug(f"Potential entry found: {carrier} | {tracking_num} | {date} | {status}")
+            logger.debug(f"Potential entry found: Carrier:\n {carrier} \n Tracking Number: {tracking_num} \n Date: {date} \n Status: {status}")
 
             if not is_within_date_range(date):
                 logger.debug(f"entry {tracking_num} not within date range")
-                # break here since it's ordered by date.
-                break 
+                break # break here since it's ordered by date.
 
             status = status.lower()
             if ((not "ready for shipping" in status) and (not "in transit" in status)):
