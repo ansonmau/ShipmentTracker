@@ -1,10 +1,11 @@
 from src.core.driver.locator import Locator, ElementTypes
+from os                      import getenv
+from src.core.settings       import Settings
+from src.core.log            import getLogger
+from datetime                import datetime, timedelta
+from time                    import sleep
 
-from os import getenv
-from src.core.settings import Settings
-from src.core.log import getLogger
-from datetime import datetime, timedelta
-from time import sleep
+import src.core.utils as utils
 
 logger = getLogger("freightcom")
 
