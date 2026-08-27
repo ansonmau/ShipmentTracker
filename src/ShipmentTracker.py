@@ -9,7 +9,7 @@ from src.core.tracking.dataHandler import Handler as TrackingDataHandler
 from src.core.scraper.handler      import Handler as ScraperHandler
 from src.core.log                  import getLogger, MyLogger
 
-logger = getLogger("ShipmentTracker-Main")
+logger = getLogger("Shipment Tracker")
 
 def run(worker):
     if (Settings.file_exists()):
