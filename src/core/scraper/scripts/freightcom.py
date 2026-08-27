@@ -58,8 +58,9 @@ def scrape(wds, worker):
     trackingpage_btn = get_trackingpage_btn(wds)
     wds.click.element(trackingpage_btn)
 
-    discard_btn = get_popup_discard_btn(wds)
-    wds.click.element(discard_btn)
+    discard_btn = get_popup_discard_btn(wds) # returns None if can't find
+    if discard_btn:
+        wds.click.element(discard_btn)
 
 
     table = TableHandler(wds)
@@ -91,8 +92,10 @@ def get_trackingpage_btn(wds):
 def get_popup_discard_btn(wds):
     dialog = wds.find.element(Paths.popup["dialog"])
     discard_btn = wds.find.buttons_within(dialog, filter="Discard Progress")
-    assert len(discard_btn) == 1
-    return discard_btn[0]
+    if len(discard_btn) == 1:
+        return discard_btn[0]
+    else:
+        return None
 
 def is_within_date_range(date):
     site_date_format = "%b %d, %Y"
