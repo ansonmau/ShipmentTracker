@@ -124,6 +124,7 @@ class WebDriverSession:
         self.select     = Select(self)
         self.misc       = Misc(self)
 
+        logger.debug("Successfully started webdriver")
         return 0
 
     def set_default_wait_time(self, wait_time):
