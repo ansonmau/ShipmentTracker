@@ -1,3 +1,9 @@
+---
+id: "Shipment Tracker"
+aliases: []
+tags: []
+---
+
 # Shipment Tracker
 
 
@@ -54,7 +60,7 @@ On top of saving time clicking through each website to register emails, it heavi
 
 ## Usage
 > [!IMPORTANT]
-> You must have an account for the package management services listed above. The whole purpose of this application is to automate email registration on these services.
+> You must have an account for the package management services listed above. The whole purpose of this application is to automate email registration for deliveries placed on these services.
 1. Enter login details into *folder_the_app_is_in/data/keys.env* (see [Keys Configuration](#keys-file))
 2. Select the sources (package mangement services) you would like it to automate tracking for.
 3. Select the carriers (delivery services) that you would like.
@@ -115,4 +121,4 @@ CANPAR_EMAIL2="hi_there@fakemail.com"
 ## Contact
 I am open to new experiences / opportunities. Please feel free to reach out.
 
-** Anson Mau ** // anson.mau@proton.me // [LinkedIn](https://www.linkedin.com/in/ansonmau/) // [GitHub](https://github.com/ansonmau)
+**Anson Mau** // anson.mau@proton.me // [LinkedIn](https://www.linkedin.com/in/ansonmau/) // [GitHub](https://github.com/ansonmau)
