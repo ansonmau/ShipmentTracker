@@ -10,15 +10,15 @@ logger = getLogger("purolator")
 class Paths:
 
     page = {
-        "tracking_info": Locator(ElementTypes.css, ".results-container"),
-        "progress_labels": Locator(ElementTypes.css, ".progress-labels"),
-        "active_classes": Locator(ElementTypes.css, '.active')
+        "tracking_info":     Locator(ElementTypes.css, ".results-container"),
+        "progress_labels":   Locator(ElementTypes.css, ".progress-labels"),
+        "active_classes":    Locator(ElementTypes.css, '.active')
     }
 
     chat = {
-            "widget": Locator(ElementTypes.css, '[aria-label=\"Chat Widget\"]'),
-            "close_btn": Locator(ElementTypes.css, '[aria-label="Close"]'),
-            "confirm_close_btn": Locator(ElementTypes.id, 'confirm-end-chat'),
+        "widget":            Locator(ElementTypes.css, '[aria-label=\"Chat Widget\"]'),
+        "close_btn":         Locator(ElementTypes.css, '[aria-label="Open Menu"]'),
+        "confirm_close_btn": Locator(ElementTypes.css, '[aria-label="End Chat"]'),
     }
 
 def executeScript(wds, tracking_num):
