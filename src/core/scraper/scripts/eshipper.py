@@ -20,21 +20,6 @@ paths = {
     "export_button": Locator(ElementTypes.css, '[aria-label="Export Track Button"]'),
 }
 
-
-def login(sesh):
-    sesh.nav.get("https://www.eshipper.com/")
-
-    sesh.click.by_locator(paths["go_login_page_btn"])
-
-    sesh.tabControl.focusNewestTab()
-
-    sesh.input.by_locator(paths["username_input"], getenv("ESHIPPER_USER"))
-    sesh.input.by_locator(paths["password_input"], getenv("ESHIPPER_PW"))
-
-    sesh.click.by_locator(paths["login_button"])
-
-    sesh.wait.element_located(paths["usernameText"])
-
 def scrape(sesh, worker):
     results = []
     logger.info("Attempting to download eshipper CSV")
@@ -50,6 +35,21 @@ def scrape(sesh, worker):
         logger.info("Failed to find eshipper downloaded file. skipping.")
 
     return results
+
+def login(sesh):
+    sesh.nav.get("https://www.eshipper.com/")
+
+    sesh.click.by_locator(paths["go_login_page_btn"])
+
+    sesh.tabControl.focusNewestTab()
+
+    sesh.input.by_locator(paths["username_input"], getenv("ESHIPPER_USER"))
+    sesh.input.by_locator(paths["password_input"], getenv("ESHIPPER_PW"))
+
+    sesh.click.by_locator(paths["login_button"])
+
+    sesh.wait.element_located(paths["usernameText"])
+
 
 def download_csv(sesh):
     login(sesh)
