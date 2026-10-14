@@ -61,4 +61,4 @@ def empty_folder(folder_path) -> None:
         file.unlink()
 
 def rand_wait(low, high):
-    time.sleep(random.randrange(low,high))
+    time.sleep(random.uniform(low,high))
