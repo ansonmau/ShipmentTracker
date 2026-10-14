@@ -8,16 +8,16 @@ from os import getenv
 logger = getLogger("eshipper")
 
 paths = {
-    "go_login_page_btn": Locator(ElementTypes.id, "login"),
-    "username_input": Locator(ElementTypes.id, "username"),
-    "password_input": Locator(ElementTypes.id, "password"),
-    "login_button": Locator(ElementTypes.css, '[aria-label="Login Button"]'),
-    "usernameText": Locator(ElementTypes.css, ".userNameText"),
-    "options_button": Locator(ElementTypes.css, ".dot-menu"),
-    "options_menu_buttons": Locator(ElementTypes.css, ".men-item-btn"),
+    "go_login_page_btn":        Locator(ElementTypes.id, "login"),
+    "username_input":           Locator(ElementTypes.id, "username"),
+    "password_input":           Locator(ElementTypes.id, "password"),
+    "login_button":             Locator(ElementTypes.css, '[aria-label="Login Button"]'),
+    "usernameText":             Locator(ElementTypes.css, ".userNameText"),
+    "options_button":           Locator(ElementTypes.css, ".dot-menu"),
+    "options_menu_buttons":     Locator(ElementTypes.css, ".men-item-btn"),
     "export_options_container": Locator(ElementTypes.css, ".file-cards"),
-    "export_options": Locator(ElementTypes.tag, "li"),
-    "export_button": Locator(ElementTypes.css, '[aria-label="Export Track Button"]'),
+    "export_options":           Locator(ElementTypes.tag, "li"),
+    "export_button":            Locator(ElementTypes.css, '[aria-label="Export Track Button"]'),
 }
 
 def scrape(sesh, worker):
@@ -32,7 +32,7 @@ def scrape(sesh, worker):
         logger.info("File found")
         results = file_handler.parse()
     else:
-        logger.info("Failed to find eshipper downloaded file. skipping.")
+        logger.info("Failed to find EShipper downloaded file. skipping.")
 
     return results
 
