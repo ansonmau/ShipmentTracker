@@ -41,10 +41,6 @@ def executeScript(wds, tracking_num):
 
     wds.nav.get(link)
 
-    if (check.full_block()):
-        logger.debug("Error message (likely bot detection)")
-        result.set_reason("Error message (likely bot detection)")
-        return result
 
     if (check.notif_btn_missing()):
         # figure out why it's missing
@@ -58,6 +54,10 @@ def executeScript(wds, tracking_num):
         result.set_reason(msg)
         return result
     
+    if (check.full_block()):
+        logger.debug("Error message (likely bot detection)")
+        result.set_reason("Error message (likely bot detection)")
+        return result
 
     wds.click.by_locator(locators["get_email_notif"])
 
