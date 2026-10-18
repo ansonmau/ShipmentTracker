@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QFormLayout, QFrame, QGridLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QSizePolicy, QSpinBox, QToolButton, QVBoxLayout, QWidget,
@@ -126,6 +126,8 @@ class SettingsWidget(QWidget):
     SOURCES  = ["Eshipper", "EMS", "Freightcom"]
     CARRIERS = ["Canada Post", "Purolator", "UPS", "Canpar", "Fedex"]
 
+    carriers_changed = Signal(list) # enabled carrier keys, e.g. ["canada post", "ups"]
+
     def __init__(self):
         super().__init__()
         self.wdgts = []
@@ -183,6 +185,8 @@ class SettingsWidget(QWidget):
 
             # checkable buttons share isChecked/setChecked with checkboxes
             self.wdgts.append(AppSetting(f"{group_name}.{name.lower()}", chip, "checkbox"))
+            if group_name == "track":
+                chip.toggled.connect(lambda _: self.carriers_changed.emit(self.get_enabled("track")))
             grid.addWidget(chip, i // 3, i % 3)
 
         lyt.addLayout(grid)
@@ -267,6 +271,15 @@ class SettingsWidget(QWidget):
         lbl = QLabel(text)
         lbl.setObjectName("fieldLabel")
         return lbl
+
+    def get_enabled(self, group_name:str) -> list:
+        """ keys of the checked settings in a group, e.g. "track" -> ["canada post", "ups"] """
+        enabled = []
+        for w in self.wdgts:
+            w_group, _, key = w.id.partition('.')
+            if (w_group == group_name and w.widget_type == "checkbox" and w.value):
+                enabled.append(key)
+        return enabled
 
     def _set_group_value(self, group_name:str, val):
         for w in self.wdgts:

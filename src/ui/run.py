@@ -51,6 +51,11 @@ class RunWidget(QWidget):
 
         self.worker.pause_signal.connect(self.window().show_continue_dialog)
 
+        progress = self.window().progress_widget
+        self.worker.services_update.connect(progress.set_active_services)
+        self.worker.status_update.connect(progress.update_progress)
+        self.worker.result_update.connect(progress.update_results)
+
         self.worker.finished.connect(self.on_run_finished)
         self.worker.finished.connect(self.w_thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
@@ -68,6 +73,7 @@ class Worker(QObject):
     stop_signal = Signal()
     status_update = Signal(str, str, int, int)  # phase, item, current, total
     result_update = Signal(int, int, int)        # success, fail, crash
+    services_update = Signal(list)               # carriers to be tracked, in order
 
     def __init__(self, pause_event):
         super().__init__()

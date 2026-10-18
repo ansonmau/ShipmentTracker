@@ -100,6 +100,7 @@ def run(worker):
 
     # ─────────────────────────── handle tracking ─────────────────────────
     tracker = TrackingHandler(wds, tdh, report)
+    tracker.set_worker(worker)
     tracker.run()
 
     # ─────────────────────────────── clean up ───────────────────────────────

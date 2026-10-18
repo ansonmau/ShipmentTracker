@@ -21,6 +21,7 @@ class Handler:
         self.driver = self.wds.driver
         self.dh     = data_handler
         self.report = report
+        self.worker = None
 
         # delay range between new page loads (retries / next package)
         self.delay_low = 1
@@ -34,9 +35,14 @@ class Handler:
                 "purolator":   pur.executeScript,
                 }
 
+    def set_worker(self, worker):
+        self.worker = worker
+
     def run(self):
         active_carriers = [x for x in self.dh.get_dict() if (self.dh.get_dict()[x] and Settings.get_settings()["track"][x])]
         logger.info(f"Active carriers: {','.join(active_carriers)}")
+        if self.worker:
+            self.worker.services_update.emit(active_carriers)
         for carrier in active_carriers:
             self.track(carrier)
 
@@ -44,6 +50,9 @@ class Handler:
         tracking_nums               =   self.dh.get_dict()[carrier]
         total_shipment_count        =   len(tracking_nums)
         comp_shipment_count         =   0 # completed shipments
+        result_counts               =   {Result.SUCCESS: 0, Result.FAIL: 0, Result.CRASH: 0}
+
+        self._emit_progress(carrier, comp_shipment_count, total_shipment_count, result_counts)
 
         for tracking_num in tracking_nums:
             attempt_count   =   0 
@@ -78,5 +87,17 @@ class Handler:
             logger.info(str(curr_result))
             self.report.add_result(curr_result)
             comp_shipment_count += 1
+            result_counts[curr_result.result] += 1
+            self._emit_progress(carrier, comp_shipment_count, total_shipment_count, result_counts)
             utils.rand_wait(self.delay_low, self.delay_high)
 
+    def _emit_progress(self, carrier, completed, total, result_counts):
+        if not self.worker:
+            return
+
+        self.worker.status_update.emit("track", carrier, completed, total)
+        self.worker.result_update.emit(
+                result_counts[Result.SUCCESS],
+                result_counts[Result.FAIL],
+                result_counts[Result.CRASH],
+                )

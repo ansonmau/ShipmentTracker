@@ -15,6 +15,7 @@ from src.core.settings import Settings
 from src.core.utils import ROOT
 from src.ui.settings import SettingsWidget
 from src.ui.run import RunWidget
+from src.ui.progress import ProgressWidget
 from src.ui.theme import STYLESHEET, Colors, mono_font
 
 
@@ -53,7 +54,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Shipment Tracker")
         self.setWindowIcon(QIcon(str(ROOT / "data" / "icons" / "rbt.ico")))
         self.resize(1180, 760)
-        self.setMinimumSize(820, 560)
+        self.setMinimumSize(1000, 600)
 
         self.has_console = False
         self.counts = {"Success": 0, "Fail": 0, "Crash": 0}
@@ -146,6 +147,11 @@ class MainWindow(QMainWindow):
         clear_btn.clicked.connect(self.clear_console)
         header.addWidget(clear_btn)
         lyt.addLayout(header)
+
+        self.progress_widget = ProgressWidget()
+        self.progress_widget.set_enabled_services(self.settings_widget.get_enabled("track"))
+        self.settings_widget.carriers_changed.connect(self.progress_widget.set_enabled_services)
+        lyt.addWidget(self.progress_widget)
 
         self.console = QPlainTextEdit()
         self.console.setObjectName("console")
@@ -242,12 +248,14 @@ class MainWindow(QMainWindow):
 
     def on_run_started(self):
         self.disable_buttons()
+        self.progress_widget.reset()
         self.elapsed.start()
         self.tick_timer.start()
         self.set_status("running", "Running · 00:00")
 
     def on_run_finished(self):
         self.tick_timer.stop()
+        self.progress_widget.finish()
         self.settings_widget.setEnabled(True)
         self.set_status("done", f"Finished · {self._elapsed_str()}")
 
