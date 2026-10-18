@@ -1,11 +1,12 @@
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QLineEdit, QSpinBox, QWidget,
-    QVBoxLayout, QPushButton, QLabel,
-    QCheckBox, QGroupBox, QHBoxLayout
+    QFormLayout, QFrame, QGridLayout, QHBoxLayout, QLabel, QLineEdit,
+    QPushButton, QSizePolicy, QSpinBox, QToolButton, QVBoxLayout, QWidget,
 )
 
 from src.core.settings import Settings
 from src.core.log import getLogger
+from src.ui.theme import ToggleSwitch
 
 
 # ╭────────────────────────────────────────────────╮
@@ -122,102 +123,150 @@ class AppSetting:
 # ╰────────────────────────────────────────────────╯
 
 class SettingsWidget(QWidget):
-    wdgts = []
+    SOURCES  = ["Eshipper", "EMS", "Freightcom"]
+    CARRIERS = ["Canada Post", "Purolator", "UPS", "Canpar", "Fedex"]
 
     def __init__(self):
         super().__init__()
-        
+        self.wdgts = []
+
         overall_layout = QVBoxLayout()
+        overall_layout.setContentsMargins(0, 0, 0, 0)
+        overall_layout.setSpacing(14)
 
-        scrape_container = QGroupBox("Sources")
-        scrape_layout = QVBoxLayout()
-        
-        for name in ["Eshipper", "EMS", "Freightcom"]:
-            c = AppSetting()
-            c.id = ".".join(["scrape", name.lower()])
-            c.widget = QCheckBox(name)
-            c.widget_type = "checkbox"
-            self.wdgts.append(c)
-            scrape_layout.addWidget(c.widget)
-
-        scrape_container.setLayout(scrape_layout)
-
-        carrier_container = QGroupBox("Carriers")
-        carrier_layout = QVBoxLayout()
-
-        for name in ["Canada Post", "Purolator", "UPS", "Canpar", "Fedex"]:
-            c = AppSetting()
-            c.id = ".".join(["track", name.lower()])
-            c.widget = QCheckBox(name)
-            c.widget_type = "checkbox"
-            self.wdgts.append(c)
-            carrier_layout.addWidget(c.widget)
-
-        carrier_container.setLayout(carrier_layout)
-
-        extras_container = QGroupBox("Extras")
-        extras_layout = QVBoxLayout()
-
-        extras_start_index = len(self.wdgts)
-        self.wdgts.append(AppSetting("extras.ignore_already_tracked", QCheckBox("Ignore already tracked shipments"), "checkbox"))
-        self.wdgts.append(AppSetting("extras.reuse_data", QCheckBox("Re-use data from previous run"), "checkbox"))
-        self.wdgts.append(AppSetting("label.day_diff", QLabel("Day difference:"), "label"))
-        self.wdgts.append(AppSetting("extras.day_diff", QSpinBox(), "spinbox"))
-        self.wdgts[-1].set_spinbox_range(1,999)
-        self.wdgts.append(AppSetting("label.waittime", QLabel("Wait time (seconds):"), "label"))
-        self.wdgts.append(AppSetting("extras.default_wait_time", QSpinBox(), "spinbox"))
-        self.wdgts[-1].set_spinbox_range(5,999)
-        self.wdgts.append(AppSetting("label.chrome_dir", QLabel("Custom chrome location: "), "label"))
-        self.wdgts.append(AppSetting("extras.chrome_dir", QLineEdit(), "lineedit"))
-        self.wdgts.append(AppSetting("label.chrome_version", QLabel("Custom chrome version: "), "label"))
-        self.wdgts.append(AppSetting("extras.chrome_version", QLineEdit(), "lineedit"))
-        self.wdgts.append(AppSetting("extras.debug_mode", QCheckBox("Debug mode"), "checkbox"))
-
-        for i in range(extras_start_index, len(self.wdgts)):
-            extras_layout.addWidget(self.wdgts[i].widget)
-
-        extras_container.setLayout(extras_layout)
-
-        overall_layout.addWidget(scrape_container)
-        overall_layout.addWidget(self._gen_group_actions_container("scrape"))
-        overall_layout.addWidget(carrier_container)
-        overall_layout.addWidget(self._gen_group_actions_container("track"))
-        overall_layout.addWidget(extras_container)
+        overall_layout.addWidget(self._gen_chip_card("Sources", "scrape", self.SOURCES))
+        overall_layout.addWidget(self._gen_chip_card("Carriers", "track", self.CARRIERS))
+        overall_layout.addWidget(self._gen_options_card())
+        overall_layout.addStretch()
 
         self.setLayout(overall_layout)
         self.load_settings_to_ui()
 
-    def _gen_group_actions_container(self, group_name:str)->QWidget:
-        small_button_stylesheet = """
-                              QPushButton {
-                                  padding: 4px 10px;
-                                  font-size: 11px;
-                                  margin: 0px;
-                                  }
-                              """ 
-        btn_all =   QPushButton("O")
-        btn_none =  QPushButton("/")
+    # ────────────────────────────< layout helpers >────────────────────────────
+    def _gen_card(self, title:str, group_name:str = None):
+        card = QFrame()
+        card.setObjectName("card")
+        lyt = QVBoxLayout(card)
+        lyt.setContentsMargins(16, 12, 16, 16)
+        lyt.setSpacing(10)
 
-        btn_all.setStyleSheet(small_button_stylesheet)
-        btn_all.clicked.connect(lambda: self.all_btn_func(group_name))
-        btn_none.setStyleSheet(small_button_stylesheet)
-        btn_none.clicked.connect(lambda: self.none_btn_func(group_name))
+        header = QHBoxLayout()
+        header.setSpacing(0)
+        title_lbl = QLabel(title.upper())
+        title_lbl.setObjectName("cardTitle")
+        header.addWidget(title_lbl)
+        header.addStretch()
 
-        container = QWidget()
-        lyt = QHBoxLayout()
-        lyt.addWidget(btn_all)
-        lyt.addWidget(btn_none)
-        lyt.addStretch()
-        container.setLayout(lyt)
+        if group_name:
+            for text, val in [("All", True), ("None", False)]:
+                btn = QPushButton(text)
+                btn.setObjectName("link")
+                btn.setCursor(Qt.CursorShape.PointingHandCursor)
+                btn.clicked.connect(lambda _=False, v=val: self._set_group_value(group_name, v))
+                header.addWidget(btn)
 
-        return container
+        lyt.addLayout(header)
+        return card, lyt
 
+    def _gen_chip_card(self, title:str, group_name:str, names:list) -> QWidget:
+        card, lyt = self._gen_card(title, group_name)
 
-    def all_btn_func(self, group_name:str):
-        self._set_group_value(group_name, True)
+        grid = QGridLayout()
+        grid.setHorizontalSpacing(8)
+        grid.setVerticalSpacing(8)
+        for i, name in enumerate(names):
+            chip = QPushButton(name)
+            chip.setObjectName("chip")
+            chip.setCheckable(True)
+            chip.setCursor(Qt.CursorShape.PointingHandCursor)
+            chip.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
-    def none_btn_func(self, group_name:str):
-        self._set_group_value(group_name, False)
+            # checkable buttons share isChecked/setChecked with checkboxes
+            self.wdgts.append(AppSetting(f"{group_name}.{name.lower()}", chip, "checkbox"))
+            grid.addWidget(chip, i // 3, i % 3)
+
+        lyt.addLayout(grid)
+        return card
+
+    def _gen_options_card(self) -> QWidget:
+        card, lyt = self._gen_card("Options")
+
+        for setting_id, text in [
+            ("extras.ignore_already_tracked", "Ignore already tracked shipments"),
+            ("extras.reuse_data",             "Re-use data from previous run"),
+            ("extras.debug_mode",             "Debug mode"),
+        ]:
+            s = AppSetting(setting_id, ToggleSwitch(text), "checkbox")
+            self.wdgts.append(s)
+            lyt.addWidget(s.widget)
+
+        form = QFormLayout()
+        form.setContentsMargins(0, 6, 0, 0)
+        form.setHorizontalSpacing(12)
+        form.setVerticalSpacing(8)
+        form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+
+        day_diff = self._gen_spinbox("extras.day_diff", 1, 999, " days")
+        day_diff.widget.setToolTip("How many days back to look for shipments")
+        form.addRow(self._field_label("Day difference"), day_diff.widget)
+
+        wait = self._gen_spinbox("extras.default_wait_time", 5, 999, " sec")
+        wait.widget.setToolTip("Default time to wait for page elements")
+        form.addRow(self._field_label("Wait time"), wait.widget)
+        lyt.addLayout(form)
+
+        # ── advanced (collapsible) ────────────────────────────────────────
+        toggle = QToolButton()
+        toggle.setObjectName("disclosure")
+        toggle.setText("Advanced")
+        toggle.setCheckable(True)
+        toggle.setCursor(Qt.CursorShape.PointingHandCursor)
+        toggle.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        toggle.setArrowType(Qt.ArrowType.RightArrow)
+        lyt.addWidget(toggle)
+
+        advanced = QWidget()
+        adv_form = QFormLayout(advanced)
+        adv_form.setContentsMargins(0, 0, 0, 0)
+        adv_form.setHorizontalSpacing(12)
+        adv_form.setVerticalSpacing(8)
+        adv_form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+
+        chrome_dir = AppSetting("extras.chrome_dir", QLineEdit(), "lineedit")
+        chrome_dir.widget.setPlaceholderText("Default install")
+        self.wdgts.append(chrome_dir)
+        adv_form.addRow(self._field_label("Chrome path"), chrome_dir.widget)
+
+        chrome_version = AppSetting("extras.chrome_version", QLineEdit(), "lineedit")
+        chrome_version.widget.setPlaceholderText("Auto-detect")
+        self.wdgts.append(chrome_version)
+        adv_form.addRow(self._field_label("Chrome version"), chrome_version.widget)
+
+        advanced.setVisible(False)
+        lyt.addWidget(advanced)
+
+        def on_toggle(checked):
+            toggle.setArrowType(Qt.ArrowType.DownArrow if checked else Qt.ArrowType.RightArrow)
+            advanced.setVisible(checked)
+        toggle.toggled.connect(on_toggle)
+
+        return card
+
+    def _gen_spinbox(self, setting_id:str, low:int, high:int, suffix:str) -> AppSetting:
+        s = AppSetting(setting_id, QSpinBox(), "spinbox")
+        s.set_spinbox_range(low, high)
+        s.widget.setSuffix(suffix)
+        s.widget.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)
+        s.widget.setAlignment(Qt.AlignmentFlag.AlignRight)
+        self.wdgts.append(s)
+        return s
+
+    @staticmethod
+    def _field_label(text:str) -> QLabel:
+        lbl = QLabel(text)
+        lbl.setObjectName("fieldLabel")
+        return lbl
 
     def _set_group_value(self, group_name:str, val):
         for w in self.wdgts:
