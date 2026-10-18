@@ -176,7 +176,7 @@ class StateCheck:
         logger.debug("Searching for error box")
         full_block_modal = self.wds.find.element(locators['error_msg'], wait=1)
 
-        if (full_block_modal is None) or (not full_block_modal.is_displayed()):
+        if ( full_block_modal == None ) or ( not full_block_modal.is_displayed() ):
             logger.debug("... no error found")
             return False
 
