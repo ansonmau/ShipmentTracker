@@ -66,7 +66,7 @@ QToolTip {{
 #card {{
     background: {C.CARD};
     border: 1px solid {C.BORDER};
-    border-radius: 12px;
+    border-radius: 11px;
 }}
 
 #appTitle {{
@@ -118,7 +118,7 @@ QScrollBar::add-page, QScrollBar::sub-page {{
 QPushButton#chip {{
     background: transparent;
     border: 1px solid {C.BORDER_HI};
-    border-radius: 15px;
+    border-radius: 14px;
     padding: 6px 10px;
     color: {C.MUTED};
 }}
@@ -161,7 +161,7 @@ QPushButton#link:disabled {{
 QPushButton#primary {{
     background: {C.ACCENT};
     border: none;
-    border-radius: 10px;
+    border-radius: 9px;
     padding: 12px;
     font-size: 15px;
     font-weight: 700;
@@ -182,7 +182,7 @@ QPushButton#primary:disabled {{
 QPushButton#secondary {{
     background: transparent;
     border: 1px solid {C.BORDER_HI};
-    border-radius: 8px;
+    border-radius: 7px;
     padding: 5px 12px;
     color: {C.MUTED};
 }}
@@ -207,7 +207,7 @@ QToolButton#disclosure:hover {{
 QLineEdit, QSpinBox {{
     background: {C.BG};
     border: 1px solid {C.BORDER_HI};
-    border-radius: 8px;
+    border-radius: 7px;
     padding: 6px 10px;
     selection-background-color: {C.ACCENT};
 }}
@@ -222,14 +222,14 @@ QLineEdit:disabled, QSpinBox:disabled {{
 QPlainTextEdit#console {{
     background: {C.CONSOLE};
     border: 1px solid {C.BORDER};
-    border-radius: 12px;
+    border-radius: 11px;
     padding: 10px;
     selection-background-color: {C.ACCENT};
 }}
 
 /* ── status pill ──────────────────────────────── */
 QLabel#pill {{
-    border-radius: 11px;
+    border-radius: 10px;
     padding: 3px 12px;
     font-size: 12px;
     font-weight: 600;
@@ -252,7 +252,7 @@ QLabel#pill[state="waiting"] {{
 /* ── progress ─────────────────────────────────── */
 QLabel#serviceBlock {{
     border: 1px solid {C.BORDER_HI};
-    border-radius: 7px;
+    border-radius: 6px;
     background: transparent;
     color: {C.MUTED};
     font-size: 11px;
@@ -383,7 +383,8 @@ class ToggleSwitch(QCheckBox):
         )
         p.setPen(Qt.PenStyle.NoPen)
         p.setBrush(mix)
-        p.drawRoundedRect(track, self.TRACK_H / 2, self.TRACK_H / 2)
+        radius = (self.TRACK_H / 2) * 0.9
+        p.drawRoundedRect(track, radius, radius)
 
         # knob
         d = self.TRACK_H - 6
