@@ -30,7 +30,8 @@ class Paths:
         "shipment_table": Locator(ElementTypes.css, ".shipments-table"),
         "table_entry": Locator(ElementTypes.tag, "tr"),
         "table_data": Locator(ElementTypes.tag, "td"),
-        "page_controls": Locator(ElementTypes.css, '.page-link')
+        "page_controls": Locator(ElementTypes.css, '.page-link'),
+        "ai_assistant": Locator(ElementTypes.id, 'ai-assistant-host')
     }
 
     div = Locator(ElementTypes.tag, "div")
@@ -54,7 +55,10 @@ def scrape(wds, worker):
 
     login(wds, worker)
 
-    wds.click.by_locator(Paths.homepage["tracking_dropdown"])
+    remove_ai_popup(wds)
+
+    e_tracking_dropdown = wds.find.element(Paths.homepage["tracking_dropdown"])
+    wds.click.element(e_tracking_dropdown)
     trackingpage_btn = get_trackingpage_btn(wds)
     wds.click.element(trackingpage_btn)
 
@@ -62,7 +66,7 @@ def scrape(wds, worker):
     if discard_btn:
         wds.click.element(discard_btn)
 
-
+    logger.info("Reading table...")
     table = TableHandler(wds)
     results.extend(table.parse_table())
 
@@ -82,12 +86,29 @@ def scrape(wds, worker):
 
     return results
 
+# +------------------------------------------------+
+# |                 Page Clearers                  |
+# +------------------------------------------------+
+def remove_ai_popup(wds):
+    logger.debug("Attempting to remove AI Assistant")
+    e_ai_assistant = wds.find.element(Paths.tracking_page["ai_assistant"])
+    if not e_ai_assistant:
+        logger.debug("AI assistant not found")
+        return
 
+    logger.debug("AI assistant found. Attempting to remove.")
+    wds.misc.remove_element(e_ai_assistant)
+    utils.rand_wait(2,3)
+    return
+    
+
+# +------------------------------------------------+
+# |                 Button finders                 |
+# +------------------------------------------------+
 def get_trackingpage_btn(wds):
     nav_bar = wds.find.element(Paths.homepage["nav_bar"])
     dashboard_links = wds.find.links_within(nav_bar, filter="Tracking Dashboard")[0]
     return dashboard_links
-
 
 def get_popup_discard_btn(wds):
     dialog = wds.find.element(Paths.popup["dialog"])
