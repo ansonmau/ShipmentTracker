@@ -63,7 +63,7 @@ class Handler:
 
                 # log msg list that will be joined by \t and then info'd
                 # [n]carrier#tracking_number   n%  attempt n/3
-                log_msg_l = [f"{carrier}", f"#{tracking_num}", f"~{int((comp_shipment_count / total_shipment_count)*100)}%"]
+                log_msg_l = [f"Attempting to track #{tracking_num}"]
                 if (attempt_count > 1):
                     log_msg_l.append(f"attempt {attempt_count}")
                 logger.info(" | ".join(log_msg_l))
