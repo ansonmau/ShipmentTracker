@@ -1,3 +1,4 @@
+from _typeshed import IdentityFunction
 from src.core.driver.locator import Locator, ElementTypes
 from src.core.settings import Settings
 from src.core.log import getLogger
@@ -27,7 +28,9 @@ class Paths:
 def scrape(wds, worker):
     results = []
 
-    if (not login(wds)):
+    err = login(wds)
+
+    if (err):
         logger.error("Failed to log in to EMS")
         return results
 
@@ -68,12 +71,13 @@ def login(wds):
     login_btn = wds.find.element(Paths.login["login_btn"])
 
     if ((not username_field) or (not password_field)):
-        return 0
+        return 1
     
     wds.input.element(username_field, getenv("EMS_USER"))
     wds.input.element(password_field, getenv("EMS_PW"))
     wds.click.element(login_btn)
-    return 1
+
+    return 0
     
 def get_filter_dates(day_diff=3):
     date_format = "%m/%d/%Y"
