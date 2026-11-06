@@ -106,7 +106,7 @@ class WebDriverSession:
                 # check for version error
                 if "this version of chromedriver only supports" in e.msg.lower(): 
                     current_version, expected_version = self.__get_versions_from_error_msg(e.msg)
-                    logger.critical("Chrome outdated.\nYour version: {}\nRequired version: {}".format(current_version, expected_version))
+                    logger.critical("Chrome outdated.\nYour version: {}\nExpected version: {}".format(current_version, expected_version))
                 else:
                     logger.debug("WebDriver creation error:\n{}".format(e.msg))
             else:
