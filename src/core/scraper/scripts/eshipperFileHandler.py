@@ -10,7 +10,7 @@ logger = getLogger("eship-file-handler")
 class Handler:
     def __init__(self):
         self.downloads_folder = ROOT / 'data' / 'dls'
-        self.wait_time = 120
+        self.wait_time = 300
         self.file = None
 
     def set_wait_time(self, wait_time):

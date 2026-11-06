@@ -43,16 +43,27 @@ def login(sesh):
 
     sesh.tabControl.focusNewestTab()
 
+    e_username_input = sesh.find.element(paths["username_input"])
+    e_password_input = sesh.find.element(paths["password_input"])
+
+    if not e_username_input or not e_password_input:
+        logger.debug("Failed to locate either username of password. Check paths.")
+        logger.info("Failed to log in to EShipper. Skipping")
+        return 1
+
     sesh.input.by_locator(paths["username_input"], getenv("ESHIPPER_USER"))
     sesh.input.by_locator(paths["password_input"], getenv("ESHIPPER_PW"))
 
     sesh.click.by_locator(paths["login_button"])
 
     sesh.wait.element_located(paths["usernameText"])
+    return 0
 
 
 def download_csv(sesh):
-    login(sesh)
+    errFlag = login(sesh)
+    if errFlag:
+        return
 
     sesh.nav.get("https://ww2.eshipper.com/customer/tracking")
 
