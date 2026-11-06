@@ -1,4 +1,3 @@
-from _typeshed import IdentityFunction
 from src.core.driver.locator import Locator, ElementTypes
 from src.core.settings import Settings
 from src.core.log import getLogger
