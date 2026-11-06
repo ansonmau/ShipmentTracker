@@ -31,7 +31,7 @@ def scrape(wds, worker):
         logger.error("Failed to log in to EMS")
         return results
 
-    wds.nav.get("https://emarketplaceservices.com/shipments")
+    wds.nav.get("https://www.emarketplaceservices.com/shipments")
 
     s_from_date, s_today = get_filter_dates(Settings.get_settings()["extras"]["day_diff"])
     from_date_input, to_date_input = get_filter_inputs(wds)
@@ -60,7 +60,7 @@ def scrape(wds, worker):
     return results
 
 def login(wds):
-    login_url = "https://emarketplaceservices.com/login"
+    login_url = "https://www.emarketplaceservices.com/login"
     wds.nav.get(login_url)
 
     username_field = wds.find.element(Paths.login["username"])
