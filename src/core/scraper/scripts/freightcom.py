@@ -22,6 +22,7 @@ class Paths:
         "nav_bar": Locator(ElementTypes.css, ".main-menu-items"),
         "filter_bar": Locator(ElementTypes.css, ".tab-radio-bar"),
         "tracking_dropdown": Locator(ElementTypes.id, "trackDropdown"),
+        "page_container": Locator(ElementTypes.id, 'page-container'),
     }
 
     popup = {"dialog": Locator(ElementTypes.css, ".modal-dialog")}
@@ -31,7 +32,7 @@ class Paths:
         "table_entry": Locator(ElementTypes.tag, "tr"),
         "table_data": Locator(ElementTypes.tag, "td"),
         "page_controls": Locator(ElementTypes.css, '.page-link'),
-        "ai_assistant": Locator(ElementTypes.id, 'ai-assistant-host')
+        "ai_assistant": Locator(ElementTypes.id, 'ai-assistant-host'),
     }
 
     div = Locator(ElementTypes.tag, "div")
@@ -98,7 +99,20 @@ def remove_ai_popup(wds):
 
     logger.debug("AI assistant found. Attempting to remove.")
     wds.misc.remove_element(e_ai_assistant)
-    utils.rand_wait(2,3)
+
+    # wait for page to be interactable
+    logger.debug("Waiting for page to be interactable")
+    WAIT_TIME = 10
+    t = utils.Timer()
+    t.start(WAIT_TIME)
+    while (t.check()):
+        try:
+            e_test = wds.find.element(Paths.homepage["page_container"])
+            wds.click.element(e_test)
+            logger.debug("Interaction successful, continuing...")
+            return
+        except:
+            logger.debug("Failed to interact with page")
     return
     
 
