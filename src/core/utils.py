@@ -62,3 +62,18 @@ def empty_folder(folder_path) -> None:
 
 def rand_wait(low, high):
     time.sleep(random.uniform(low,high))
+
+
+class Timer:
+    def __init__(self):
+        self._start = 0
+        self._end = 0
+
+    def check(self):
+        return time.time() < self._end
+
+    def start(self, seconds):
+        self._start = time.time()
+        self._end = self._start + seconds
+
+
