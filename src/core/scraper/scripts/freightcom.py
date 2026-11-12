@@ -59,7 +59,7 @@ def scrape(wds, worker):
     remove_ai_popup(wds)
 
     e_tracking_dropdown = wds.find.element(Paths.homepage["tracking_dropdown"])
-    wds.click.element(e_tracking_dropdown)
+    wds.click.element_through_intercept(e_tracking_dropdown, 5) # after removing ai popup, click is intercepted for a time
     trackingpage_btn = get_trackingpage_btn(wds)
     wds.click.element(trackingpage_btn)
 
@@ -100,19 +100,6 @@ def remove_ai_popup(wds):
     logger.debug("AI assistant found. Attempting to remove.")
     wds.misc.remove_element(e_ai_assistant)
 
-    # wait for page to be interactable
-    logger.debug("Waiting for page to be interactable")
-    WAIT_TIME = 10
-    t = utils.Timer()
-    t.start(WAIT_TIME)
-    while (t.check()):
-        try:
-            e_test = wds.find.element(Paths.homepage["page_container"])
-            wds.click.element(e_test)
-            logger.debug("Interaction successful, continuing...")
-            return
-        except:
-            logger.debug("Failed to interact with page")
     return
     
 
